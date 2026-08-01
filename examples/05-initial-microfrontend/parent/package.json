@@ -1,0 +1,15 @@
+{
+  "name": "examples-05-initial-microfrontend-parent",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "rspack build",
+    "dev": "rspack serve --hot"
+  },
+  "devDependencies": {
+    "@rspack/core": "^2.1.7",
+    "@rspack/cli": "^2.1.7",
+    "@rspack/dev-server": "^2.1.0"
+  }
+}

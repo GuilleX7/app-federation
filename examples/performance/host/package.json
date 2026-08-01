@@ -16,14 +16,14 @@
     "app-federation": "../../packages/core"
   },
   "devDependencies": {
-    "@rsbuild/core": "^1.6.0",
-    "@rsbuild/plugin-vue": "^1.2.0",
-    "@vue/eslint-config-typescript": "^14.6.0",
-    "eslint": "^9.39.0",
-    "eslint-plugin-vue": "^10.5.1",
-    "globals": "^16.4.0",
-    "prettier": "^3.6.2",
-    "typescript": "^5.9.3",
-    "typescript-eslint": "^8.46.2"
+    "@rsbuild/core": "^2.1.9",
+    "@rsbuild/plugin-vue": "^2.0.1",
+    "@vue/eslint-config-typescript": "^14.9.0",
+    "eslint": "^10.8.0",
+    "eslint-plugin-vue": "^10.10.0",
+    "globals": "^17.8.0",
+    "prettier": "^3.9.6",
+    "typescript": "^6.0.3",
+    "typescript-eslint": "^8.65.0"
   }
 }

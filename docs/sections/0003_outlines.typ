@@ -1,4 +1,4 @@
-#import "../variables.typ": *
+#import "../utils.typ": *
 
 #set heading(outlined: false, bookmarked: true)
 
@@ -10,20 +10,19 @@
 #outline(title: "Table of contents")
 
 #context {
-  if counter(figure).final().any(n => n > 0) {
+  if counter(figure.where(kind: image)).final().any(n => n > 0) {
     outline(title: "List of figures", target: figure.where(kind: image))
   }
 
-  if counter(table).final().any(n => n > 0) {
+  if counter(figure.where(kind: table)).final().any(n => n > 0) {
     outline(title: "List of tables", target: figure.where(kind: table))
   }
 
-  if counter(raw).final().any(n => n > 0) {
+  if counter(figure.where(kind: raw)).final().any(n => n > 0) {
     outline(title: "List of code snippets", target: figure.where(kind: raw))
   }
 
-
-  if counter(math.equation).final().any(n => n > 0) {
+  if counter(figure.where(kind: math.equation)).final().any(n => n > 0) {
     outline(title: "List of equations", target: figure.where(kind: math.equation))
   }
 }

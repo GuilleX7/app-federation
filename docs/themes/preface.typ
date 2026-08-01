@@ -1,4 +1,4 @@
-#import "../variables.typ": *
+#import "../utils.typ": *
 
 #let preface-theme(content) = [
   #set page(

@@ -1,4 +1,4 @@
-#import "../variables.typ": *
+#import "../utils.typ": *
 
 #let content-theme(content) = [
   #set page(

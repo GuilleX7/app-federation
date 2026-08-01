@@ -1,11 +1,11 @@
-#import "../variables.typ": *
+#import "../utils.typ": *
 
 #set page(
   margin: 2.5cm,
   footer: [
     #set text(size: regular)
     #set align(right)
-    *Convocatoria de junio, curso 2025/26*
+    *Curso 2025/26*
   ],
 )
 

@@ -1,4 +1,4 @@
-#import "../variables.typ": *
+#import "../utils.typ": *
 
 #let postface-theme(content) = [
   #set page(

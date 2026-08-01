@@ -1,4 +1,4 @@
-#import "../variables.typ": *
+#import "../utils.typ": *
 
 #set heading(outlined: false, bookmarked: true)
 

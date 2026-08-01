@@ -1,0 +1,13 @@
+{
+  "name": "examples-01-minimal-optimized-bundle",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "rspack build"
+  },
+  "devDependencies": {
+    "@rspack/core": "^2.1.7",
+    "@rspack/cli": "^2.1.7"
+  }
+}

@@ -3,7 +3,18 @@ import rspack from "@rspack/core";
 
 export default defineConfig({
   entry: {
-    main: "./index.js",
+    main: "./index.ts",
+  },
+  module: {
+    rules: [
+      {
+        test: /\.ts$/,
+        loader: "builtin:swc-loader",
+        options: {
+          detectSyntax: "auto",
+        },
+      },
+    ],
   },
   plugins: [new rspack.HtmlRspackPlugin()],
   optimization: {

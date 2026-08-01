@@ -1,3 +1,13 @@
+declare global {
+  interface Window {
+    parentLoader: (runtimeModuleInstance: RuntimeModuleInstance) => void;
+  }
+}
+
+type RuntimeModuleInstance = {
+  mount: (element: HTMLElement) => void;
+};
+
 document.body.innerHTML = `
     <h1>Parent</h1>
     <p>Microfrontend will be loaded here</p>
@@ -11,7 +21,7 @@ button.addEventListener("click", () => {
   microfrontendScript.src = `${microfrontendHost}/main.js`;
   document.body.appendChild(microfrontendScript);
 
-  window.parentLoader = (runtimeModuleInstance) => {
+  window.parentLoader = (runtimeModuleInstance: RuntimeModuleInstance) => {
     const container = document.createElement("div");
     container.style.border = "1px solid #000";
     container.style.minHeight = "100px";

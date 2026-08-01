@@ -4,12 +4,23 @@ import rspack from "@rspack/core";
 export default defineConfig({
   entry: {
     main: {
-      import: "./index.js",
+      import: "./index.ts",
       library: {
         type: "jsonp",
         name: "window.parentLoader",
       },
     },
+  },
+  module: {
+    rules: [
+      {
+        test: /\.ts$/,
+        loader: "builtin:swc-loader",
+        options: {
+          detectSyntax: "auto",
+        },
+      },
+    ],
   },
   plugins: [new rspack.HtmlRspackPlugin()],
   optimization: {

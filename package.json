@@ -20,6 +20,7 @@
     "@rsbuild/core": "^2.1.9",
     "@rspack/core": "^2.1.7",
     "@rspack/cli": "^2.1.7",
-    "@rspack/dev-server": "^2.1.0"
+    "@rspack/dev-server": "^2.1.0",
+    "typescript": "^6.0.3"
   }
 }

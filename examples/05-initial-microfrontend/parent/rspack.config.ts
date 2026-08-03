@@ -5,6 +5,9 @@ export default defineConfig({
   entry: {
     main: "./index.ts",
   },
+  output: {
+    clean: true,
+  },
   module: {
     rules: [
       {

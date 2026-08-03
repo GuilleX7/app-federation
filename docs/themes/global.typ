@@ -4,7 +4,14 @@
 
 #let global-theme(content) = [
   #show: codly-init
-  #codly(languages: codly-languages, breakable: true)
+  #codly(
+    languages: codly-languages,
+    breakable: true,
+    lang-format: none,
+    fill: rgb(250, 250, 250),
+    zebra-fill: none,
+    stroke: none,
+  )
 
   #set text(size: 12pt, font: "New Computer Modern")
 

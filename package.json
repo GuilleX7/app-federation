@@ -1,7 +1,7 @@
 {
   "name": "app-federation",
   "version": "1.0.0",
-  "description": "App Federation: integración de microfrontends basada en Module Federation",
+  "description": "App Federation: microfrontends integration based on containerization",
   "homepage": "https://github.com/GuilleX7/app-federation#readme",
   "bugs": {
     "url": "https://github.com/GuilleX7/app-federation/issues"
@@ -18,9 +18,10 @@
   ],
   "devDependencies": {
     "@rsbuild/core": "^2.1.9",
-    "@rspack/core": "^2.1.7",
     "@rspack/cli": "^2.1.7",
+    "@rspack/core": "^2.1.7",
     "@rspack/dev-server": "^2.1.0",
+    "express": "^5.2.1",
     "typescript": "^6.0.3"
   }
 }

@@ -5,9 +5,5 @@
   "type": "module",
   "scripts": {
     "build": "rspack build"
-  },
-  "devDependencies": {
-    "@rspack/core": "^2.1.7",
-    "@rspack/cli": "^2.1.7"
   }
 }

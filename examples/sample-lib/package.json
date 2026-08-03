@@ -1,5 +1,11 @@
 {
-  "name": "sample-lib",
+  "name": "examples-sample-lib",
   "version": "1.0.0",
-  "type": "module"
+  "type": "module",
+  "private": true,
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc"
+  }
 }

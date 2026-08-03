@@ -11,6 +11,9 @@ export default defineConfig({
       },
     },
   },
+  output: {
+    clean: true,
+  },
   module: {
     rules: [
       {

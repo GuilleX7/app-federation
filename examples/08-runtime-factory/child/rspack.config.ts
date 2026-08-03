@@ -6,10 +6,13 @@ export default defineConfig({
     main: {
       import: "./index.ts",
       library: {
-        type: "jsonp",
-        name: "window.parentLoader = () =>",
+        type: "amd",
+        amdContainer: "window.parentLoader",
       },
     },
+  },
+  output: {
+    clean: true,
   },
   module: {
     rules: [

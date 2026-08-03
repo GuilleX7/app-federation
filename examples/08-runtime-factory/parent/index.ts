@@ -1,8 +1,12 @@
 declare global {
   interface Window {
-    parentLoader: (runtimeModuleInstance: RuntimeModuleInstance) => void;
+    parentLoader: {
+      define: (runtimeModuleFactory: RuntimeModuleFactory) => void;
+    };
   }
 }
+
+type RuntimeModuleFactory = () => Promise<RuntimeModuleInstance>;
 
 type RuntimeModuleInstance = {
   mount: (element: HTMLElement) => void;
@@ -19,18 +23,20 @@ button.addEventListener("click", () => {
   loadMicrofrontend("http://localhost:8081/main.js");
 });
 
-const loadedRuntimeModules = new Map<string, RuntimeModuleInstance>();
+const loadedRuntimeFactories = new Map<string, RuntimeModuleFactory>();
 
 async function loadMicrofrontend(url: string): Promise<void> {
-  if (!loadedRuntimeModules.has(url)) {
+  if (!loadedRuntimeFactories.has(url)) {
     const microfrontendScript = document.createElement("script");
     microfrontendScript.src = url;
     document.body.appendChild(microfrontendScript);
 
     await new Promise((resolve) => {
-      window.parentLoader = (runtimeModuleInstance: RuntimeModuleInstance) => {
-        loadedRuntimeModules.set(url, runtimeModuleInstance);
-        resolve(runtimeModuleInstance);
+      window.parentLoader = {
+        define: (runtimeModuleFactory: RuntimeModuleFactory) => {
+          loadedRuntimeFactories.set(url, runtimeModuleFactory);
+          resolve(runtimeModuleFactory);
+        },
       };
     });
   }
@@ -40,8 +46,9 @@ async function loadMicrofrontend(url: string): Promise<void> {
   container.style.minHeight = "100px";
   document.body.appendChild(container);
 
-  const runtimeModuleInstance = loadedRuntimeModules.get(url);
-  if (runtimeModuleInstance) {
+  const runtimeModuleFactory = loadedRuntimeFactories.get(url);
+  if (runtimeModuleFactory) {
+    const runtimeModuleInstance = await runtimeModuleFactory();
     runtimeModuleInstance.mount(container);
   }
 }

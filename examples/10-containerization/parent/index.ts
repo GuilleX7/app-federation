@@ -9,6 +9,12 @@ declare global {
 type RuntimeModuleFactory = () => Promise<RuntimeModuleInstance>;
 
 type RuntimeModuleInstance = {
+  getPublicPath: () => string;
+  setPublicPath: (publicPath: string) => void;
+  getEntry: (entryName: string) => Promise<RuntimeModuleEntry>;
+};
+
+type RuntimeModuleEntry = {
   mount: (element: HTMLElement) => void;
 };
 
@@ -20,7 +26,7 @@ document.body.innerHTML = `
 const button = document.createElement("button");
 button.innerText = "Load microfrontend";
 button.addEventListener("click", () => {
-  loadMicrofrontend("http://localhost:3000/apps/child/remote.js");
+  loadMicrofrontend("http://localhost:8081/remote.js");
 });
 
 const loadedRuntimeFactories = new Map<string, RuntimeModuleFactory>();
@@ -45,12 +51,13 @@ async function loadMicrofrontend(url: string): Promise<void> {
   const container = document.createElement("div");
   container.style.border = "1px solid #000";
   container.style.minHeight = "100px";
-  document.body.appendChild(container);
 
   const runtimeModuleFactory = loadedRuntimeFactories.get(url);
   if (runtimeModuleFactory) {
     const runtimeModuleInstance = await runtimeModuleFactory();
-    runtimeModuleInstance.mount(container);
+    const runtimeModuleEntry = await runtimeModuleInstance.getEntry("main");
+    runtimeModuleEntry.mount(container);
+    document.body.appendChild(container);
   }
 }
 

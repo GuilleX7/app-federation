@@ -3,7 +3,7 @@ import rspack from "@rspack/core";
 
 export default defineConfig({
   entry: {
-    main: "./index.ts",
+    main: "./src/index.ts",
   },
   output: {
     clean: true,
@@ -15,6 +15,9 @@ export default defineConfig({
         loader: "builtin:swc-loader",
         options: {
           detectSyntax: "auto",
+          jsc: {
+            target: "es2017",
+          },
         },
       },
     ],

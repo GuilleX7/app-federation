@@ -3,11 +3,11 @@ import rspack from "@rspack/core";
 
 export default defineConfig({
   entry: {
-    main: {
-      import: "./bootstrap.ts",
+    standalone: {
+      import: "./src/index.standalone.ts",
     },
     remote: {
-      import: "./index.ts",
+      import: "./src/index.remote.ts",
       library: {
         type: "amd",
         amdContainer: "window.parentLoader",
@@ -31,7 +31,11 @@ export default defineConfig({
       },
     ],
   },
-  plugins: [new rspack.HtmlRspackPlugin()],
+  plugins: [
+    new rspack.HtmlRspackPlugin({
+      chunks: ["standalone"],
+    }),
+  ],
   optimization: {
     concatenateModules: false,
     minimize: false,

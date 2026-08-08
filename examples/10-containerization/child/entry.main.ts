@@ -1,3 +1,5 @@
+import { add } from "examples-sample-lib";
+
 let counter = 0;
 
 export async function mount(element: HTMLElement): Promise<void> {
@@ -7,6 +9,5 @@ export async function mount(element: HTMLElement): Promise<void> {
     <p>Counters: ${counter}</p>
   `;
 
-  const { add } = await import("examples-sample-lib");
   counter = add(counter, 1);
 }

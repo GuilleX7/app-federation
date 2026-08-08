@@ -21,6 +21,9 @@ export default defineConfig({
         loader: "builtin:swc-loader",
         options: {
           detectSyntax: "auto",
+          jsc: {
+            target: "es2017",
+          },
         },
       },
     ],

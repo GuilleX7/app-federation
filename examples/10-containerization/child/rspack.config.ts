@@ -1,0 +1,49 @@
+import { defineConfig } from "@rspack/cli";
+import rspack, { Module, NormalModule } from "@rspack/core";
+
+export default defineConfig({
+  entry: {
+    standalone: {
+      import: "./index.standalone.ts",
+    },
+    remote: {
+      import: "./index.remote.ts",
+      library: {
+        type: "amd",
+        amdContainer: "window.parentLoader",
+      },
+    },
+  },
+  output: {
+    clean: true,
+  },
+  module: {
+    rules: [
+      {
+        test: /\.ts$/,
+        loader: "builtin:swc-loader",
+        options: {
+          detectSyntax: "auto",
+          jsc: {
+            target: "es2017",
+          },
+        },
+      },
+    ],
+  },
+  plugins: [
+    new rspack.HtmlRspackPlugin({
+      chunks: ["standalone"],
+    }),
+  ],
+  optimization: {
+    concatenateModules: false,
+    minimize: false,
+    chunkIds: "named",
+    moduleIds: "named",
+  },
+  lazyCompilation: false,
+  devServer: {
+    port: 8081,
+  },
+});

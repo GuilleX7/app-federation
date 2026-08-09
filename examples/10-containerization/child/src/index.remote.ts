@@ -8,6 +8,6 @@ export function setPublicPath(publicPath: string): void {
   __webpack_public_path__ = publicPath;
 }
 
-export async function getEntry(entryName: string) {
+export async function loadEntry(entryName: string) {
   return await import(`./entry.${entryName}.ts`);
 }

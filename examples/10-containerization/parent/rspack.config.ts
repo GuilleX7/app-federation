@@ -3,7 +3,7 @@ import rspack from "@rspack/core";
 
 export default defineConfig({
   entry: {
-    main: "./index.ts",
+    main: "./src/index.ts",
   },
   output: {
     clean: true,

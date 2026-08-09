@@ -13,14 +13,15 @@
   "license": "MIT",
   "author": "GuilleX7 <guillermox7@gmail.com>",
   "workspaces": [
-    "examples/*",
-    "packages/*"
+    "examples/**",
+    "packages/**"
   ],
   "devDependencies": {
-    "@rsbuild/core": "^2.1.9",
-    "@rspack/cli": "^2.1.7",
-    "@rspack/core": "^2.1.7",
-    "@rspack/dev-server": "^2.1.0",
+    "@rslib/core": "^0.23.2",
+    "@rspack/cli": "^1",
+    "@rspack/core": "^1",
+    "@rspack/dev-server": "^1",
+    "@types/node": "^26.2.0",
     "express": "^5.2.1",
     "typescript": "^6.0.3"
   }

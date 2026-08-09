@@ -11,7 +11,7 @@ type RuntimeModuleFactory = () => Promise<RuntimeModuleInstance>;
 type RuntimeModuleInstance = {
   getPublicPath: () => string;
   setPublicPath: (publicPath: string) => void;
-  getEntry: (entryName: string) => Promise<RuntimeModuleEntry>;
+  loadEntry: (entryName: string) => Promise<RuntimeModuleEntry>;
 };
 
 type RuntimeModuleEntry = {
@@ -55,7 +55,7 @@ async function loadMicrofrontend(url: string): Promise<void> {
   const runtimeModuleFactory = loadedRuntimeFactories.get(url);
   if (runtimeModuleFactory) {
     const runtimeModuleInstance = await runtimeModuleFactory();
-    const runtimeModuleEntry = await runtimeModuleInstance.getEntry("main");
+    const runtimeModuleEntry = await runtimeModuleInstance.loadEntry("main");
     runtimeModuleEntry.mount(container);
     document.body.appendChild(container);
   }

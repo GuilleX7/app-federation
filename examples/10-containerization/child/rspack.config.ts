@@ -4,10 +4,10 @@ import rspack, { Module, NormalModule } from "@rspack/core";
 export default defineConfig({
   entry: {
     standalone: {
-      import: "./index.standalone.ts",
+      import: "./src/index.standalone.ts",
     },
     remote: {
-      import: "./index.remote.ts",
+      import: "./src/index.remote.ts",
       library: {
         type: "amd",
         amdContainer: "window.parentLoader",

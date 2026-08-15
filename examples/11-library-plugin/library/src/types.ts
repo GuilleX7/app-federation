@@ -1,3 +1,13 @@
+export type AppFederationPluginOptions = {
+  entries: Record<string, string>;
+  remoteEntryName?: string;
+  internal?: AppFederationPluginInternalOptions;
+};
+
+export type AppFederationPluginInternalOptions = {
+  amdContainer?: string;
+};
+
 export type AppFederationAmdContainer = {
   define: (appFactory: AppFederationAppFactory) => void;
   appFactoryByRemoteEntryUrl: Record<string, Promise<AppFederationAppFactory>>;

@@ -17,10 +17,11 @@
     "packages/**"
   ],
   "devDependencies": {
+    "@rsbuild/core": "^2.1.10",
     "@rslib/core": "^0.23.2",
-    "@rspack/cli": "^1",
-    "@rspack/core": "^1",
-    "@rspack/dev-server": "^1",
+    "@rspack/cli": "^2.1.8",
+    "@rspack/core": "^2.1.8",
+    "@rspack/dev-server": "^2.2.0",
     "@types/node": "^26.2.0",
     "express": "^5.2.1",
     "typescript": "^6.0.3"

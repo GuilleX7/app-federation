@@ -1,6 +1,6 @@
 import { defineConfig } from "@rspack/cli";
 import rspack from "@rspack/core";
-import { RspackAppFederationPlugin } from "examples-11-library-plugin-library/build";
+import { AppFederationRspackPlugin } from "examples-11-library-plugin-library/build";
 
 export default defineConfig({
   entry: {
@@ -29,7 +29,7 @@ export default defineConfig({
     new rspack.HtmlRspackPlugin({
       chunks: ["standalone"],
     }),
-    new RspackAppFederationPlugin({
+    new AppFederationRspackPlugin({
       entries: {
         app: "./src/entry.main.ts",
       },

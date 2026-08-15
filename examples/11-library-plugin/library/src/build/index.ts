@@ -1,2 +1,2 @@
-export * from "./build.js";
+export * from "./rspackPlugin.js";
 export * from "../types.js";

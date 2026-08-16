@@ -1,16 +1,16 @@
 import { add } from "examples-sample-lib";
 import type {
-  AppFederationAppEgress,
-  AppFederationAppMount,
-} from "examples-11-library-plugin-library/runtime";
+  AppFederationEntryLifecycle,
+  AppFederationEntryMount,
+} from "../../library/dist/runtime";
 
 let counter = 0;
 
-export const mount: AppFederationAppMount = ({
+export const mount: AppFederationEntryMount = ({
   container,
 }: {
   container?: HTMLElement | undefined;
-}): AppFederationAppEgress => {
+}): AppFederationEntryLifecycle => {
   if (!container) {
     throw new Error("Container is required");
   }
@@ -18,7 +18,7 @@ export const mount: AppFederationAppMount = ({
   container.innerHTML = `
     <h1>My first microfrontend</h1>
     <p>This is a simple microfrontend example.</p>
-    <p>Counters: ${counter}</p>
+    <p>How many items has this instance been mounted before?: ${counter}</p>
   `;
 
   counter = add(counter, 1);

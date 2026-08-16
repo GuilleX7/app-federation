@@ -1,12 +1,10 @@
 import { defineConfig } from "@rspack/cli";
 import rspack from "@rspack/core";
-import { AppFederationRspackPlugin } from "examples-11-library-plugin-library/build";
+import { AppFederationRspackPlugin } from "../library/dist/build";
 
 export default defineConfig({
   entry: {
-    standalone: {
-      import: "./src/index.standalone.ts",
-    },
+    standalone: "./src/index.standalone.ts",
   },
   output: {
     clean: true,
@@ -30,9 +28,7 @@ export default defineConfig({
       chunks: ["standalone"],
     }),
     new AppFederationRspackPlugin({
-      entries: {
-        app: "./src/entry.main.ts",
-      },
+      entries: "./src/entry.main.ts",
     }),
   ],
   optimization: {

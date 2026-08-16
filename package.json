@@ -24,6 +24,7 @@
     "@rspack/dev-server": "^2.2.0",
     "@types/node": "^26.2.0",
     "express": "^5.2.1",
-    "typescript": "^6.0.3"
+    "typescript": "^6.0.3",
+    "happy-dom": "^20.11.2"
   }
 }

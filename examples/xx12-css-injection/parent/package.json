@@ -1,0 +1,10 @@
+{
+  "name": "examples-xx12-css-injection-parent",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "rspack build",
+    "dev": "rspack serve"
+  }
+}

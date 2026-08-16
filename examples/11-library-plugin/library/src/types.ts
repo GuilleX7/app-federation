@@ -1,5 +1,5 @@
 export type AppFederationPluginOptions = {
-  entries: Record<string, string>;
+  entries: Record<string, string> | string;
   remoteEntryName?: string;
   internal?: AppFederationPluginInternalOptions;
 };
@@ -22,21 +22,29 @@ export type AppFederationAppInstance = {
 };
 
 export type AppFederationAppEntry = {
-  mount: AppFederationAppMount;
+  mount: AppFederationEntryMount;
 };
 
-export type AppFederationAppMount = (options: {
-  container?: HTMLElement | undefined;
+export type AppFederationEntryMountOptions = {
+  container?: HTMLElement;
   [key: string]: unknown;
-}) => AppFederationAppEgress | Promise<AppFederationAppEgress>;
-
-export type AppFederationAppEgress = {
-  unmount: AppFederationAppUnmount;
 };
 
-export type AppFederationAppUnmount = (options?: {
+export type AppFederationEntryMount = (
+  options: AppFederationEntryMountOptions,
+) => AppFederationEntryLifecycle | Promise<AppFederationEntryLifecycle>;
+
+export type AppFederationEntryLifecycle = {
+  unmount: AppFederationEntryUnmount;
+};
+
+export type AppFederationEntryUnmountOptions = {
   [key: string]: unknown;
-}) => void | Promise<void>;
+};
+
+export type AppFederationEntryUnmount = (
+  options?: AppFederationEntryUnmountOptions,
+) => void | Promise<void>;
 
 export type LoadRemoteEntryOptions = {
   internal?: {
@@ -46,6 +54,6 @@ export type LoadRemoteEntryOptions = {
 
 export type LoadAppInstanceOptions = LoadRemoteEntryOptions;
 
-export type LoadAppAndMountOptions = {
-  container?: HTMLElement;
-} & LoadRemoteEntryOptions;
+export type LoadAppInstanceEntryOptions = LoadRemoteEntryOptions & {
+  entry?: string;
+};

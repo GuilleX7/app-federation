@@ -7,19 +7,30 @@ import {
   DEFAULT_REMOTE_ENTRY_NAME,
   DEFAULT_GLOBAL_AMD_CONTAINER,
   type DeepRequired,
-} from "../utils.js";
-import type { AppFederationPluginOptions } from "../types.js";
-import { getRemoteEntryModule } from "./remoteEntry.js";
+  DEFAULT_APP_ENTRY_NAME,
+} from "../../utils.js";
+import type { AppFederationPluginOptions } from "../../types.js";
+import { TempFS } from "../internal/tempFs.js";
+import path from "path";
+import { BOOTSTRAP_FILENAME, getBootstrapCode } from "../internal/bootstrap.js";
+
+type AppFederationNormalizedPluginOptions = DeepRequired<
+  AppFederationPluginOptions & {
+    entries: Record<string, string>;
+  }
+>;
 
 class RspackAppFederationPlugin implements RspackPluginInstance {
-  private options: DeepRequired<AppFederationPluginOptions>;
+  private options: AppFederationNormalizedPluginOptions;
 
   constructor({
     entries,
     remoteEntryName = DEFAULT_REMOTE_ENTRY_NAME,
     internal: { amdContainer = DEFAULT_GLOBAL_AMD_CONTAINER } = {},
   }: AppFederationPluginOptions) {
-    if (!entries || Object.keys(entries).length === 0) {
+    if (typeof entries === "string") {
+      entries = { [DEFAULT_APP_ENTRY_NAME]: entries };
+    } else if (Object.keys(entries).length === 0) {
       throw new Error("At least one entry must be defined");
     }
 
@@ -33,17 +44,22 @@ class RspackAppFederationPlugin implements RspackPluginInstance {
   }
 
   apply(compiler: RspackCompiler) {
-    const { moduleName: remoteEntryModuleName, code: remoteEntryModuleCode } =
-      getRemoteEntryModule(compiler.context, this.options);
+    const tempFs = new TempFS(
+      path.join(
+        compiler.context,
+        "node_modules/.vappfed",
+        this.options.remoteEntryName,
+      ),
+    );
+    tempFs.initialize();
 
-    const virtualModulesPlugin =
-      new compiler.rspack.experiments.VirtualModulesPlugin({
-        [remoteEntryModuleName]: remoteEntryModuleCode,
-      });
-    virtualModulesPlugin.apply(compiler);
+    tempFs.write(
+      BOOTSTRAP_FILENAME,
+      getBootstrapCode(compiler.context, this.options),
+    );
 
     const entryOptions: EntryDescriptionNormalized = {
-      import: [remoteEntryModuleName],
+      import: [tempFs.getPath(BOOTSTRAP_FILENAME)],
       library: {
         type: "amd",
         amdContainer: this.options.internal.amdContainer,
@@ -60,6 +76,10 @@ class RspackAppFederationPlugin implements RspackPluginInstance {
     } else {
       compiler.options.entry[this.options.remoteEntryName] = entryOptions;
     }
+
+    compiler.hooks.shutdown.tap("RspackAppFederationPlugin", () => {
+      tempFs.cleanup();
+    });
   }
 }
 

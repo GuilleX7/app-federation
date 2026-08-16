@@ -4,10 +4,13 @@ import type {
   AppFederationAppFactory,
   LoadAppInstanceOptions,
   AppFederationAppInstance,
-  LoadAppAndMountOptions,
-  AppFederationAppEgress,
+  LoadAppInstanceEntryOptions,
+  AppFederationAppEntry,
 } from "../types.js";
-import { DEFAULT_GLOBAL_AMD_CONTAINER } from "../utils.js";
+import {
+  DEFAULT_APP_ENTRY_NAME,
+  DEFAULT_GLOBAL_AMD_CONTAINER,
+} from "../utils.js";
 
 function prepareAndGetAmdContainer(
   globalAmdContainer: string,
@@ -77,12 +80,13 @@ export async function loadAppInstance(
   return appFactory();
 }
 
-export async function loadAppInstanceAndMount(
+export async function loadAppInstanceEntry(
   remoteEntryUrl: string,
-  entry: string,
-  options: LoadAppAndMountOptions = {},
-): Promise<AppFederationAppEgress> {
+  options?: LoadAppInstanceEntryOptions,
+): Promise<AppFederationAppEntry> {
   const appInstance = await loadAppInstance(remoteEntryUrl, options);
-  const lifecycle = await appInstance.loadEntry(entry);
-  return lifecycle.mount({ container: options.container });
+  const appEntry = await appInstance.loadEntry(
+    options?.entry || DEFAULT_APP_ENTRY_NAME,
+  );
+  return appEntry;
 }

@@ -7,23 +7,23 @@
   block(above: 18pt)[#it]
 }
 
-#outline(title: "Table of contents")
+#outline(title: "Índice")
 
 #context {
   if counter(figure.where(kind: image)).final().any(n => n > 0) {
-    outline(title: "List of figures", target: figure.where(kind: image))
+    outline(title: "Índice de ilustraciones", target: figure.where(kind: image))
   }
 
   if counter(figure.where(kind: table)).final().any(n => n > 0) {
-    outline(title: "List of tables", target: figure.where(kind: table))
+    outline(title: "Índice de tablas", target: figure.where(kind: table))
   }
 
   if counter(figure.where(kind: raw)).final().any(n => n > 0) {
-    outline(title: "List of code snippets", target: figure.where(kind: raw))
+    outline(title: "Índice de código", target: figure.where(kind: raw))
   }
 
   if counter(figure.where(kind: math.equation)).final().any(n => n > 0) {
-    outline(title: "List of equations", target: figure.where(kind: math.equation))
+    outline(title: "Índice de ecuaciones", target: figure.where(kind: math.equation))
   }
 }
 

@@ -2,14 +2,6 @@
 
 #set heading(outlined: false, bookmarked: true)
 
-= Acknowledgements
-
-==== English
-
-#lorem(100)
-
-#v(1cm)
-
-==== Español
+= Agradecimientos
 
 #lorem(100)

@@ -1,3 +1,5 @@
+// LTeX: enabled=false
+
 #import "themes/global.typ": global-theme
 #import "themes/preface.typ": preface-theme
 #import "themes/content.typ": content-theme
@@ -15,6 +17,11 @@
 
 #content-theme[
   #include "sections/0100_introduction.typ"
+  #include "sections/0200_project_plan.typ"
+  #include "sections/0300_project_analysis.typ"
+  #include "sections/0400_research_and_development.typ"
+  #include "sections/0500_user_guide.typ"
+  #include "sections/0600_conclusions.typ"
 ]
 
 #postface-theme[

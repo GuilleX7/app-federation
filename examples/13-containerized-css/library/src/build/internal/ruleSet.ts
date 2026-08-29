@@ -12,14 +12,12 @@ type ResourceParts = {
 const isObject = (value: unknown): value is Record<string, unknown> =>
   typeof value === "object" && value !== null;
 
-/** Match a RuleSetCondition using Rspack's condition semantics. */
 function matchesCondition(condition: RuleSetCondition, value: string): boolean {
   if (typeof condition === "string") {
     return condition === "" ? value === "" : value.startsWith(condition);
   }
 
   if (condition instanceof RegExp) {
-    // RegExp.test is stateful for global and sticky expressions.
     condition.lastIndex = 0;
     const matched = condition.test(value);
     condition.lastIndex = 0;
@@ -87,7 +85,6 @@ function splitResource(resource: string): {
   const resourcePath =
     queryIndex === -1 ? withoutFragment : withoutFragment.slice(0, queryIndex);
 
-  // A Windows drive letter is not a URI scheme.
   const schemeMatch =
     /^[A-Za-z][A-Za-z0-9+.-]*:/.exec(resourcePath) &&
     !/^[A-Za-z]:[\\/]/.test(resourcePath)
@@ -103,9 +100,6 @@ function splitResource(resource: string): {
 }
 
 function getResourceParts(resolveData: JsResolveData): ResourceParts {
-  // beforeResolve normally has no createData. In that case, resolve the
-  // request relative to the context so test/include/exclude see the same
-  // absolute path they receive from Rspack's ResourceData matcher.
   const resource = resolveData.createData?.resource ?? resolveData.request;
   const parts = splitResource(resource);
   let resourcePath = parts.resourcePath;
@@ -200,12 +194,6 @@ function isRule(value: unknown): value is RuleSetRule {
   return isObject(value);
 }
 
-/**
- * Return whether JsResolveData is matched by a Rspack RuleSetRule.
- *
- * A matching `rules` child does not affect the parent's boolean result in
- * Rspack. `oneOf`, however, requires at least one matching child.
- */
 export function matchesRuleSetRule(
   resolveData: JsResolveData,
   rule: RuleSetRule,

@@ -1,3 +1,5 @@
+// LTeX: enabled=false
+
 #let regular = 12pt
 #let large = 14pt
 #let very-large = 17pt

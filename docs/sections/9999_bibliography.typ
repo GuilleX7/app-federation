@@ -1,1 +1,5 @@
-#bibliography("../bibliography.bib", full: true)
+// LTeX: language=es-ES
+
+= Bibliografía <bibliography>
+
+#bibliography("../bibliography.bib", full: true, title: none)

@@ -1,4 +1,4 @@
-import { loadAppInstanceEntry } from "../../library/dist/runtime";
+import { loadAppInstanceEntry } from "../../library/dist/tools";
 
 document.body.innerHTML = `
     <h1>Parent</h1>

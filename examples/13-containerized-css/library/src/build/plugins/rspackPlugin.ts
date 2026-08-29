@@ -111,24 +111,26 @@ class RspackAppFederationPlugin implements RspackPluginInstance {
           "RspackAppFederationPlugin",
           (resolveData) => {
             if (
-              cssSetRules.some((rule) =>
+              !cssSetRules.some((rule) =>
                 matchesRuleSetRule(resolveData, rule),
-              ) &&
-              !resolveData.request.includes("?original")
+              ) ||
+              resolveData.request.includes("?original")
             ) {
-              const originalRequest = path.resolve(
-                resolveData.context,
-                resolveData.request,
-              );
-              const virtualCssModule =
-                cssModuleGenerator.getModuleName(originalRequest);
-
-              resolveData.request = tempFs.getPath(virtualCssModule);
-              tempFs.write(
-                virtualCssModule,
-                cssModuleGenerator.getModuleCode(originalRequest),
-              );
+              return;
             }
+
+            const originalRequest = path.resolve(
+              resolveData.context,
+              resolveData.request,
+            );
+            const virtualCssModule =
+              cssModuleGenerator.getModuleName(originalRequest);
+
+            resolveData.request = tempFs.getPath(virtualCssModule);
+            tempFs.write(
+              virtualCssModule,
+              cssModuleGenerator.getModuleCode(originalRequest),
+            );
           },
         );
       },

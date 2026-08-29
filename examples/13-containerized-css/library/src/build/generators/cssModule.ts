@@ -15,7 +15,7 @@ export class CssModuleGenerator {
   public getModuleCode(modulePath: string) {
     const originalRequestString = JSON.stringify(modulePath + "?original");
     const cssRuntimeRequestString = JSON.stringify(
-      path.join(import.meta.dirname, "..", "runtime", "css.js"),
+      path.join(import.meta.dirname, "../../runtime/css.js"),
     );
 
     return `
@@ -24,6 +24,19 @@ import { registerModuleCss } from ${cssRuntimeRequestString};
 registerModuleCss(__webpack_module__.id, cssText);
 export default cssText;
 export * from ${originalRequestString};
+
+if (import.meta.webpackHot) {
+  import.meta.webpackHot.accept(
+    [${originalRequestString}, ${cssRuntimeRequestString}],
+    () => {
+      registerModuleCss(__webpack_module__.id, cssText);
+    },
+    (err, { moduleId, dependencyId }) => {
+      console.error('CSS module update failed', err);
+      import.meta.webpackHot.invalidate();
+    },
+  );
+}
 `;
   }
 }

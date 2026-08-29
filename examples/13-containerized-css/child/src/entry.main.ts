@@ -2,6 +2,12 @@ import { add } from "examples-sample-lib";
 import type {
   AppFederationEntryLifecycle,
   AppFederationEntryMount,
+} from "../../library/dist/tools";
+import {
+  createStyledContainer,
+  tearDownStyleScoping,
+  getRegisteredModulesCss,
+  getPublicPath,
 } from "../../library/dist/runtime";
 import "./global.css";
 
@@ -16,18 +22,21 @@ export const mount: AppFederationEntryMount = ({
     throw new Error("Container is required");
   }
 
-  container.innerHTML = `
-  <div class="my-container">
+  const innerContainer = createStyledContainer(container);
+  innerContainer.className = "myContainer";
+  innerContainer.innerHTML = `
     <h1>My first microfrontend</h1>
     <p>This is a simple microfrontend example.</p>
     <p>How many items has this instance been mounted before?: ${counter}</p>
-  </div>
+    <p>How many registered CSS modules?: ${getRegisteredModulesCss().size}</p>
+    <p>Public path: ${getPublicPath()}</p>
   `;
 
   counter = add(counter, 1);
 
   return {
     unmount: () => {
+      tearDownStyleScoping();
       container.innerHTML = "";
     },
   };

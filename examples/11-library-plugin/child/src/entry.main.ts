@@ -2,7 +2,8 @@ import { add } from "examples-sample-lib";
 import type {
   AppFederationEntryLifecycle,
   AppFederationEntryMount,
-} from "../../library/dist/runtime";
+} from "../../library/dist/tools";
+import { getPublicPath } from "../../library/dist/runtime";
 
 let counter = 0;
 
@@ -19,6 +20,7 @@ export const mount: AppFederationEntryMount = ({
     <h1>My first microfrontend</h1>
     <p>This is a simple microfrontend example.</p>
     <p>How many items has this instance been mounted before?: ${counter}</p>
+    <p>Public path: ${getPublicPath()}</p>
   `;
 
   counter = add(counter, 1);

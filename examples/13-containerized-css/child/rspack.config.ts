@@ -47,7 +47,8 @@ export default defineConfig({
   lazyCompilation: false,
   devServer: {
     port: 8081,
-    client: false,
-
+    headers: {
+      "Access-Control-Allow-Origin": "*",
+    },
   },
 });

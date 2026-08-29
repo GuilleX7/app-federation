@@ -1,3 +1,5 @@
+// LTeX: language=es-ES
+
 #import "../utils.typ": *
 
 #set page(

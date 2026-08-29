@@ -7,6 +7,9 @@ export function getBootstrapCode(
   compilerContext: string,
   options: Required<Omit<AppFederationPluginOptions, "internal">>,
 ): string {
+  const instanceRuntimeRequestString = JSON.stringify(
+    path.join(import.meta.dirname, "../../runtime/instance.js"),
+  );
   const entryImports = Object.entries(options.entries)
     .map(
       ([entryName, entryPath]) =>
@@ -17,23 +20,14 @@ export function getBootstrapCode(
     .join(",\n");
 
   const bootstrapCode = `
-export function getPublicPath() {
-  return __webpack_public_path__;
-}
+import { setRemoteEntryName, registerEntries } from ${instanceRuntimeRequestString};
 
-export function setPublicPath(publicPath) {
-  __webpack_public_path__ = publicPath;
-}
+setRemoteEntryName(${JSON.stringify(options.remoteEntryName)});
+registerEntries({
+  ${entryImports}
+});
 
-export async function loadEntry(entryName) {
-  const entries = {
-    ${entryImports}
-  };
-  if (!entries[entryName]) {
-    throw new Error(\`Entry \${entryName} was not found in ${options.remoteEntryName} remote.\nAvailable entries: \${Object.keys(entries).join(", ")}\`);
-  }
-  return entries[entryName]();
-}
+export { getPublicPath, setPublicPath, loadEntry } from ${instanceRuntimeRequestString};
 `;
 
   return bootstrapCode;

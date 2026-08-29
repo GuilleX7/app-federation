@@ -1,12 +1,5 @@
 import path from "path";
-import {
-  existsSync,
-  mkdirSync,
-  readFileSync,
-  rmdirSync,
-  unlinkSync,
-  writeFileSync,
-} from "fs";
+import { mkdirSync, unlinkSync, writeFileSync } from "fs";
 
 export class TempFS {
   private filePaths: string[] = [];

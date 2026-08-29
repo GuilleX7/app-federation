@@ -1,3 +1,5 @@
+// LTeX: enabled=false
+
 #import "../utils.typ": *
 
 #let content-theme(content) = [
@@ -18,7 +20,7 @@
         #let current-heading = query(selector(heading.where(level: 1).before(here()))).last()
 
         #pad[
-          *Chapter #counter(heading).get().first(). #current-heading.body.text*
+          *Capítulo #counter(heading).get().first(). #current-heading.body.text*
         ]
         #block(above: 4pt, fill: black, width: 100%, height: 0.5pt)
       ]
@@ -40,11 +42,16 @@
     spacing: 1.5em,
   )
 
-  #set list(indent: 0.75cm, spacing: 0.5em, marker: scale(50%)[#sym.square.filled.tiny])
+  #set list(indent: 0.75cm, spacing: 1.5em, marker: scale(50%)[#sym.square.filled.tiny])
   #set enum(indent: 0.45cm, spacing: 0.5em)
 
   #set figure(numbering: it => numbering("1.1", counter(heading).get().at(0), it))
   #set math.equation(numbering: it => numbering("(1.1)", counter(heading).get().at(0), it))
+
+  #show figure.where(kind: table): set figure(supplement: "Tabla")
+  #show figure.where(kind: raw): set figure(supplement: "Código")
+  #show figure.where(kind: image): set figure(supplement: "Ilustración")
+  #show figure.where(kind: math.equation): set figure(supplement: "Ecuación")
 
   #show figure: it => [
     #v(0.3cm)
@@ -64,7 +71,7 @@
     ]
 
     #set text(size: huge)
-    #set par(first-line-indent: 0pt)
+    #set par(first-line-indent: 0pt, justify: false)
     #v(3cm)
     #box(width: 1.5cm)[#counter(heading).display()]
     #smallcaps[#it.body]

@@ -38,7 +38,7 @@ export class TempFS {
       try {
         unlinkSync(filePath);
       } catch (error) {
-        console.error("Failed to clean-up file:", error);
+        // Ignore errors
       }
     });
     this.filePaths = [];

@@ -53,7 +53,11 @@ Teniendo esto en cuenta, nuestra visión de App Federation como una librería de
 - *Cooperativa*: Evita la introducción de mecanismos complejos que inducen a errores como el sandboxing, además de facilitar la comunicación entre microfrontends al permitir el paso de variables, punteros y en general cualquier tipo de objeto de JavaScript entre ellos.
 - *Build-time*: Dado que necesitamos cooperación entre los microfrontends, será necesario añadir lógica adicional en la compilación del mismo, aunque esta lógica siempre será lo más transparente posible para el usuario y se evitará cualquier comportamiento que aparezca como consecuencia indirecta de estas modificaciones.
 
-Así, el resultado final debe ser el estudio detallado del funcionamiento interno de los microfrontends, así como el diseño e implementación de una librería prototipo que permita poner en práctica estos conceptos manteniendo las invariantes listadas anteriormente.
+No obstante, el resultado final de este proyecto no debe ser únicamente una librería, ya que por limitaciones de tiempo y alcance, no podemos pretender que esta librería sea una solución completa y lista para usar en producción. Por ello, los objetivos de este trabajo son principalmente dos:
+
+- *Un documento que recoja la investigación realizada a forma de tutorial*, explicando de forma intuitiva y detallada todos los pasos necesarios para implementar un prototipo de la solución propuesta.
+
+- *El diseño e implementación de la librería prototipo*, considerandose finalizada cuando se cumplan los requisitos elicitados y se demuestre su funcionamiento mediante un conjunto de aplicaciones de ejemplo.
 
 == Estructura <structure>
 

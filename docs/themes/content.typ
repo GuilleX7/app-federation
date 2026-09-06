@@ -64,6 +64,18 @@
     #v(0.3cm)
   ]
 
+  #set table(
+    inset: 8pt,
+    align: horizon + center,
+    stroke: (x, y) => {
+      return (
+        top: if y < 1 { 1pt } else { 0.5pt },
+        bottom: 1pt,
+      )
+    },
+  )
+  #show table.cell.where(y: 0): set text(weight: "bold")
+
   #show heading.where(level: 1): it => [
     #[
       #set page(footer: none, header: none)

@@ -5,6 +5,8 @@
 #import "themes/content.typ": content-theme
 #import "themes/postface.typ": postface-theme
 
+#import "utils/specialWords.typ": specialWords
+
 #show: global-theme
 
 #include "sections/0000_frontpage.typ"
@@ -16,6 +18,8 @@
 ]
 
 #content-theme[
+  #show: specialWords
+  
   #include "sections/0100_introduction.typ"
   #include "sections/0200_project_plan.typ"
   #include "sections/0300_project_analysis.typ"

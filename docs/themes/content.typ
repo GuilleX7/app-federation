@@ -116,8 +116,6 @@
     ]
   }
 
-  #show figure: set block(breakable: true)
-
   #counter(page).update(1)
 
   #content

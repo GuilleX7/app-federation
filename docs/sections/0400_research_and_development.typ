@@ -101,9 +101,9 @@ Un bundler detectaría que la definición de la constante _b_ no es usada en el 
 
 Este es un procedimiento que debe realizarse con cautela, pues algunos fragmentos de código tienen efectos secundarios (side-effects) que modifican el comportamiento del resto de archivos. No obstante, los bundlers realizan este trabajo de manera autónoma a través de herramientas de ánalisis dinámico.
 
-A pesar de lo visto en este apartado, los bundlers no solo ejecutan tareas de optimización. Además, proporcionan una configuración extensa a los usuarios que permite procesar y modificar el contenido de cada archivo del proyecto a merced del usuario. Por ejemplo, es posible generar dos bundles distintos de un proyecto con distinta configuración (es decir, con distintas constantes) y optimizar cada una de estas configuraciones por separado. También es posible reemplazar de forma dinámica el contenido de ciertos archivos del proyecto, y, además, suelen proporcionar una API que permite la auto-observación (en muchos ámbitos suele denominarse reflection) del proyecto desde su propio código fuente. Esta propiedad es fundamental para el desarrollo de este proyecto, pues es gracias a los bundlers que podremos inyectar código de forma semitransparente al usuario que habilite la arquitectura de microfrontends, como veremos en los siguientes apartados.
+A pesar de lo visto en este apartado, los bundlers no solo ejecutan tareas de optimización. Además, proporcionan una configuración extensa a los usuarios que permite procesar y modificar el contenido de cada archivo del proyecto a merced del usuario. Por ejemplo, es posible generar dos bundles distintos de un proyecto con distinta configuración (es decir, con distintas constantes) y optimizar cada una de estas configuraciones por separado. También es posible reemplazar de forma dinámica el contenido de ciertos archivos del proyecto, y, además, suelen proporcionar una API que permite la reflexión (en inglés, reflection) del proyecto desde su propio código fuente (es decir, la capacidad de obtener metadatos del programa en tiempo de ejecución). Esta propiedad es fundamental para el desarrollo de este proyecto, pues es gracias a los bundlers que podremos inyectar código de forma semitransparente al usuario que habilite la arquitectura de microfrontends, como veremos en los siguientes apartados.
 
-=== El runtime: módulos y chunks <runtime-modules-and-chunks>
+=== El runtime: módulos <runtime-modules>
 
 Como ya hemos visto, la optimización es uno de los principales motivos por los que usamos bundlers hoy día. No obstante, existe otra funcionalidad que resulta crítica para esta investigación: el runtime. Para ilustrar qué es el runtime, usaremos ejemplos reales de bundles generados por Rspack, que es el bundler usado en este proyecto.
 
@@ -166,23 +166,53 @@ Con estas nuevas instrucciones, veamos el nuevo resultado del bundle en el @4-un
     lang: "js",
     block: true,
   ),
-  caption: "Desactivación de la optimización de Rspack",
+  caption: "Bundle sin minimizar",
 ) <4-unoptimized-bundle>
 
 Como podemos observar, el código resultante se asemeja considerablemente al código fuente, con la salvedad de que los tipos de TypeScript han sido eliminados para producir JavaScript válido, y el bundler ha producido lo que se conoce como IIFE (_Immediately Invoked Function Expression_, en inglés) en lás lineas 1 y 7, una forma de garantizar que el código ejecutado no afecte de ninguna forma al entorno en el que se encuentra (por ejemplo, con la declaración de variables globales). Esto se debe a que hemos desactivado el procedimiento de optimización, por lo que el bundler no ha ejecutado un análisis para determinar si nuestro código interfiere o no con el entorno.
 
-Sin embargo, esto sigue siendo un ejemplo mínimo de runtime con respecto al que podríamos encontrar. Para forzar al bundler a emitir un runtime más complejo, vamos a introducir una librería de prueba en el proyecto, como podemos ver en @:
+Sin embargo, esto sigue siendo un ejemplo mínimo de runtime con respecto al que podríamos encontrar. Para forzar al bundler a emitir un runtime más complejo, vamos a introducir un segundo archivo al que copiaremos la definición de la función _sum_. Si volvemos a ejecutar el bundler, podremos observar como el resultado obtenido sí que contiene un runtime mucho más sofisticado que en los casos anteriores. Sin embargo, este es tan extenso que lo desgranaremos parte por parte.
 
+Si abrimos el archivo resultante del bundle, localizado en _examples/03-modules/dist/main.js_, el archivo inicia, como en los casos anteriores, con una IIFE para evitar que las variables del runtime de Rspack contaminen el entorno del script. Lo siguiente que encontramos es la definición de los *módulos* del bundle (véase el @4-runtime-modules[código]). Como hemos explicado, los bundlers reducen la cantidad de archivos resultantes. Para ello, usan un versátil sistema interno de módulos que representan archivos que en el proyecto fuente estuvieron separados en archivos. Por lo general, un archivo equivale a un módulo, aunque no esto no se cumple en casos más complejos.
+
+#codly-range(3, end: 17)
 #figure(
   raw(
     read("../../examples/03-modules/dist/main.js"),
     lang: "js",
     block: true,
   ),
-  caption: "Desactivación de la optimización de Rspack",
-)
+  caption: "Declaración de módulos del runtime",
+) <4-runtime-modules>
+
+Es fácil deducir que el contenido de nuestro fichero _utils.ts_ ha sido convertido en un módulo interno que expone, a través de #emph("__webpack_exports__"), la función _add_ definida anteriormente. El ID (_./utils.ts_) del módulo permite a otros cargarlo y usarlo a través de la función #emph("__webpack_require__"). El módulo también recibe metainformación sobre sí mismo a través del parámetro #emph("__unused_rspack_module__")), dejando entrever la capacidad de reflexión.
+
+Otra parte interesante del runtime es la caché de módulos y la definición de #emph("__webpack_require__"), que podemos observar en @4-runtime-module-cache[código]. El cometido de esta parte del runtime es cachear las instancias de los módulos ya ejecutados. Esto permite que los módulos mantengan su propio estado a lo largo de la ejecución del programa. Cuando otro módulo necesita cargar a otro, usa la función #emph("__webpack_require__"). Esta función primero comprueba si existe una instancia del módulo en caché, en cuyo caso la devuelve. Si no, crea una nueva instancia y la guarda en caché. todos los módulos acceden y usan la misma instancia de los demás.
+
+#codly-range(19, end: 37)
+#figure(
+  raw(
+    read("../../examples/03-modules/dist/main.js"),
+    lang: "js",
+    block: true,
+  ),
+  caption: "Declaración de la caché del runtime",
+) <4-runtime-module-cache>
+
+Por último, cabe destacar el final del archivo, que contiene el denominado entrypoint. Éste se corresponde con el módulo de entrada en la configuración dada por
+
+#codly-range(64)
+#figure(
+  raw(
+    read("../../examples/03-modules/dist/main.js"),
+    lang: "js",
+    block: true,
+  ),
+  caption: "Declaración del entrypoint del runtime",
+) 
 
 
+=== El runtime: chunks
 
 == Carga dinámica de microfrontends <dynamic-microfrontend-loading>
 

@@ -1,23 +1,39 @@
-#let specialWords = content => [
-  #show " bundle ": set text(style: "italic")
-  #show " bundler ": set text(style: "italic")
-  #show " bundlers ": set text(style: "italic")
-  #show " microfrontend ": set text(style: "italic")
-  #show " microfrontends ": set text(style: "italic")
-  #show " scripting ": set text(style: "italic")
-  #show " run-time ": set text(style: "italic")
-  #show " build-time ": set text(style: "italic")
-  #show " byte ": set text(style: "italic")
-  #show " true ": set text(style: "italic")
-  #show " false ": set text(style: "italic")
-  #show " dead code ": set text(style: "italic")
-  #show " tree shaking ": set text(style: "italic")
-  #show " side-effects ": set text(style: "italic")
-  #show " reflection ": set text(style: "italic")
-  #show " runtime ": set text(style: "italic")
-  #show " import ": set text(style: "italic")
-  #show " require ": set text(style: "italic")
-  #show " entrypoint ": set text(style: "italic")
+#let italicWords = (
+  "bundle",
+  "bundles",
+  "bundler",
+  "bundlers",
+  "microfrontend",
+  "microfrontends",
+  "scripting",
+  "run-time",
+  "runtime",
+  "build-time",
+  "byte",
+  "true",
+  "false",
+  "dead code",
+  "tree shaking",
+  "side-effects",
+  "reflection",
+  "import",
+  "imports",
+  "require",
+  "entrypoint",
+  "code splitting",
+  "chunk",
+  "chunks",
+  "window",
+  "chunkloader",
+  "script",
+  "scripts",
+)
 
-  #content
-]
+#let word(word) = "[ \(]" + word + "[ ,.\):]"
+#let words(words) = word("(" + words.join("|") + ")")
+
+#let specialWords(content) = {
+  show regex(words(italicWords)): it => it.text.slice(0, 1) + emph(it.text.slice(1, -1)) + it.text.slice(-1)
+
+  content
+}

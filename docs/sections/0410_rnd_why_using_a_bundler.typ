@@ -6,7 +6,7 @@
 
 A lo largo de este proyecto se usa de forma extensa el término bundler. Aunque existen muchos bundlers en la actualidad, todos tienen un comportamiento similar: *toman un conjunto de archivos como entrada* (normalmente archivos HTML, CSS, JavaScript u otros archivos multimedia como imágenes, vídeos, sonidos, hasta binarios WebAssembly) y *producen una salida mínima y óptima*, esto es, reducen el número de archivos, el tamaño de cada uno de ellos (eliminando información redundante, como los espacios, los comentarios o incluso minificando código o recodificando imágenes) y genera una distribución llamada bundle que mantiene el mismo comportamiento que los archivos originales.
 
-Por ejemplo, supongamos la plantilla HTML dada en el fragmento de @4-simple-html-template[código].
+Por ejemplo, supongamos la plantilla HTML dada en @4-simple-html-template[código].
 
 #figure(
   ```html
@@ -23,7 +23,7 @@ Por ejemplo, supongamos la plantilla HTML dada en el fragmento de @4-simple-html
   caption: [Plantilla HTML],
 ) <4-simple-html-template>
 
-Aunque el ojo humano no detecta redundancia, el estándar HTML no dicta que una plantilla HTML válida necesite saltos de líneas tras su etiquetas. Dado que cada salto de línea se representa con uno o dos bytes, dependiendo del sistema operativo, podemos minimizar el tamaño del archivo con la representación dada en el fragmento de @4-minimal-simple-html-template
+Aunque el ojo humano no detecta redundancia, el estándar HTML no dicta que una plantilla HTML válida necesite saltos de líneas tras su etiquetas. Dado que cada salto de línea se representa con uno o dos bytes, dependiendo del sistema operativo, podemos minimizar el tamaño del archivo con la representación dada en @4-minimal-simple-html-template[código]
 
 #figure(
   ```html
@@ -65,7 +65,7 @@ Un bundler puede tomar este código y, a través de análisis estático, produci
   caption: [Ejemplo de dead code minimizado],
 ) <4-minimized-dead-code>
 
-Nótese que los dos archivos fuente del proyecto se han combinado en uno, _main.js_, y tanto la definición de la constante como la comprobación lógica han sido eliminadas del resultado. Esto se debe a que los bundlers ejecutan una lógica sofisticada para eliminar código muerto (dead code), cuya ejecución no puede darse. Entre otras optimizaciones de este estilo se encuentra en tree shaking, que reduce el contenido de los archivos fuente tomando únicamente lo que se usa de ellos, y descartando todas aquellas variables y funciones que no intervienen de ninguna manera en la ejecución. Por ejemplo, dado el fragmento de @4-unminimized-tree-shaking[código]:
+Nótese que los dos archivos fuente del proyecto se han combinado en uno, _main.js_, y tanto la definición de la constante como la comprobación lógica han sido eliminadas del resultado. Esto se debe a que los bundlers ejecutan una lógica sofisticada para eliminar código muerto (dead code), cuya ejecución no puede darse. Entre otras optimizaciones de este estilo se encuentra en tree shaking, que reduce el contenido de los archivos fuente tomando únicamente lo que se usa de ellos, y descartando todas aquellas variables y funciones que no intervienen de ninguna manera en la ejecución. Por ejemplo, dado el fragmento mostrado en @4-unminimized-tree-shaking[código]:
 
 #figure(
   ```js
@@ -112,7 +112,7 @@ Veamos el siguiente ejemplo. Supongamos que tenemos el código fuente de un proy
   caption: [Proyecto básico sin minimizar],
 ) <4-optimized-basic-project>
 
-TypeScript es un super conjunto de JavaScript, por lo que un navegador sería incapaz de ejecutar este programa de forma inmediata. Para conseguir un resultado ejecutable, configuraremos y usaremos el bundler. Un ejemplo sencillo de configuración para nuestro bundler viene dado por el @4-optimized-basic-configuracion[fragmento]. Los archivos permiten a los usuarios decidir qué se hará con el proyecto fuente.
+TypeScript es un super conjunto de JavaScript, por lo que un navegador sería incapaz de ejecutar este programa de forma inmediata. Para conseguir un resultado ejecutable, configuraremos y usaremos el bundler. Un ejemplo sencillo de configuración para nuestro bundler viene dado por @4-optimized-basic-configuracion[código]. Los archivos permiten a los usuarios decidir qué se hará con el proyecto fuente.
 
 En nuestro caso, las líneas 4-6 indican el punto de entrada del bundler. Esto es importante, pues todos los proyectos tienen uno o varios puntos de entrada desde los que se comienzan a analizar sus dependencias, incluyendo el resto de archivos de forma transitiva mediante referencias (como import o require en JavaScript). Las líneas 7-9 indican que la carpeta que almacenará el bundle debe ser limpiada cuando se produzca un nuevo bundle, para evitar que archivos antiguos permanezcan en la misma.
 
@@ -191,7 +191,7 @@ Otra parte interesante del runtime es la caché de módulos y la definición de 
   caption: [Declaración de la caché del runtime],
 ) <4-runtime-module-cache>
 
-Por último, cabe destacar el final del archivo, que contiene el denominado entrypoint. Éste se corresponde con el módulo de entrada en la configuración dada en el @4-optimized-basic-configuracion[fragmento]. Aunque la sintaxis no coincide exactamente con el contenido original del archivo (por ejemplo, los imports se han reemplazado por llamadas a `__webpack_require__`, el proceso de transformación realizado mantiene la misma semántica que el código original.
+Por último, cabe destacar el final del archivo, que contiene el denominado entrypoint. Éste se corresponde con el módulo de entrada definido en la configuración dada en @4-optimized-basic-configuracion[código]. Aunque la sintaxis no coincide exactamente con el contenido original del archivo (por ejemplo, los imports se han reemplazado por llamadas a `__webpack_require__`, el proceso de transformación realizado mantiene la misma semántica que el código original.
 
 #codly-range(64)
 #figure(
@@ -215,7 +215,7 @@ La decisión de cuántos chunks se emiten y qué módulos contendrán se toma de
 - Las sentencias import, propias de JavaScript, representan un punto de carga asíncrona que el bundler suele utilizar para separar chunks. El propio runtime proporciona otras funciones similares, aunque estas no forman parte de JavaScript y son dependientes del bundler.
 - La configuración del bundler, que usualmente permite modificar de forma autoritaria la emisión de chunks y los módulos que contendrán
 
-Para analizar un ejemplo, vamos a modificar la configuración de Rspack dada en el @4-minimized-dead-code[fragmento] para forzar al bundler a emitir un chunk asíncrono con el contenido de `utils.ts`. Para ello, podemos añadir el @4-force-chunk-splitting-config[bloque] a la configuración.
+Para analizar un ejemplo, vamos a modificar la configuración de Rspack dada en @4-minimized-dead-code[código] para forzar al bundler a emitir un chunk asíncrono con el contenido de `utils.ts`. Para ello, podemos añadir el @4-force-chunk-splitting-config[bloque] a la configuración.
 
 #codly-range(29, end: 37)
 #figure(
@@ -227,7 +227,7 @@ Para analizar un ejemplo, vamos a modificar la configuración de Rspack dada en 
   caption: [Forzando code splitting en la configuración],
 ) <4-force-chunk-splitting-config>
 
-Al generar el bundle, esta vez obtenemos dos archivos distintos: uno contiene el runtime de Rspack junto al módulo de entrada, mientras que el contenido de `utils.ts` se ha movido a otro archivo homónimo. Si ahora inspeccionamos el entrypoint del bundle en el @4-chunk-loading-entrypoint-bundle[fragmento], la lógica ha cambiado sutilmente:
+Al generar el bundle, esta vez obtenemos dos archivos distintos: uno contiene el runtime de Rspack junto al módulo de entrada, mientras que el contenido de `utils.ts` se ha movido a otro archivo homónimo. Si ahora inspeccionamos el entrypoint del bundle en @4-chunk-loading-entrypoint-bundle[código], la lógica ha cambiado sutilmente:
 
 #codly-range(151, end: 158)
 #figure(
@@ -243,7 +243,7 @@ Al generar el bundle, esta vez obtenemos dos archivos distintos: uno contiene el
 
 La carga de chunks es un procedimiento transparente al usuario, pero que puede configurarse y realizarse de diferentes formas. Por defecto, Rspack carga otros scripts usando la etiqueta `<script>` nativa del navegador. Una vez la etiqueta se añade al DOM, el navegador comienza la carga y ejecución del script enlazado. Como todos los scripts dentro de una misma ventana comparten un contexto global (la variable window), el script hace referencia a una función de carga definida por el runtime de Rspack previamente (conocida como chunkloader) y se autoregistra dentro del runtime. A este procedimiento se le conoce usualmente como _JSONP_ (del inglés _JSON with Padding_) y, aunque alcanzó su pico de popularidad antes de la introducción del estándar ESM, que añade otras formas de importar scripts, JSONP ha mantenido su popularidad hasta hoy por ser un método robusto y sencillo.
 
-Así, ojeando el contenido del chunk asíncrono, podemos ver cómo hace uso de JSONP en el @4-async-chunk-jsonp-register[fragmento], donde `rspackChunkexamples_04_chunks` es una función global definida por el runtime de Rspack que actúa como chunkloader:
+Así, ojeando el contenido del chunk asíncrono, podemos ver cómo hace uso de JSONP en @4-async-chunk-jsonp-register[código], donde `rspackChunkexamples_04_chunks` es una función global definida por el runtime de Rspack que actúa como chunkloader:
 
 #figure(
   raw(

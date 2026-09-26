@@ -14,11 +14,11 @@ El primer apartado servirá como una pequeña introducción al funcionamiento de
 == Estilos en microfrontends <microfrontend-styles>
 
 === Inyección rudimentaria inicial
-=== Delimitando estilos: _shadow root_
-=== Peculiaridades del _shadow root_
+=== Delimitando estilos: shadow root
+=== Peculiaridades del shadow root
 
 == Estado y acciones en microfrontends <microfrontend-state-and-actions>
 
 === Estado local: padre e hijo
 === Estado global: buses
-=== Ejemplo: _routing_
+=== Ejemplo: routing

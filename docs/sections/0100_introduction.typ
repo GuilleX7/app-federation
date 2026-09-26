@@ -37,7 +37,7 @@ En general, el ecosistema está fuertemente dominado principalmente por dos famo
     [Garfish], [Programático], [Sandboxed], [Run-time],
     [micro-app], [Programático], [Sandboxed], [Run-time],
   ),
-  caption: "Clasificación de implementaciones de microfrontends",
+  caption: [Clasificación de implementaciones de microfrontends],
 )
 
 Como podemos observar, las dos implementaciones más relevantes de la actualidad son cooperativas. Sin embargo, tanto Module Federation como single-spa siguen una estructura declarativa: ambas requieren que las aplicaciones padres registren un manifiesto donde se definen todas aquellas aplicaciones hijas que podrán ser cargadas en run-time. Este enfoque dogmático puede ser útil para mantener una estructura fija, pero también obliga a cambiar de forma drástica cómo las aplicaciones están organizadas en la organización y puede limitar la libertad cuando los usuarios tienen otras necesidades.

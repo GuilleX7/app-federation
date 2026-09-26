@@ -13,6 +13,7 @@
     fill: rgb(250, 250, 250),
     zebra-fill: none,
     stroke: none,
+    smart-skip: true,
   )
 
   #set text(size: 12pt, font: "New Computer Modern")

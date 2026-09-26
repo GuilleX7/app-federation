@@ -20,7 +20,7 @@ Por ejemplo, supongamos la plantilla HTML dada en el fragmento de @4-simple-html
   </body>
   </html>
   ```,
-  caption: "Plantilla HTML",
+  caption: [Plantilla HTML],
 ) <4-simple-html-template>
 
 Aunque el ojo humano no detecta redundancia, el estándar HTML no dicta que una plantilla HTML válida necesite saltos de líneas tras su etiquetas. Dado que cada salto de línea se representa con uno o dos bytes, dependiendo del sistema operativo, podemos minimizar el tamaño del archivo con la representación dada en el fragmento de @4-minimal-simple-html-template
@@ -29,7 +29,7 @@ Aunque el ojo humano no detecta redundancia, el estándar HTML no dicta que una 
   ```html
   <DOCTYPE html><html><head><title>Hello world!</title></head><body><p>I'm here!</p></body></html>
   ```,
-  caption: "Plantilla mínima HTML",
+  caption: [Plantilla mínima HTML],
 ) <4-minimal-simple-html-template>
 
 Por supuesto, para el ojo humano, esta última plantilla es difícilmente entendible y modificable. Sin embargo, sigue siendo válida y el archivo habría reducido su tamaño en un par de bytes, por lo que viajaría más rápido por la red y el navegador tendrá que procesar menos información. Los bundlers son los encargados de tomar la @4-simple-html-template[plantilla] y transformarla en la @4-minimal-simple-html-template[plantilla]. Como es de esperar, el resultado de un bundler no suele ser modificado posteriormente, ya que se suele considerar *inmutable*.
@@ -50,7 +50,7 @@ Aunque el ejemplo anterior no parece un gran beneficio, los bundlers son herrami
 
   someOtherFunction()
   ```,
-  caption: "Ejemplo de dead code sin minimizar",
+  caption: [Ejemplo de dead code sin minimizar],
 ) <4-unoptimized-dead-code>
 
 Este patrón es ampliamente usado en proyectos web para obtener información de depuración. Por lo general, suele existir un archivo que define constantes usadas en el proyecto y que se usan como configuración, cambiando el comportamiento de la ejecución. Aunque el código es perfectamente válido, ya que no se imprime información de depuración cuando la constante está definida como false, el archivo aún contiene la lógica y el navegador tiene que reservar espacio para la constante y ejecutar la condición, lo cual, aunque de forma mínima, ocupa espacio innecesario en la memoria y ralentiza la ejecución.
@@ -62,7 +62,7 @@ Un bundler puede tomar este código y, a través de análisis estático, produci
   // dist/main.js
   someOtherFunction()
   ```,
-  caption: "Ejemplo de dead code minimizado",
+  caption: [Ejemplo de dead code minimizado],
 ) <4-minimized-dead-code>
 
 Nótese que los dos archivos fuente del proyecto se han combinado en uno, _main.js_, y tanto la definición de la constante como la comprobación lógica han sido eliminadas del resultado. Esto se debe a que los bundlers ejecutan una lógica sofisticada para eliminar código muerto (dead code), cuya ejecución no puede darse. Entre otras optimizaciones de este estilo se encuentra en tree shaking, que reduce el contenido de los archivos fuente tomando únicamente lo que se usa de ellos, y descartando todas aquellas variables y funciones que no intervienen de ninguna manera en la ejecución. Por ejemplo, dado el fragmento de @4-unminimized-tree-shaking[código]:
@@ -78,7 +78,7 @@ Nótese que los dos archivos fuente del proyecto se han combinado en uno, _main.
 
   console.log(a)
   ```,
-  caption: "Ejemplo de tree-shaking sin minimizar",
+  caption: [Ejemplo de tree-shaking sin minimizar],
 ) <4-unminimized-tree-shaking>
 
 Un bundler detectaría que la definición de la constante _b_ no es usada en el proyecto, descartándola del resultado final como se muestra en el fragmento de @4-minimized-tree-shaking[código]. Nótese que no solo se ha descartado la declaración innecesaria, sino que también se ha eliminado la declaración de `a` y su contenido se ha usado directamente como parámetro de `console.log`, eliminando toda la redudancia posible sin alterar el comportamiento final.
@@ -88,7 +88,7 @@ Un bundler detectaría que la definición de la constante _b_ no es usada en el 
   // dist/main.js
   console.log("Hello")
   ```,
-  caption: "Ejemplo de tree-shaking minimizado",
+  caption: [Ejemplo de tree-shaking minimizado],
 ) <4-minimized-tree-shaking>
 
 Este es un procedimiento que debe realizarse con cautela, pues algunos fragmentos de código tienen efectos secundarios (side-effects) que modifican el comportamiento del resto de archivos. No obstante, los bundlers realizan este trabajo de manera autónoma a través de herramientas de ánalisis dinámico.
@@ -109,7 +109,7 @@ Veamos el siguiente ejemplo. Supongamos que tenemos el código fuente de un proy
     lang: "ts",
     block: true,
   ),
-  caption: "Proyecto básico sin minimizar",
+  caption: [Proyecto básico sin minimizar],
 ) <4-optimized-basic-project>
 
 TypeScript es un super conjunto de JavaScript, por lo que un navegador sería incapaz de ejecutar este programa de forma inmediata. Para conseguir un resultado ejecutable, configuraremos y usaremos el bundler. Un ejemplo sencillo de configuración para nuestro bundler viene dado por el @4-optimized-basic-configuracion[fragmento]. Los archivos permiten a los usuarios decidir qué se hará con el proyecto fuente.
@@ -124,7 +124,7 @@ Finalmente, las líneas 10-23 configuran el bundler para reconocer archivos _.ts
     lang: "ts",
     block: true,
   ),
-  caption: "Configuración básica de Rspack",
+  caption: [Configuración básica de Rspack],
 ) <4-optimized-basic-configuracion>
 
 Para nuestra sorpresa, el resultado de ejecutar nuestro bundler con esta configuración es el siguiente (@4-optimized-bundle):
@@ -135,7 +135,7 @@ Para nuestra sorpresa, el resultado de ejecutar nuestro bundler con esta configu
     lang: "js",
     block: true,
   ),
-  caption: "Bundle minimizado",
+  caption: [Bundle minimizado],
 ) <4-optimized-bundle>
 
 Rspack optimiza el resultado por defecto, y dado que nuestro ejemplo era excesivamente sencillo, no podemos apreciar ningún ejemplo de runtime en el resultado, pues el bundler ha determinado que no es necesario. Podemos ver un resultado más interesante si desactivamos la optimización del bundler (@4-unoptimized-project-configuration):
@@ -147,7 +147,7 @@ Rspack optimiza el resultado por defecto, y dado que nuestro ejemplo era excesiv
     lang: "ts",
     block: true,
   ),
-  caption: "Desactivación de la optimización de Rspack",
+  caption: [Desactivación de la optimización de Rspack],
 ) <4-unoptimized-project-configuration>
 
 Con estas nuevas instrucciones, veamos el nuevo resultado del bundle en el @4-unoptimized-bundle[código]:
@@ -158,7 +158,7 @@ Con estas nuevas instrucciones, veamos el nuevo resultado del bundle en el @4-un
     lang: "js",
     block: true,
   ),
-  caption: "Bundle sin minimizar",
+  caption: [Bundle sin minimizar],
 ) <4-unoptimized-bundle>
 
 Como podemos observar, el código resultante se asemeja considerablemente al código fuente, con la salvedad de que los tipos de TypeScript han sido eliminados para producir JavaScript válido, y el bundler ha producido lo que se conoce como IIFE (_Immediately Invoked Function Expression_, en inglés) en lás lineas 1 y 7, una forma de garantizar que el código ejecutado no afecte de ninguna forma al entorno en el que se encuentra (por ejemplo, con la declaración de variables globales). Esto se debe a que hemos desactivado el procedimiento de optimización, por lo que el bundler no ha ejecutado un análisis para determinar si nuestro código interfiere o no con el entorno.
@@ -174,7 +174,7 @@ Si abrimos el archivo resultante del bundle, localizado en `examples/03-modules/
     lang: "js",
     block: true,
   ),
-  caption: "Declaración de módulos del runtime",
+  caption: [Declaración de módulos del runtime],
 ) <4-runtime-modules>
 
 Es fácil deducir que el contenido de nuestro fichero `utils.ts` ha sido convertido en un módulo interno que expone, a través de `__webpack_exports__`, la función `add` definida anteriormente. El ID del módulo, `./utils.ts`, permite a otros cargarlo y usarlo a través de la función `__webpack_require__`. El módulo también recibe metainformación sobre sí mismo a través del parámetro `__unused_rspack_module__`, dejando entrever la capacidad de reflexión.
@@ -188,7 +188,7 @@ Otra parte interesante del runtime es la caché de módulos y la definición de 
     lang: "js",
     block: true,
   ),
-  caption: "Declaración de la caché del runtime",
+  caption: [Declaración de la caché del runtime],
 ) <4-runtime-module-cache>
 
 Por último, cabe destacar el final del archivo, que contiene el denominado entrypoint. Éste se corresponde con el módulo de entrada en la configuración dada en el @4-optimized-basic-configuracion[fragmento]. Aunque la sintaxis no coincide exactamente con el contenido original del archivo (por ejemplo, los imports se han reemplazado por llamadas a `__webpack_require__`, el proceso de transformación realizado mantiene la misma semántica que el código original.
@@ -200,7 +200,7 @@ Por último, cabe destacar el final del archivo, que contiene el denominado entr
     lang: "js",
     block: true,
   ),
-  caption: "Declaración del entrypoint del runtime",
+  caption: [Declaración del entrypoint del runtime],
 )
 
 El runtime contiene más métodos que se usan en distintas partes del bundle, pero no nos enfocaremos en ellos por ahora. Como el resto del runtime, estos métodos únicamente son emitidos cuando son necesarios, optimizando de nuevo el tamaño del bundle.
@@ -224,7 +224,7 @@ Para analizar un ejemplo, vamos a modificar la configuración de Rspack dada en 
     lang: "ts",
     block: true,
   ),
-  caption: "Forzando code splitting en la configuración",
+  caption: [Forzando code splitting en la configuración],
 ) <4-force-chunk-splitting-config>
 
 Al generar el bundle, esta vez obtenemos dos archivos distintos: uno contiene el runtime de Rspack junto al módulo de entrada, mientras que el contenido de `utils.ts` se ha movido a otro archivo homónimo. Si ahora inspeccionamos el entrypoint del bundle en el @4-chunk-loading-entrypoint-bundle[fragmento], la lógica ha cambiado sutilmente:
@@ -236,7 +236,7 @@ Al generar el bundle, esta vez obtenemos dos archivos distintos: uno contiene el
     lang: "ts",
     block: true,
   ),
-  caption: "Bundle con carga de chunks en entrypoint",
+  caption: [Bundle con carga de chunks en entrypoint],
 ) <4-chunk-loading-entrypoint-bundle>
 
 `__webpack_require__.O` es una de las funciones usadas por el runtime de Rspack para comprobar si un chunk (y todos sus módulos) está cargado o no, y en caso de que no lo esté, cargarlo dentro de la definición de módulos del runtime, de forma que esté disponible para el módulo de entrada antes de que este se ejecute.
@@ -251,6 +251,6 @@ Así, ojeando el contenido del chunk asíncrono, podemos ver cómo hace uso de J
     lang: "ts",
     block: true,
   ),
-  caption: "Declaración del entrypoint del runtime",
+  caption: [Declaración del entrypoint del runtime],
 ) <4-async-chunk-jsonp-register>
 

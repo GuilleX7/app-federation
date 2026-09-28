@@ -161,24 +161,91 @@ Así, si corremos Rspack de nuevo, podemos observar el nuevo autoregistro, esta 
   caption: [Autoregistro usando AMD en `child`],
 ) <4-amd-autoregister-in-child>
 
-Con este cambio, es necesario definir nuevos tipos en `parent` y cambiar la lógica del cargador:
+Con este cambio, es necesario definir nuevos tipos en `parent`. En particular, parentLoader ahora es un objeto que contiene el método `define`. El único parámetro que acepta es `runtimeModuleFactory`, que ahora se define como una función que devuelve una nueva instancia del microfrontend.
 
-// #codly(ranges: ((1, 13), (26, 26), (28, 29), ()))
-#[
-  #show figure: it => [
-    #set block(breakable: true)
-    #it
-  ]
-  #figure(
-    raw(
-      read("../../examples/08-runtime-factory/parent/index.ts"),
-      block: true,
-      lang: "js",
-    ),
-    caption: [Usando la API de AMD en el cargador de `parent`],
-  ) <4-using-amd-in-parent-loader>
-]
+#codly-range(1, end: 13)
+#figure(
+  raw(
+    read("../../examples/08-runtime-factory/parent/index.ts"),
+    block: true,
+    lang: "ts",
+  ),
+  caption: [Definiendo los tipos de AMD en `parent`],
+) <4-defining-amd-types-in-parent-loader>
 
-=== Punto de entrada dual <dual-entrypoint>
-=== Contenedores de aplicaciones <containerization>
+Por otro lado, la lógica del cargador también cambia: en lugar de cachear instancias, la caché contendrá fábricas, mientras que la interfaz de `window.parentLoader` cambia para definir el método `define` según la especificación AMD.
+
+#codly(ranges: ((26, 26), (28, 29), (34, 41), (49, 54)))
+#figure(
+  raw(
+    read("../../examples/08-runtime-factory/parent/index.ts"),
+    block: true,
+    lang: "ts",
+  ),
+  caption: [Usando la API de AMD en el cargador de `parent`],
+) <4-using-amd-in-parent-loader>
+
+Con estos cambios hemos conseguido realizar una única carga del script y ser capaces de crear instancias aisladas usando la misma fábrica cacheada, reduciendo el impacto en memoria y tiempo de ejecución.
+
+=== Introduciendo un punto de entrada dual <dual-entrypoint>
+
+Llegados a este punto, `child` se ha convertido formalmente en un microfrontend, pues puede ser cargado a petición desde `parent` y su ciclo de vida es controlable. Sin embargo, desde la introducción de JSONP y posteriormente de AMD como métodos de inyección, hemos perdido la facultad de cargar `child` de forma independiente: si tratamos de acceder a su  servidor de desarrollo directamente, observaremos una pantalla en blanco. Accediendo a la consola podremos observar el siguiente error:
+
+#figure(
+  image("../figures/example-8-error-loading-child.png"),
+  caption: [Error al cargar `child` de forma independiente],
+)
+
+Esto se debe a que ahora el bundle generado depende exclusivamente de que exista un cargador global donde pueda registrarse, y de que el cargador adecuado se encargue de crear una instancia de la aplicación.
+
+Como vimos en el @why-bundlers[capítulo], una característica común de los bundlers es que permiten definir varios puntos de entrada a la aplicación. Además de ser útil para compilar aplicaciones que están compuestas por otras subaplicaciones, esta funcionalidad es comúnmente usada para generar bundles de la misma aplicación con diferentes características. Esto se consigue añadiendo configuración específica para cada uno de los puntos de entrada. Por ejemplo, podríamos generar un bundle optimizado para navegadores antiguos y otro para navegador modernos, o generar un bundle para la web y otro para un entorno Node.js.
+
+En nuestro caso, vamos a usar esta funcionalidad para generar dos puntos de entrada a la aplicación. Por un lado, tendremos el punto de entrada remoto (llamado `remote`), que se mantendrá idéntico a lo que hemos obtenido hasta ahora: exportará el ciclo de vida del microfrontend y se autoregistrará usando AMD. Por otro lado, vamos a registrar un nuevo punto de entrada, llamado `standalone`, que será capaz de cargar la aplicación de forma autónoma. Podemos hacer esto de varias formas:
+
+1. Convirtiendo `standalone` en un envoltorio de `remote`, en cuyo caso `standalone` actuaría como un `parent` mínimo que usa el cargador AMD para crear una instancia de `remote`.
+2. Dado que `standalone` pertenece al mismo proyecto que `remote`, importar el método `mount` de `remote` y usarlo directamente, pasándole los parámetros necesarios.
+
+Idealmente, el primer método nos permitiría generar un bundle mínimo, ya que solo contendría el código necesario para cargar y crear una instancia de `remote`, que contiene el código de la aplicación. No obstante, dado que aún no hemos extraído el cargador AMD de `parent` a una biblioteca que podamos reusar, sería necesario duplicar el código de `parent` en el punto de entrada `standalone` de `child`. Por tanto, y debido a la sencillez de nuestro microfrontend, vamos a optar por importar e invocar `mount` de forma directa temporalmente.
+
+Para registrar un nuevo punto de entrada, simplemente lo añadimos en la configuración de Rspack de `child`, como podemos ver en @4-registering-standalone-entry-in-child[código]:
+
+#codly(ranges: ((4, 16), (48, 48)))
+#figure(
+  raw(
+    read("../../examples/09-dual-entry/child/rspack.config.ts"),
+    block: true,
+    lang: "ts",
+  ),
+  caption: [Registrando el punto de entrada `standalone` en `child`],
+) <4-registering-standalone-entry-in-child>
+
+Cabe destacar que hemos renombrado el archivo `index.ts`, que hasta ahora había sido nuestro único punto de entrada, a `index.remote.ts` para denotar que es el punto de entrada remoto. Además, hemos creado `index.standalone.ts` con el siguiente contenido:
+
+#figure(
+  raw(
+    read("../../examples/09-dual-entry/child/src/index.standalone.ts"),
+    block: true,
+    lang: "ts",
+  ),
+  caption: [Creando el punto de entrada `standalone` en `child`],
+) <4-creating-standalone-entry-in-child>
+
+Como podemos ver en @4-creating-standalone-entry-in-child[código], este punto de entrada es bastante simple: simplemente importa el ciclo de vida del microfrontend y lo invoca con los parámetros que espera. No obstante, cada punto de entrada genera un bundle independiente. Esto quiere decir que, si los distintos puntos de entrada comparten dependencias, se generará un chunk distinto para cada uno de los bundles, resultando en chunks duplicados y espacio en disco malgastado.
+
+Aunque este es un problema sencillo de resolver extrayendo el código de carga de `parent` a una biblioteca para que `standalone` no importe directamente el punto de entrada `standalone`, en el siguiente apartado estudiaremos otro problema que puede resultar no tan evidente.
+
+#figure(
+  image("../figures/example-9-child-loaded.png"),
+  caption: [`child` cargado de forma independiente],
+)
+
+=== Un nivel de indirección: añadiendo un contenedor <containerization>
+
+Llegados a este punto y tras lo explicado en el @dual-entrypoint[capítulo] sobre los puntos de entrada autónomos, aparece una nueva pregunta de forma  inminente: ¿cómo podemos crear varios puntos de entrada remotos sin duplicar chunks?
+
+Si simplemente registrásemos nuevos puntos de entrada en Rspack, todo el código compartido entre ellos se duplicaría. Mientras que los puntos de entrada autónomos pueden usar el cargador para no depender directamente de los puntos de entrada remotos, estos últimos no tienen más remedio que importar directamente sus dependencias, ya que extraer la lógica común a un segundo microfrontend común añadiría complejidad excesiva y atraería errores innecesarios.
+
+Una solución sencilla pasa por añadir un nuevo nivel de abstracción a nuestro punto de entrada remoto. Este nivel de abstracción se conoce como contenedor, y toma su nombre de un concepto similar definido en Module Federation. Hasta ahora, crear una instancia de nuestro microfrontend implica que se carguen todas las dependencias de nuestro único punto de entrada, devolviendo su ciclo de vida. Un contenedor es un módulo mínimo que actúa de paso intermedio entre la instanciación del microfrontend y la ejecución de uno de sus puntos de entrada.
+
+=== Migrando a una arquitectura reusable <library-plugin>
 === Atando cabos sueltos: public path y concurrencia <tying-up-loose-ends>

@@ -15,7 +15,11 @@ type RuntimeModuleInstance = {
 };
 
 type RuntimeModuleEntry = {
-  mount: (element: HTMLElement) => void;
+  mount: (element: HTMLElement) => Promise<RuntimeModuleLifecycle>;
+};
+
+type RuntimeModuleLifecycle = {
+  unmount: () => void;
 };
 
 document.body.innerHTML = `
@@ -25,13 +29,24 @@ document.body.innerHTML = `
 
 const button = document.createElement("button");
 button.innerText = "Load microfrontend";
-button.addEventListener("click", () => {
-  loadMicrofrontend("http://localhost:8081/remote.js");
+button.addEventListener("click", async () => {
+  const lifecycle = await loadMicrofrontend("http://localhost:8081/remote.js");
+
+  const unmountButton = document.createElement("button");
+  unmountButton.innerText = "Unmount microfrontend";
+  unmountButton.addEventListener("click", async () => {
+    lifecycle.unmount();
+    unmountButton.remove();
+  });
+  document.body.appendChild(unmountButton);
 });
 
 const loadedRuntimeFactories = new Map<string, RuntimeModuleFactory>();
 
-async function loadMicrofrontend(url: string): Promise<void> {
+async function loadMicrofrontend(
+  url: string,
+  entryName?: string,
+): Promise<RuntimeModuleLifecycle> {
   if (!loadedRuntimeFactories.has(url)) {
     const microfrontendScript = document.createElement("script");
     microfrontendScript.src = url;
@@ -53,12 +68,18 @@ async function loadMicrofrontend(url: string): Promise<void> {
   container.style.minHeight = "100px";
 
   const runtimeModuleFactory = loadedRuntimeFactories.get(url);
-  if (runtimeModuleFactory) {
-    const runtimeModuleInstance = await runtimeModuleFactory();
-    const runtimeModuleEntry = await runtimeModuleInstance.loadEntry("main");
-    runtimeModuleEntry.mount(container);
-    document.body.appendChild(container);
+  if (!runtimeModuleFactory) {
+    throw new Error(`Failed to load runtime module from URL: ${url}`);
   }
+
+  const runtimeModuleInstance = await runtimeModuleFactory();
+  const runtimeModuleEntry = await runtimeModuleInstance.loadEntry(
+    entryName ?? "default",
+  );
+  const runtimeModuleLifecycle = runtimeModuleEntry.mount(container);
+  document.body.appendChild(container);
+
+  return runtimeModuleLifecycle;
 }
 
 document.body.appendChild(button);

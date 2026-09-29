@@ -239,13 +239,82 @@ Aunque este es un problema sencillo de resolver extrayendo el código de carga d
   caption: [`child` cargado de forma independiente],
 )
 
-=== Un nivel de indirección: añadiendo un contenedor <containerization>
+=== Añadiendo un contenedor <containerization>
 
 Llegados a este punto y tras lo explicado en el @dual-entrypoint[capítulo] sobre los puntos de entrada autónomos, aparece una nueva pregunta de forma  inminente: ¿cómo podemos crear varios puntos de entrada remotos sin duplicar chunks?
 
 Si simplemente registrásemos nuevos puntos de entrada en Rspack, todo el código compartido entre ellos se duplicaría. Mientras que los puntos de entrada autónomos pueden usar el cargador para no depender directamente de los puntos de entrada remotos, estos últimos no tienen más remedio que importar directamente sus dependencias, ya que extraer la lógica común a un segundo microfrontend común añadiría complejidad excesiva y atraería errores innecesarios.
 
-Una solución sencilla pasa por añadir un nuevo nivel de abstracción a nuestro punto de entrada remoto. Este nivel de abstracción se conoce como contenedor, y toma su nombre de un concepto similar definido en Module Federation. Hasta ahora, crear una instancia de nuestro microfrontend implica que se carguen todas las dependencias de nuestro único punto de entrada, devolviendo su ciclo de vida. Un contenedor es un módulo mínimo que actúa de paso intermedio entre la instanciación del microfrontend y la ejecución de uno de sus puntos de entrada.
+Una solución sencilla pasa por añadir un nuevo nivel de abstracción a nuestro punto de entrada remoto. Este nivel de abstracción se conoce como contenedor, y toma su nombre de un concepto similar definido en Module Federation. Hasta ahora, crear una instancia de nuestro microfrontend implicaba que se cargasen todas las dependencias de nuestro único punto de entrada para devolver su ciclo de vida. El contenedor es un módulo mínimo (sin dependencias) que actúa como paso intermedio entre la instanciación del microfrontend y la ejecución de uno de sus puntos de entrada, por lo que ningún otro módulo se instancia antes que él.
+
+Comenzaremos moviendo la lógica actual de `index.remote.ts` en `child` a un nuevo archivo, `entry.default.ts`, que dejará de ser el punto de entrada remoto y pasará a ser uno de los puntos de entrada de la aplicación. Ahora `index.remote.ts` funcionará como contenedor y punto de entrada remoto del microfrontend, por lo que necesitará exponer una nueva interfaz para que la aplicación padre pueda elegir y cargar uno de los puntos de entrada de la aplicación, como podemos ver en @4-child-container-remote-entry[código]. Al usar `import()`, separamos los puntos de entrada usando code splitting, permitiendo que el bundler introduzca carga dinámica para el resto de chunks y, por tanto, cargando e instanciando el contenedor de forma aislada.
+
+#codly-range(3)
+#figure(
+  raw(
+    read("../../examples/10-containerization/child/src/index.remote.ts"),
+    block: true,
+    lang: "ts",
+  ),
+  caption: [Contenedor como punto de entrada en `child`],
+) <4-child-container-remote-entry>
+
+Además, esta interfaz también nos permitirá exponer ciertos aspectos internos del microfrontend, aportando flexibilidad tanto para realizar tareas de configuración de forma transparente al usuario, como permitiendo a este configurar de forma explícita el microfrontend antes de que este cargue sus chunks e instancie cualquiera de sus módulos. Por ejemplo, el public path del microfrontend es la ruta prefijo que este usa para cargar sus chunks. Aunque por defecto Rspack emite lógica en su runtime para autoconfigurar este valor cuando el runtime se ejecuta, puede ser útil si queremos cargar chunks desde un CDN que el bundle desconoce en build-time.
+
+Para proporcionar más control sobre el ciclo de vida del microfrontend, vamos a introducir también un nuevo método, `unmount`, que se encarga de liberar todos los recursos relacionados con la instancia actual del mismo, y que será devuelto por el método `mount`. Para ello, necesitamos cambiar la implementación del método `mount` en `child`, como se muestra en @4-returning-unmount-lifecycle-in-child[código].
+
+#codly(ranges: ((5, 7), (17, 20)))
+#figure(
+  raw(
+    read("../../examples/10-containerization/child/src/entry.default.ts"),
+    block: true,
+    lang: "ts",
+  ),
+  caption: [Retornando `unmount` desde `mount` en `child`],
+) <4-returning-unmount-lifecycle-in-child>
+
+Al haber modificado la interfaz pública del punto de entrada remoto de `child`, necesitamos nuevos cambios en el cargador de `parent`. Primero, vamos a definir los nuevos tipos en @4-parent-container-types[código].
+
+#codly(ranges: ((9, 23),))
+#figure(
+  raw(
+    read("../../examples/10-containerization/parent/src/index.ts"),
+    block: true,
+    lang: "ts",
+  ),
+  caption: [Tipos del contenedor en el cargador de `parent`],
+) <4-parent-container-types>
+
+Aunque `RuntimeModuleFactory` mantiene su definición, ahora `RuntimeModuleInstance` ya no contiene el método `mount` del ciclo de vida del microfrontend, sino que expone la nueva API del contenedor. El método `loadEntry` es el encargado de cargar e instanciar el punto de entrada (`RuntimeModuleEntry`) solicitado por el usuario, donde ahora reside `mount`. Por otro lado, `mount` ya no devuelve `void`, sino que devuelve `RuntimeModuleLifecycle`, que es el objeto con el método `unmount`. Estos métodos nos permiten tener un control exhaustivo de la carga, instanciación e incluso la eliminación de cada instancia individual del microfrontend.
+
+En cuanto al cargador de `parent`, necesitamos adaptarlo a la nueva interfaz. Tras la instanciación el contenedor, ahora necesitamos el nombre del punto de entrada de la aplicación que queremos instanciar. Esto significa que la función `loadMicrofrontend` necesita un nuevo parámetro para permitir al usuario decidir. Dado que tener un único punto de entrada a la aplicación sigue siendo un caso de uso común, usaremos el punto de entrada llamado `default` como valor por defecto en caso de omisión del parámetro, que coincide con el nombre del archivo que usamos en el punto de entrada de la aplicación anteriormente, `entry.default.ts`. Además, también cambia su valor de retorno, pues en lugar de volver `void` pasa a devolver el `RuntimeModuleLifecycle` obtenido por el método `mount`.
+
+#codly(ranges: ((46, 49), (70, 83)))
+#figure(
+  raw(
+    read("../../examples/10-containerization/parent/src/index.ts"),
+    block: true,
+    lang: "ts",
+  ),
+  caption: [Usando el contenedor en el cargador de `parent`],
+)
+
+Finalmente, añadiremos un botón para desmontar las instancias del microfrontend. Una vez obtenemos su ciclo de vida, simplemente tenemos que llamar al método `unmount`, como vemos en @4-adding-unload-for-child-instances[código]. También tenemos que eliminar el botón del DOM, ya que, si no, mantendremos la referencia al ciclo de vida de la instancia y el recolector de basura no será capaz de limpiar la memoria no utilizada.
+
+Con esto, habremos implementado satisfactoriamente la gestión de múltiples puntos de entrada a la aplicación, evitando la duplicación de chunks y manteniendo el aislamiento de las instancias. Llegados a este punto, la API es relativamente estable. En el siguiente capítulo trataremos algunos aspectos internos del cargador y su funcionamiento, especialmente al ser usado de forma concurrente.
+
+#codly(ranges: ((32, 42),))
+#figure(
+  raw(
+    read("../../examples/10-containerization/parent/src/index.ts"),
+    block: true,
+    lang: "ts",
+  ),
+  caption: [Añadiendo un botón para eliminar instancias de `child`],
+) <4-adding-unload-for-child-instances>
+
+=== Public path y concurrencia <tying-up-loose-ends>
+
+
 
 === Migrando a una arquitectura reusable <library-plugin>
-=== Atando cabos sueltos: public path y concurrencia <tying-up-loose-ends>

@@ -1,3 +1,3 @@
-import { mount } from "./entry.main.ts";
+import { mount } from "./entry.default.ts";
 
 mount(document.body);

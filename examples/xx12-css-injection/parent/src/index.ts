@@ -1,4 +1,4 @@
-import { loadAppInstance } from "examples-11-library-plugin-library/runtime";
+import { loadAppInstance } from "examples-12-library-plugin-library/runtime";
 
 document.body.innerHTML = `
     <h1>Parent</h1>

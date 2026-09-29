@@ -2,7 +2,7 @@ import { add } from "examples-sample-lib";
 import type {
   AppFederationAppLifecycle,
   AppFederationAppMount,
-} from "examples-11-library-plugin-library/runtime";
+} from "examples-12-library-plugin-library/runtime";
 import * as styles from "./entry.module.css";
 
 let counter = 0;

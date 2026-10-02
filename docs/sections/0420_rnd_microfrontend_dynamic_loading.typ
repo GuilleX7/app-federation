@@ -301,7 +301,7 @@ En cuanto al cargador de `parent`, necesitamos adaptarlo a la nueva interfaz. Tr
 
 Finalmente, añadiremos un botón para desmontar las instancias del microfrontend. Una vez obtenemos su ciclo de vida, simplemente tenemos que llamar al método `unmount`, como vemos en @4-adding-unload-for-child-instances[código]. También tenemos que eliminar el botón del DOM, ya que, si no, mantendremos la referencia al ciclo de vida de la instancia y el recolector de basura no será capaz de limpiar la memoria no utilizada.
 
-Con esto, habremos implementado satisfactoriamente la gestión de múltiples puntos de entrada a la aplicación, evitando la duplicación de chunks y manteniendo el aislamiento de las instancias. Llegados a este punto, la API es relativamente estable. En el siguiente capítulo trataremos algunos aspectos internos del cargador y su funcionamiento, especialmente al ser usado de forma concurrente.
+Con esto, habremos implementado satisfactoriamente la gestión de múltiples puntos de entrada a la aplicación, evitando la duplicación de chunks y manteniendo el aislamiento de las instancias. Llegados a este punto, la API es relativamente estable. En el siguiente capítulo trataremos algunos aspectos internos del cargador que son propensos a causar problemas cuando se usa concurrentemente.
 
 #codly(ranges: ((32, 42),))
 #figure(
@@ -313,8 +313,9 @@ Con esto, habremos implementado satisfactoriamente la gestión de múltiples pun
   caption: [Añadiendo un botón para eliminar instancias de `child`],
 ) <4-adding-unload-for-child-instances>
 
-=== Public path y concurrencia <tying-up-loose-ends>
+=== Puliendo el cargador: public path y concurrencia <tying-up-loose-ends>
 
+En el @containerization[capítulo] hemos añadido algunas funciones útiles al contenedor como `getPublicPath`. Actualmente la función no se llama internamente, así que podemos probar a mostrar su valor en `child` para ver qué valor toma de forma automática.
 
 
 === Migrando a una arquitectura reusable <library-plugin>

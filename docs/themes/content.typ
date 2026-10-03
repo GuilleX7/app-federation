@@ -27,15 +27,6 @@
     ],
   )
 
-  #set heading(numbering: (..nums) => {
-    let pos = nums.pos().map(str)
-    if pos.len() == 1 {
-      return pos.join(".")
-    } else {
-      return pos.join(".") + "."
-    }
-  })
-
   #set par(
     first-line-indent: (amount: 0.8cm, all: true),
     justify: true,
@@ -76,6 +67,7 @@
   )
   #show table.cell.where(y: 0): set text(weight: "bold")
 
+  #set heading(numbering: "1.")
   #show heading.where(level: 1): it => [
     #[
       #set page(footer: none, header: none)

@@ -313,9 +313,161 @@ Con esto, habremos implementado satisfactoriamente la gestión de múltiples pun
   caption: [Añadiendo un botón para eliminar instancias de `child`],
 ) <4-adding-unload-for-child-instances>
 
-=== Puliendo el cargador: public path y concurrencia <tying-up-loose-ends>
+=== Estableciendo un public path dinámico <setting-dynamic-public-path>
 
-En el @containerization[capítulo] hemos añadido algunas funciones útiles al contenedor como `getPublicPath`. Actualmente la función no se llama internamente, así que podemos probar a mostrar su valor en `child` para ver qué valor toma de forma automática.
+En el @containerization[capítulo] hemos añadido algunas funciones útiles al contenedor como `getPublicPath`, aunque aún no le hemos dado ningún uso, ni internamente ni dentro del propio microfrontend. Si la llamamos y mostramos el valor retornado en el contenedor del microfrontend, observaremos un comportamiento erróneo: diferentes instancias del mismo microfrontend tienen diferente public path a pesar de haber sido cargadas desde la misma URL e instancias usando la misma fábrica, como podemos ver en la @4-two-instances-wrong-public-path[ilustración].
 
+#figure(
+  image("../figures/example-10-wrong-public-path.png"),
+  caption: [Dos instancias de `child` con diferente public path],
+) <4-two-instances-wrong-public-path>
+
+Si observamos el runtime generado por Rspack, podemos comprobar que el código que establece el public path inicial depende de que la etiqueta script esté presente en el documento, según se muestra en @4-child-auto-public-path[código]:
+
+#codly(ranges: ((226, 228), (237, 241), (250, 250)))
+#figure(
+  raw(
+    read("../../examples/10-containerization/child/dist/remote.js"),
+    block: true,
+    lang: "ts",
+  ),
+  caption: [Cómputo automático del public path de `child`],
+) <4-child-auto-public-path>
+
+Sin embargo, tras las mejoras introducidas en el @caching-entrypoint[capítulo], el script se elimina del documento una vez la fábrica carga por primera vez y es cacheada. Por eso, las futuras instancias no son capaces de autodetectar su origen y usan la dirección de `parent` como fallback. La solución a este problema es sencilla: dado que hemos introducido el método `setPublicPath`, podemos usarlo desde `parent` para establecer como public path la ruta del punto de entrada remoto, pues este es siempre dado como argumento por el usuario:
+
+#codly(ranges: ((122, 125), (127, 129), (142, 142)))
+#figure(
+  raw(
+    read("../../examples/11-concurrency-public-path/parent/src/index.ts"),
+    block: true,
+    lang: "ts",
+  ),
+  caption: [El cargador de `parent` establece el public path de `child`],
+) <4-parent-setting-public-path>
+
+Donde `computePublicPath` es una pequeña función que calcula una ruta relativa a la ruta actual:
+
+#codly(ranges: ((144, 146),))
+#figure(
+  raw(
+    read("../../examples/11-concurrency-public-path/parent/src/index.ts"),
+    block: true,
+    lang: "ts",
+  ),
+  caption: [Función utilitaria `computePublicPath`],
+) 
+
+Ahora podemos comprobar como todas las instancias creadas a partir de la misma fábrica obtienen el mismo public path:
+
+#figure(
+  image("../figures/example-11-proper-public-path.png"),
+  caption: [Dos instancias de `child` con el mismo public path],
+) <4-two-instances-proper-public-path>
+
+=== Manejando la concurrencia <handling-concurrency>
+
+A lo largo de los capítulos anteriores, hemos establecido un escenario simple: una aplicación padre (`parent`) carga a la aplicación hija (`hija`) de forma secuencial. Sin embargo, un entorno real suele distar de esta situación. Incluso si asumiésemos el escenario simplificado, el simple hecho de operar de forma asíncrona sin control puede provocar problemas de todo tipo, como condiciones de carrera o, en el peor de los casos, un deadlock.
+
+Por ejemplo, supongamos que `parent` llama a `loadMicrofrontend` y, antes de que este haya terminado de cargar el script que contiene el punto de entrada remoto, vuelve a hacer otra llamada. Este escenario sería fácilmente reproducible en la actualidad si los scripts cargasen a través de la red (y no en `localhost`) y un usuario pulsase el botón de cargar microfrontend varias veces seguidas.
+
+Debido a que el cargador únicamente comprueba si la fábrica ya está cargada y no en proceso de carga, este iniciará dos o más procesos de carga simultáneos. Esto provoca que la etiqueta script sea añadida varias veces al DOM y por tanto que el script se cargue y ejecute varias veces, algo que intentamos evitar en el @caching-entrypoint[capítulo]. Por si fuera poco, cada llamada a `loadMicrofrontend` reemplaza el cargador AMD del objeto global, por lo que únicamente el cargador de la última instancia recibirá el callback del script, dejando el resto de promesas sin resolver.
+
+Para resolver este problema, necesitamos introducir varias medidas:
+
+- La caché de fábricas debe rellenarse desde el momento en que comienza la carga de la fábrica, para evitar cargas simultáneas de la misma fábrica.
+- Debemos introducir una cola de carga para evitar que múltiples llamadas al mismo cargador se solapen entre ellas.
+
+No obstante, existe un detalle que también tenemos que tener en cuenta: la localidad. Hasta ahora, la caché de fábricas ha existido únicamente dentro de la instancia de `parent`. Sin embargo, si múltiples aplicaciones intentasen cargar microfrontends a la vez, cada una usaría su propia instancia de la caché, lo que conllevaría, de nuevo, a cargar fábricas ya cargadas y aparecerían problemas de solapamiento, pues cada cargador tendría su propia cola de carga. Para evitarlo, debemos introducir una tercera medida:
+
+- Todo el estado debe migrarse al objeto global donde reside el cargador AMD, y el cargador de microfrontends no debe tener estado.
+
+En esta ocasión los cambios realizados en `parent` son extensos. Por un lado, movemos todo el estado al objeto global de la ventana, a la vez que introducimos la nueva cola de carga, `runtimeFactoryLoadQueue`, en @4-migrating-state-to-global-object[código]:
+
+#codly(ranges: ((11, 15),))
+#figure(
+  raw(
+    read("../../examples/11-concurrency-public-path/parent/src/index.ts"),
+    block: true,
+    lang: "ts",
+  ),
+  caption: [Moviendo el estado del cargador al objeto global],
+) <4-migrating-state-to-global-object>
+
+El cargador de microfrontends ahora comprueba si una fábrica está ya cargada o en proceso de ser cargada. En lugar de retornar una fábrica cargada, retorna una promesa: si la fábrica ya está cargada, la promesa estará resuelta, mientras que si no, el usuario simplemente debe esperar a que cargue:
+
+#codly(ranges: ((79, 79), (84, 87),))
+#figure(
+  raw(
+    read("../../examples/11-concurrency-public-path/parent/src/index.ts"),
+    block: true,
+    lang: "ts",
+  ),
+  caption: [Comprobación de caché en el cargador de `parent`],
+)
+
+Si la fábrica no está cargada, nos ponemos en la cola para cargar y, además, esperamos a que el último en la cola termine:
+
+#codly(ranges: ((89, 96),))
+#figure(
+  raw(
+    read("../../examples/11-concurrency-public-path/parent/src/index.ts"),
+    block: true,
+    lang: "ts",
+  ),
+  caption: [Introduciendo la cola de carga de fábricas],
+)
+
+Una vez el último en la cola ha terminado de cargar, la invocación actual del cargador puede proceder:
+
+#codly(ranges: ((98, 99),))
+#figure(
+  raw(
+    read("../../examples/11-concurrency-public-path/parent/src/index.ts"),
+    block: true,
+    lang: "ts",
+  ),
+  caption: [Moviendo el estado del cargador al objeto global],
+)
+
+Si la carga falla, simplemente nos retiramos de la cola y reportamos el error al usuario, además de quitar la promesa de carga de la fábrica de la caché, para que futuras llamadas vuelvan a intentar cargar la misma fábrica:
+
+#codly(ranges: ((100, 107),))
+#figure(
+  raw(
+    read("../../examples/11-concurrency-public-path/parent/src/index.ts"),
+    block: true,
+    lang: "ts",
+  ),
+  caption: [Lógica para errores en la carga de fábricas],
+)
+
+Finalmente, esperamos a que el punto de entrada remoto llame al cargador AMD y resuelva nuestra promesa:
+
+#codly(ranges: ((110, 115),))
+#figure(
+  raw(
+    read("../../examples/11-concurrency-public-path/parent/src/index.ts"),
+    block: true,
+    lang: "ts",
+  ),
+  caption: [Final del procedimiento de carga de fábricas],
+)
+
+Cuando el script que contiene el punto de entrada remoto se cargue y ejecute, invocará al cargador AMD, cuya definición toma la primera promesa en la cola, que se corresponde con la invocación actual, y la resuelve con la fábrica que le proporciona el script:
+
+#codly(ranges: ((65, 73),))
+#figure(
+  raw(
+    read("../../examples/11-concurrency-public-path/parent/src/index.ts"),
+    block: true,
+    lang: "ts",
+  ),
+  caption: [Carga del script y resolución de la promesa],
+)
+
+Con esto hemos conseguido un proceso concurrente ordenado donde cualquier número de actores (o instancias de cargadores) cooperan para evitar condiciones de carrera y deadlocks.
 
 === Migrando a una arquitectura reusable <library-plugin>
+
+Actualmente, ya somos capaces de cargar microfrontends de forma concurrente, crear múltiples instancias aisladas entre sí y establecer los parámetros básicos para garantizar su correcto funcionamiento. Es el momento de extraer la lógica de `parent` y `child` a una librería común

@@ -17,8 +17,8 @@ El primer apartado servirá como una pequeña introducción al funcionamiento de
 === Delimitando estilos: shadow root
 === Peculiaridades del shadow root
 
-== Estado y acciones en microfrontends <microfrontend-state-and-actions>
+== Comunicación entre microfrontends <communication-between-microfrontends>
 
-=== Estado local: padre e hijo
-=== Estado global: buses
+=== Comunicación local: padre e hijo
+=== Comunicación global: buses
 === Ejemplo: routing

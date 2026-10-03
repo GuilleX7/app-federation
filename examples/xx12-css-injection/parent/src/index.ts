@@ -11,7 +11,7 @@ button.addEventListener("click", async () => {
   const container = document.createElement("div");
   container.style.border = "1px solid #000";
   container.style.minHeight = "100px";
-  
+
   const instance = await loadAppInstance("http://localhost:8081/remote.js");
   const entry = await instance.loadEntry("app");
   const lifecycle = await entry.mount({ container, blabla: 3 });

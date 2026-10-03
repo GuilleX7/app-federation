@@ -1,3 +1,13 @@
+# Preserve local ignores while allowing dist/ to be formatted.
+.DS_Store
+*.local
+*.log*
+node_modules
+.rspack-profile-*/
+.vscode/*
+!.vscode/extensions.json
+.idea
+
 # Lock files
 package-lock.json
 pnpm-lock.yaml

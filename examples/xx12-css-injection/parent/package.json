@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "build": "rspack build",
-    "dev": "rspack serve"
+    "dev": "rspack serve",
+    "prettify": "prettier --write ."
   }
 }

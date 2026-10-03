@@ -123,9 +123,9 @@ async function loadMicrofrontend(
   url: string,
   entryName?: string,
 ): Promise<RuntimeModuleLifecycle> {
-  const publicPath = computePublicPath(url);
   const runtimeModuleFactory = await loadFactory(url);
   const runtimeModuleInstance = await runtimeModuleFactory();
+  const publicPath = computePublicPath(url);
   runtimeModuleInstance.setPublicPath(publicPath);
 
   const runtimeModuleEntry = await runtimeModuleInstance.loadEntry(

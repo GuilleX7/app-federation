@@ -9,7 +9,8 @@
     "dev": "rsbuild dev --open",
     "format": "prettier --write .",
     "lint": "eslint .",
-    "preview": "rsbuild preview"
+    "preview": "rsbuild preview",
+    "prettify": "prettier --write . --ignore-path=.prettierignore"
   },
   "dependencies": {
     "react": "^19.2.0",

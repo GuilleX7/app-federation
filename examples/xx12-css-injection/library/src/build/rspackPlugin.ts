@@ -90,15 +90,12 @@ class RspackAppFederationPlugin implements RspackPluginInstance {
 
     compiler.hooks.compilation.tap(
       "AppFederationPlugin",
-      (compilation, { normalModuleFactory}) => {
-        compilation.hooks.buildModule.tap(
-          "AppFederationPlugin",
-          (module) => {
-            if (module instanceof NormalModule) {
-              console.log("checking module", module.rawRequest);
-            }
-          },
-        );
+      (compilation, { normalModuleFactory }) => {
+        compilation.hooks.buildModule.tap("AppFederationPlugin", (module) => {
+          if (module instanceof NormalModule) {
+            console.log("checking module", module.rawRequest);
+          }
+        });
         normalModuleFactory.hooks.afterResolve.tap(
           "AppFederationPlugin",
           (resolveData) => {

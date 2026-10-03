@@ -14,7 +14,7 @@ const lifecycle: AppMountingLifecycle = {
     return {
       unmount: () => {
         app.unmount();
-        
+
         delete window['__VUE_SSR_SETTERS__'];
         delete window['__VUE_INSTANCE_SETTERS__'];
         delete window['__VUE_HMR_RUNTIME__'];

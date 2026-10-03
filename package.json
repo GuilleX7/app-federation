@@ -17,6 +17,7 @@
     "packages/**"
   ],
   "scripts": {
+    "build": "run-s build-example-1 build-example-2 build-example-3 build-example-4 build-example-5 build-example-6 build-example-7 build-example-8 build-example-9 build-example-10 build-example-11 build-example-12 build-example-13 build-example-14",
     "build-example-1": "npm --workspace=examples/01-minimal-optimized-bundle run build",
     "build-example-2": "npm --workspace=examples/02-minimal-unoptimized-bundle run build",
     "build-example-3": "npm --workspace=examples/03-modules run build",
@@ -63,7 +64,7 @@
     "dev-example-11": "run-p dev-example-11:child dev-example-11:parent",
     "dev-example-11:child": "npm --workspace=examples/11-concurrency-public-path/child run dev",
     "dev-example-11:parent": "npm --workspace=examples/11-concurrency-public-path/parent run dev",
-    "build-example-12": "run-p build-example-12:child build-example-12:library build-example-12:parent",
+    "build-example-12": "run-s build-example-12:library build-example-12:child build-example-12:parent",
     "build-example-12:child": "npm --workspace=examples/12-library-plugin/child run build",
     "build-example-12:library": "npm --workspace=examples/12-library-plugin/library run build",
     "build-example-12:parent": "npm --workspace=examples/12-library-plugin/parent run build",
@@ -71,7 +72,7 @@
     "dev-example-12:child": "npm --workspace=examples/12-library-plugin/child run dev",
     "dev-example-12:library": "npm --workspace=examples/12-library-plugin/library run dev",
     "dev-example-12:parent": "npm --workspace=examples/12-library-plugin/parent run dev",
-    "build-example-13": "run-p build-example-13:child build-example-13:library build-example-13:parent",
+    "build-example-13": "run-s build-example-13:library build-example-13:child build-example-13:parent",
     "build-example-13:child": "npm --workspace=examples/13-naive-css-injection/child run build",
     "build-example-13:library": "npm --workspace=examples/13-naive-css-injection/library run build",
     "build-example-13:parent": "npm --workspace=examples/13-naive-css-injection/parent run build",
@@ -79,7 +80,7 @@
     "dev-example-13:child": "npm --workspace=examples/13-naive-css-injection/child run dev",
     "dev-example-13:library": "npm --workspace=examples/13-naive-css-injection/library run dev",
     "dev-example-13:parent": "npm --workspace=examples/13-naive-css-injection/parent run dev",
-    "build-example-14": "run-p build-example-14:child build-example-14:library build-example-14:parent",
+    "build-example-14": "run-s build-example-14:library build-example-14:child build-example-14:parent",
     "build-example-14:child": "npm --workspace=examples/14-containerized-css/child run build",
     "build-example-14:library": "npm --workspace=examples/14-containerized-css/library run build",
     "build-example-14:parent": "npm --workspace=examples/14-containerized-css/parent run build",
@@ -87,7 +88,8 @@
     "dev-example-14:child": "npm --workspace=examples/14-containerized-css/child run dev",
     "dev-example-14:library": "npm --workspace=examples/14-containerized-css/library run dev",
     "dev-example-14:parent": "npm --workspace=examples/14-containerized-css/parent run dev",
-    "build-example-sample-lib": "npm --workspace=examples/sample-lib run build"
+    "build-example-sample-lib": "npm --workspace=examples/sample-lib run build",
+    "prettify": "npm run prettify --workspaces --if-present"
   },
   "devDependencies": {
     "@rsbuild/core": "^2.2.11",

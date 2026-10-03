@@ -12,7 +12,10 @@ import {
 import type { AppFederationPluginOptions } from "../../types.js";
 import { TempFS } from "../internal/tempFs.js";
 import path from "path";
-import { BOOTSTRAP_FILENAME, getBootstrapCode } from "../generators/bootstrapModule.js";
+import {
+  BOOTSTRAP_FILENAME,
+  getBootstrapCode,
+} from "../generators/bootstrapModule.js";
 
 type AppFederationNormalizedPluginOptions = DeepRequired<
   AppFederationPluginOptions & {

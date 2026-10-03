@@ -9,7 +9,8 @@
     "dev": "rsbuild dev",
     "format": "prettier --write .",
     "lint": "eslint .",
-    "preview": "rsbuild preview"
+    "preview": "rsbuild preview",
+    "prettify": "prettier --write . --ignore-path=.prettierignore"
   },
   "dependencies": {
     "vue": "^3.5.22",

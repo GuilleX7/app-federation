@@ -20,6 +20,10 @@ export default defineConfig({
           },
         },
       },
+      {
+        test: /\.css$/,
+        type: "css/auto",
+      },
     ],
   },
   plugins: [new rspack.HtmlRspackPlugin()],

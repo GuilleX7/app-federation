@@ -1,0 +1,11 @@
+{
+  "name": "examples-15-props-actions-child",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "rspack build --mode development",
+    "dev": "rspack serve",
+    "prettify": "prettier --write ."
+  }
+}

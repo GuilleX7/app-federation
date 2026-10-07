@@ -1,3 +1,3 @@
-export * from "./loadApp.js";
+export * from "./app.js";
 export * from "./bridge.js";
 export * from "../types.js";

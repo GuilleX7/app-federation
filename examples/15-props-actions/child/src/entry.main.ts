@@ -1,4 +1,5 @@
 import type {
+  AppFederationBridge,
   AppFederationEntryLifecycle,
   AppFederationEntryMount,
 } from "../../library/dist/tools";
@@ -8,10 +9,16 @@ import {
 } from "../../library/dist/runtime";
 import "./global.css";
 
-export const mount: AppFederationEntryMount<
-  { counter: number },
-  { incrementCounter: () => void; resetCounter: () => void }
-> = ({ container, bridge }): AppFederationEntryLifecycle => {
+export const mount: AppFederationEntryMount = ({
+  container,
+  bridge,
+}: {
+  container?: HTMLElement;
+  bridge?: AppFederationBridge<
+    { counter: number },
+    { incrementCounter: () => void; resetCounter: () => void }
+  >;
+}): AppFederationEntryLifecycle => {
   if (!container || !bridge) {
     throw new Error("Container and bridge are required");
   }
@@ -48,7 +55,7 @@ export const mount: AppFederationEntryMount<
   return {
     unmount: () => {
       tearDownStyleScoping();
-      bridge.dispose();
+      bridge.props.unsubscribeAll();
       container.innerHTML = "";
     },
   };

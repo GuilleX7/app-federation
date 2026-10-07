@@ -21,11 +21,11 @@ button.addEventListener("click", async () => {
   counterLabel.innerText = `Counter from parent: 0`;
   container.appendChild(counterLabel);
 
-  const entry = await loadAppInstanceEntry<
+  const entry = await loadAppInstanceEntry("http://localhost:8081/remote.js");
+  const bridge = createAppBridge<
     { counter: number },
     { incrementCounter: () => void; resetCounter: () => void }
-  >("http://localhost:8081/remote.js");
-  const bridge = createAppBridge(
+  >(
     {
       counter: 0,
     },

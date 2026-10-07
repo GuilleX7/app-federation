@@ -126,15 +126,12 @@ export async function loadAppInstance(
   return appInstance;
 }
 
-export async function loadAppInstanceEntry<
-  Props extends Record<string, unknown> = Record<string, unknown>,
-  Actions extends Record<string, unknown> = Record<string, unknown>,
->(
+export async function loadAppInstanceEntry(
   remoteEntryUrl: string,
   options?: LoadAppInstanceEntryOptions,
-): Promise<AppFederationAppEntry<Props, Actions>> {
+): Promise<AppFederationAppEntry> {
   const appInstance = await loadAppInstance(remoteEntryUrl, options);
-  const appEntry = await appInstance.loadEntry<Props, Actions>(
+  const appEntry = await appInstance.loadEntry(
     options?.entry || DEFAULT_APP_ENTRY_NAME,
   );
   return appEntry;

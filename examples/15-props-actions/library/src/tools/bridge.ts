@@ -1,20 +1,29 @@
-import type {
-  AppFederationBridge,
-  AppFederationPropsStore,
-} from "../types.js";
-
-type Mutable<Props> = {
-  -readonly [Key in keyof Props]: Props[Key];
-};
 type PropListener = (value: unknown, previousValue: unknown) => void;
+
+export type AppFederationPropsStore<Props extends object> = {
+  get: <Key extends keyof Props>(key: Key) => Props[Key];
+  set: <Key extends keyof Props>(key: Key, value: Props[Key]) => void;
+  subscribe: <Key extends keyof Props>(
+    key: Key,
+    listener: (value: Props[Key], previousValue: Props[Key]) => void,
+  ) => () => void;
+  unsubscribeAll: () => void;
+};
+
+export type AppFederationBridge<
+  Props extends object,
+  Actions extends object,
+> = {
+  props: AppFederationPropsStore<Props>;
+  actions: Actions;
+};
 
 export function createAppBridge<Props extends object, Actions extends object>(
   initialProps: Props,
   actions: Actions,
 ): AppFederationBridge<Props, Actions> {
-  const propsValues: Mutable<Props> = { ...initialProps };
+  const propsValues: Props = { ...initialProps };
   const propListeners = new Map<keyof Props, Set<PropListener>>();
-  let isDisposed = false;
 
   const propsStore: AppFederationPropsStore<Props> = {
     get: (key) => propsValues[key],
@@ -25,19 +34,11 @@ export function createAppBridge<Props extends object, Actions extends object>(
       }
 
       propsValues[key] = value;
-      if (isDisposed) {
-        return;
-      }
-
       propListeners.get(key)?.forEach((listener) => {
         listener(value, previousValue);
       });
     },
     subscribe: (key, listener) => {
-      if (isDisposed) {
-        return () => {};
-      }
-
       let listenersForKey = propListeners.get(key);
       if (!listenersForKey) {
         listenersForKey = new Set();
@@ -45,7 +46,10 @@ export function createAppBridge<Props extends object, Actions extends object>(
       }
 
       const propListener: PropListener = (value, previousValue) => {
-        listener(value as Props[typeof key], previousValue as Props[typeof key]);
+        listener(
+          value as Props[typeof key],
+          previousValue as Props[typeof key],
+        );
       };
       listenersForKey.add(propListener);
       let isSubscribed = true;
@@ -64,18 +68,13 @@ export function createAppBridge<Props extends object, Actions extends object>(
         }
       };
     },
+    unsubscribeAll: () => {
+      propListeners.clear();
+    },
   };
 
   return {
     props: propsStore,
     actions,
-    dispose: () => {
-      if (isDisposed) {
-        return;
-      }
-
-      isDisposed = true;
-      propListeners.clear();
-    },
   };
 }

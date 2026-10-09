@@ -1,0 +1,11 @@
+{
+  "name": "examples-16-global-bus-parent",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "rspack build",
+    "dev": "rspack serve",
+    "prettify": "prettier --write ."
+  }
+}

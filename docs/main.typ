@@ -1,5 +1,3 @@
-// LTeX: enabled=false
-
 #import "themes/global.typ": global-theme
 #import "themes/preface.typ": preface-theme
 #import "themes/content.typ": content-theme
@@ -19,7 +17,7 @@
 
 #content-theme[
   // #show: specialWords
-  
+
   #include "sections/0100_introduction.typ"
   #include "sections/0200_project_plan.typ"
   #include "sections/0300_project_analysis.typ"

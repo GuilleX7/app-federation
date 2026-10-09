@@ -15,13 +15,13 @@ const appBridge = createAppBridge<CounterProps, CounterActions>(
 );
 bridge = appBridge;
 
-loadAppInstanceEntry<CounterProps, CounterActions>("remote.js").then(
-  async (entry) => {
+loadAppInstanceEntry<CounterProps, CounterActions>("remote.js")
+  .then(async (entry) => {
     await entry.mount({
       container: document.body,
       bridge: appBridge,
     });
-  },
-).catch((error: unknown) => {
-  console.error("Failed to load the standalone microfrontend.", error);
-});
+  })
+  .catch((error: unknown) => {
+    console.error("Failed to load the standalone microfrontend.", error);
+  });

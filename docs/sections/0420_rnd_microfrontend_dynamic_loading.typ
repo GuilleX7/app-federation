@@ -356,7 +356,7 @@ Donde `computePublicPath` es una pequeña función que calcula una ruta relativa
     lang: "ts",
   ),
   caption: [Función utilitaria `computePublicPath`],
-) 
+)
 
 Ahora podemos comprobar como todas las instancias creadas a partir de la misma fábrica obtienen el mismo public path:
 
@@ -396,7 +396,7 @@ En esta ocasión los cambios realizados en `parent` son extensos. Por un lado, m
 
 El cargador de microfrontends ahora comprueba si una fábrica está ya cargada o en proceso de ser cargada. En lugar de retornar una fábrica cargada, retorna una promesa: si la fábrica ya está cargada, la promesa estará resuelta, mientras que si no, el usuario simplemente debe esperar a que cargue:
 
-#codly(ranges: ((79, 79), (84, 87),))
+#codly(ranges: ((79, 79), (84, 87)))
 #figure(
   raw(
     read("../../examples/11-concurrency-public-path/parent/src/index.ts"),
@@ -470,4 +470,76 @@ Con esto hemos conseguido un proceso concurrente ordenado donde cualquier númer
 
 === Migrando a una arquitectura reusable <library-plugin>
 
-Actualmente, ya somos capaces de cargar microfrontends de forma concurrente, crear múltiples instancias aisladas entre sí y establecer los parámetros básicos para garantizar su correcto funcionamiento. Es el momento de extraer la lógica de `parent` y `child` a una librería común
+Actualmente, ya somos capaces de cargar microfrontends de forma concurrente, crear múltiples instancias aisladas entre sí y establecer los parámetros básicos (como el public path) para garantizar su correcto funcionamiento. Para ir un paso más allá, debemos extraer la lógica de `parent` y `child` a una biblioteca común que nos permita mantener tanto a las aplicaciones padres como a las hijas casi completamente abstraidas del funcionamiento de la arquitectura.
+
+A diferencia de los anteriores capítulos y debido a la extensión y complejidad de estos cambios, este capítulo hará una revisión a grandes rasgos de la arquitectura de la biblioteca, y de cómo cada una de sus partes se corresponde con cada uno de los sistemas desarrollados para resolver los problemas encontrados a lo largo de la investigación.
+
+#figure(
+  image("../figures/example-12-1-library-architecture.drawio.svg"),
+  caption: [Arquitectura general de la biblioteca],
+) <4-general-library-architecture>
+
+Como podemos ver en la @4-general-library-architecture[ilustración], la biblioteca se compone de tres grandes módulos: el módulo de tiempo de compilación (build), el módulo de tiempo de ejecución (runtime) y el módulo de herramientas (tools).
+
+El módulo de compilación contiene las herramientas necesarias para configurar los bundlers soportados (por el momento, únicamente Rspack) y modificar el bundle para incluir el runtime. Por tanto, este módulo solo se usa durante la construcción del microfrontend y nunca llega a importarse ni usarse como una dependencia en tiempo de ejecución. En el caso de Rspack, se trata de un plugin que acepta ciertos parámetros del usuario, como los diferentes puntos de entrada o el nombre del archivo que contendrá el punto de entrada remoto. También permite configurar ciertos parámetros internos como el identificador global del cargador AMD, como observamos en @4-rspack-plugin-example[código].
+
+#codly(ranges: ((26, 26), (28, 47)))
+#figure(
+  raw(
+    read("../../examples/12-library-plugin/library/src/build/plugins/rspackPlugin.ts"),
+    block: true,
+    lang: "ts",
+  ),
+  caption: [Plugin para Rspack],
+) <4-rspack-plugin-example>
+
+Por otro lado, el módulo de runtime implementa el comportamiento interno del microfrontend y da soporte a la carga del mismo, la interacción con otros microfrontends y es inyectado en el bundle final usando las herramientas de compilación. Cabe destacar que, aunque se encuentra dentro del bundle, no se usa ni se referencia directamente desde el código del usuario. Efectivamente, en gran parte este módulo se compone del punto de entrada remoto que escribimos manualmente en los ejemplos anteriores, aunque con ligeras modificaciones, pues su contenido es generado dinámicamente según las opciones que el usuario pasa a las herramientas de compilación.
+
+Para ver las distintas dependencias generadas entre estos dos módulos, podemos observar la @4-library-usage-build[ilustración].
+
+#figure(
+  image("../figures/example-12-2-library-build-usage.drawio.svg"),
+  caption: [Arquitectura del tiempo de compilación],
+) <4-library-usage-build>
+
+A través de un plugin adaptado para el bundler en cuestión, aplicamos la configuración específica necesaria que hemos usado a lo largo de los ejemplos proporcionados, como la generación de un punto de entrada remoto con cargador AMD (visto en el @containerization[capítulo]). Por otro lado, el generador de runtime genera este módulo de entrada, que hasta ahora habíamos creado manualmente en nuestros proyectos, y lo inyecta de forma dinámica en el bundle final, concluyendo el proceso de compilación. Podemos observar parte de la lógica de la generación en @4-remote-entrypoint-generator[código].
+
+#codly(ranges: ((6, 6), (9, 12), (22, 34)))
+#figure(
+  raw(
+    read("../../examples/12-library-plugin/library/src/build/generators/bootstrapModule.ts"),
+    block: true,
+    lang: "ts",
+  ),
+  caption: [Generador de punto de entrada remoto],
+) <4-remote-entrypoint-generator>
+
+El uso del plugin es directo a partir de su definición y los ejemplos trabajados hasta ahora:
+
+#codly(ranges: ((5, 5), (26, 26), (30, 33), (44, 45)))
+#figure(
+  raw(
+    read("../../examples/12-library-plugin/child/rspack.config.ts"),
+    block: true,
+    lang: "ts",
+  ),
+  caption: [Generador de punto de entrada remoto],
+) 
+
+El punto de entrada remoto generado es clave durante el tiempo de ejecución, pues es el primer módulo de la aplicación que se instancia tras el runtime del bundler. Así, expone el contrato que permite que el cargador de microfrontends interactúe con él. Con esto finaliza el proceso de compilación del microfrontend a cargar, generando como resultado un bundle. Este bundle puede servirse desde cualquier dirección y puede usarse sin necesidad de registro alguno.
+
+Así, el proceso de carga comienza con el módulo restante de la librería, el módulo de herramientas. Este módulo es la única parte de la librería que se encuentra en las aplicaciones padres, y es el encargado de conocer la interfaz expuesta por el punto de entrada remoto para cargar el microfrotend. Así, este módulo es agnóstico con respecto al bundler; de hecho, no es necesario usar ningún bundler en la aplicación padre para poder usarlo, ya que es un conjunto de herramientas autocontenidas y que únicamente usan funcionalidad nativa del navegador.
+
+Este módulo contiene el cargador de microfrontends, que es el punto de entrada para la carga. Este comienza cargando el punto de entrada remoto si este aún no se encuentra en la caché del cargador global AMD. Así, el script es inyectado en la página, ejecutando primero el runtime del bundler y procediendo este a instanciar el punto de entrada remoto generado anteriormente. El punto de entrada remoto no tiene dependencias y expone los puntos de entrada de la aplicación, además del resto de funciones de utilidad que definimos en el @containerization[capítulo]. Podemos observar este procedimiento esquematizado en la @4-remote-entry-load[ilustración].
+
+#figure(
+  image("../figures/example-12-3-library-runtime-usage.drawio.svg"),
+  caption: [Carga del punto de entrada remoto]
+) <4-remote-entry-load>
+
+Tras devolver el control al cargador de microfrontends, este crea una nueva instancia, establece el public path apropiado y devuelve el control al usuario. El usuario puede entonces llamar a la función `loadEntry` para iniciar la carga de uno de los puntos de entrada de la aplicación, llamando posteriormente a la función `mount` y completando el proceso de carga, como podemos ver en @4-calling-app-entrypoint.
+
+#figure(
+  image("../figures/example-12-4-library-instantiation-usage.drawio.svg"),
+  caption: [Carga del punto de entrada de la aplicación]
+) <4-calling-app-entrypoint>

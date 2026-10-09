@@ -1,4 +1,3 @@
-// LTeX: enabled=false
 
 #import "../utils.typ": *
 

@@ -4,7 +4,6 @@ import type {
   AppFederationEntryMount,
 } from "../../library/dist/tools";
 import { getPublicPath } from "../../library/dist/runtime";
-
 import "./global.css";
 
 let counter = 0;

@@ -1,5 +1,3 @@
-// LTeX: language=es-ES
-
 = Introducción <introduction>
 
 == Motivación <motivation>

@@ -1,5 +1,3 @@
-// LTeX: language=es-ES
-
 #import "@preview/codly:1.3.0": *
 
 = Investigación y desarrollo <research-and-development>
@@ -10,15 +8,5 @@ El primer apartado servirá como una pequeña introducción al funcionamiento de
 
 #include "0410_rnd_why_using_a_bundler.typ"
 #include "0420_rnd_microfrontend_dynamic_loading.typ"
-
-== Estilos en microfrontends <microfrontend-styles>
-
-=== Inyección rudimentaria inicial
-=== Delimitando estilos: shadow root
-=== Peculiaridades del shadow root
-
-== Comunicación entre microfrontends <communication-between-microfrontends>
-
-=== Comunicación local: padre e hijo
-=== Comunicación global: buses
-=== Ejemplo: routing
+#include "0430_rnd_style_injection.typ"
+#include "0440_rnd_microfrontend_communication.typ"

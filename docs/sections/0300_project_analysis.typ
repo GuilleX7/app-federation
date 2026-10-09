@@ -1,5 +1,3 @@
-// LTeX: language=es-ES
-
 = Análisis y diseño de requisitos <project-analysis>
 
 == Actores <actors>

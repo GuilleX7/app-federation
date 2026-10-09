@@ -24,6 +24,9 @@ export default defineConfig({
       {
         test: /\.css$/,
         type: "css",
+        parser: {
+          exportType: "style",
+        },
       },
     ],
   },

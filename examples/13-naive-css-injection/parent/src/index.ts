@@ -10,7 +10,8 @@ button.innerText = "Load microfrontend";
 button.addEventListener("click", async () => {
   const container = document.createElement("div");
   container.style.border = "1px solid #000";
-  container.style.minHeight = "100px";
+  container.style.display = "block";
+  container.style.margin = "16px 0px";
 
   const entry = await loadAppInstanceEntry("http://localhost:8081/remote.js");
   const lifecycle = await entry.mount({ container });

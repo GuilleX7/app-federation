@@ -8,9 +8,11 @@ Una de las ventajas de los bundlers es que no solo podemos transformar a volunta
 
 Aunque los estilos entran dentro de esta categoría de archivos procesables, presentan algunas diferencias reseñables: la carga de estos archivos y su inclusión en el DOM provoca cambios a nivel global, pues los estilos son definidos para toda la ventana. A continuación, vamos a ver algunas de las técnicas disponibles para la inyección de estilos en microfrontends, incluyendo técnicas para el aislamiento de los mismos, contribuyendo al objetivo de lograr instancias aisladas.
 
-=== Inyección rudimentaria inicial
+=== Inyección no controlada
 
 En general, un navegador permite hasta tres formas de inyectar estilos en el DOM:
+
+#codly(number-format: none)
 
 - A través de una etiqueta `<link rel="stylesheet">`, que permite cargar estilos provenientes de un archivo externo. ```html
   <link rel="stylesheet" href="global.css" />
@@ -24,28 +26,28 @@ En general, un navegador permite hasta tres formas de inyectar estilos en el DOM
   document.body.style.width = "100%";
   ```
 
-Normalmente, un bundler que genera una aplicación web normal suele generar un documento HTML con etiquetas de tipo `<link>` para delegar la carga de los estilos al navegador cuando el documento se abra. Este enfoque es ideal cuando tratamos con una aplicación web que no usa microfrontends o cuando tratamos con una aplicación padre que los carga. En Rspack, podríamos conseguir esto [to-do: explicar cómo extraer estilos en Rspack]
+#codly(number-format: numbering.with("1"))
 
-[to-do: confirmar si Rspack es capaz de inyectar estilos usando la etiqueta link]
-Sin embargo, este enfoque no es suficiente para la inyección de estilos en microfrontends, pues como hemos visto hasta ahora, el punto de entrada a un microfrontend es un módulo JavaScript, y no un documento HTML, por lo que el navegador no tiene siquiera conocimiento de estos archivos. En casos donde no existe la posibilidad de usar un documento HTML, o simplemente cuando queremos aumentar la portabilidad de nuestra aplicación, podemos recurrir al segundo método, la etiqueta `<style>`.
+Normalmente, los bundlers suelen recurrir al primer método si no se han configurado explícitamente para actuar de otra forma, delegando así la carga de los estilos al navegador. En este caso, el bundler produce archivos CSS externos y los asocia a chunks específicos. Cuando estos chunks se cargan, el bundler añade la etiqueta `<link>` correspondiente y permite que el navegador cargue estos estilos en paralelo al chunk.
 
-Este método suele funcionar de la siguiente forma: cuando un módulo JavaScript importa el contenido de un archivo CSS, el bundler incrusta el resultado de los archivos CSS referenciados dentro de los archivos JavaScript como cadenas de texto. Cuando los módulos de JavaScript son instanciados por el runtime del bundler, este también invoca un inyector de estilos que crea etiquetas `<style>`, escribe el contenido dentro de estas etiquetas y las añade al documento.
+Aunque este enfoque es ideal cuando tratamos con una aplicación web que no usa microfrontends o cuando tratamos con una aplicación padre que los carga, presenta algunos problemas dentro de un microfrontend: los estilos aplicados no pueden ser modificados desde el propio microfrontend, y aunque esto no suele ser un problema para una aplicación web normal, resultará ser un inconveniente para el aislamiento de estilos entre microfrontends, como veremos en capítulos posteriores. Así, procederemos con el segundo método, la etiqueta `<style>`.
+
+Este método suele funcionar de la siguiente forma: cuando un módulo JavaScript importa el contenido de un archivo CSS, el bundler incrusta el contenido de este como una cadena de texto dentro del módulo. Cuando el módulo de JavaScript es instanciado, el runtime del bundler invoca también un inyector de estilos que crea una etiqueta `<style>`, escribe el contenido correspondiente y la añade al documento. Este proceso se describe en la @4-style-injection-schema[ilustración].
+
+#figure(
+  image("../figures/example-13-1-style-loading-bundler.drawio.svg"),
+  caption: [Esquema de la inyección de estilos dentro de JavaScript],
+) <4-style-injection-schema>
 
 Podemos configurar Rspack para inyectar etiquetas `<style>` usando una configuración básica descrita en @4-basic-configuration-for-styling[código].
 
+#codly(ranges: ((5, 5), (12, 13), (24, 32), (51, 51)))
 #figure(
-  ```ts
-  export default defineConfig({
-    module: {
-      rules: [
-        {
-          test: /\.css$/,
-          type: "css",
-        },
-      ],
-    },
-  });
-  ```,
+  raw(
+    read("../../examples/13-naive-css-injection/child/rspack.config.ts"),
+    block: true,
+    lang: "ts",
+  ),
   caption: [Configuración básica para la inyección de estilos en Rspack],
 ) <4-basic-configuration-for-styling>
 
@@ -72,11 +74,57 @@ Ahora, importamos este archivo en el punto de entrada de aplicación de `child`,
   caption: [Importando `global.css` en el punto de entrada de `child`],
 ) <4-importing-global-css-in-child>
 
-Para ver el resultado, podemos observar el punto de entrada de la aplicación dentro del bundle:
+Si compilamos `child`, podremos observar cómo el módulo de entrada hace referencia al módulo que contiene el archivo CSS, como vemos en @4-referencing-global-css-from-entrypoint[código].
 
+#codly(ranges: ((6, 10), (16, 17)))
+#figure(
+  raw(
+    read("../../examples/13-naive-css-injection/child/dist/src_entry_main_ts.js"),
+    block: true,
+    lang: "js",
+  ),
+  caption: [Referencia a `global.css` desde el módulo de entrada de `child`],
+) <4-referencing-global-css-from-entrypoint>
 
+El contenido del archivo CSS ha sido incrustado como un módulo dentro del mismo chunk donde se encuentra el punto de entrada de la aplicación, como vemos en @4-global-css-as-a-module[código].
 
-=== Inyección controlada
+#codly(ranges: ((51, 57),))
+#figure(
+  raw(
+    read("../../examples/13-naive-css-injection/child/dist/src_entry_main_ts.js"),
+    block: true,
+    lang: "js",
+  ),
+  caption: [Módulo generado por `global.css` en el bundle de `child`],
+) <4-global-css-as-a-module>
 
-=== Delimitando estilos: shadow root
+Como vemos, la cadena de texto se pasa como parámetro a la función del runtime `__webpack_require__.is`, esto es, el inyector de estilos del runtime de Rspack, que se encuentra definido en @4-rspack-style-injector-is[código].
+
+#codly(ranges: ((321, 329),))
+#figure(
+  raw(
+    read("../../examples/13-naive-css-injection/child/dist/remote.js"),
+    block: true,
+    lang: "js",
+  ),
+  caption: [Definición del inyector de estilos del runtime de Rspack],
+) <4-rspack-style-injector-is>
+
+Si ahora cargamos `child` desde `parent`, observaremos que los estilos se cargan y se aplican, pero también nos enfrentamos a un problema: al inyectarse directamente en el documento, los estilos globales afectan también a elementos fuera del microfrontend. A su vez, lo opuesto también es cierto: los estilos declarados fuera del microfrontend afectan a los elementos de dentro, como podemos ver en la @4-uncontrolled-injection-child-in-parent[ilustración].
+
+#figure(
+  image("../figures/example-13-2-uncontrolled-injection.png"),
+  caption: [Resultado de la inyección no controlada de estilos de `child` en `parent`],
+) <4-uncontrolled-injection-child-in-parent>
+
+=== Inyección controlada: shadow root
+
+Uno de los motivos de este problema es que la etiqueta `<style>` está siendo inyectada directamente en el cuerpo del documento, en lugar del contenedor del microfrontend. Esto provoca que la distancia entre la etiqueta `<style>` y el resto de elementos fuera del microfrontend se reduzca, lo cual aumenta la especifidad, es decir, la prioridad que tienen unos estilos frente a otros a la hora de decidir cuál aplicar a un elemento.
+
+A pesar de que conseguir que la etiqueta `<style>` se inyectara dentro del contenedor del microfrontend ayudaría a aumentar la distancia entre la etiqueta de estilo y el resto de componentes fuera del microfrontend, esto no constituiría una solución definitiva, pues aquellas propiedades que no hayan sido definidas explícitamente en los elementos podrían seguir siendo sobreescritas por los estilos del microfrontend.
+
+Dado que tenemos acceso al contenido de las etiquetas de estilo y podemos alterar us contenido, una posible solución pasaría por modificar su contenido para renombrar todas las clases con identificadores únicos, evitando conflictos con elementos fuera del microfrontend. Sin embargo, esto tampoco solucionaría el problema con especificadores amplios (como \*),y los estilos externos seguirían afectando al microfrontend.
+
+Así, la única solución completa a este problema es usar un shadow root. Shadow root es una funcionalidad que forma parte del estándar web y que permite crear un pseudocontenedor que aisla los estilos aplicados bidireccionalmente: los estilos de fuera no se aplican dentro y viceversa.
+
 === Peculiaridades del shadow root

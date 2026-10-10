@@ -119,12 +119,90 @@ Si ahora cargamos `child` desde `parent`, observaremos que los estilos se cargan
 
 === Inyección controlada: shadow root
 
-Uno de los motivos de este problema es que la etiqueta `<style>` está siendo inyectada directamente en el cuerpo del documento, en lugar del contenedor del microfrontend. Esto provoca que la distancia entre la etiqueta `<style>` y el resto de elementos fuera del microfrontend se reduzca, lo cual aumenta la especifidad, es decir, la prioridad que tienen unos estilos frente a otros a la hora de decidir cuál aplicar a un elemento.
+La inclusión de estilos dentro del mismo documento provoca conflictos entre clases y efectos no deseados. Incluso si la etiqueta tag fuese inyectada dentro del contenedor del microfrontend, sus estilos seguirían aplicándose de forma global en el documento.
 
-A pesar de que conseguir que la etiqueta `<style>` se inyectara dentro del contenedor del microfrontend ayudaría a aumentar la distancia entre la etiqueta de estilo y el resto de componentes fuera del microfrontend, esto no constituiría una solución definitiva, pues aquellas propiedades que no hayan sido definidas explícitamente en los elementos podrían seguir siendo sobreescritas por los estilos del microfrontend.
-
-Dado que tenemos acceso al contenido de las etiquetas de estilo y podemos alterar us contenido, una posible solución pasaría por modificar su contenido para renombrar todas las clases con identificadores únicos, evitando conflictos con elementos fuera del microfrontend. Sin embargo, esto tampoco solucionaría el problema con especificadores amplios (como \*),y los estilos externos seguirían afectando al microfrontend.
+Dado que tenemos acceso al contenido de las etiquetas de estilo y podemos alterar su contenido, una posible solución pasaría por modificar su contenido para renombrar todas las clases, sustituyéndolas con identificadores únicos, lo que evitaría conflictos con elementos externos al microfrontend. Sin embargo, esto tampoco solucionaría el problema con especificadores amplios (como \*),y los estilos externos seguirían afectando a los elementos internos del microfrontend.
 
 Así, la única solución completa a este problema es usar un shadow root. Shadow root es una funcionalidad que forma parte del estándar web y que permite crear un pseudocontenedor que aisla los estilos aplicados bidireccionalmente: los estilos de fuera no se aplican dentro y viceversa.
+
+#figure(
+  image("../figures/example-14-1-style-clashing.drawio.svg"),
+  caption: [Comparación entre un DOM sin shadow root y uno con shadow root],
+) <4-style-clashing>
+
+Como vemos en el @4-style-clashing[diagrama], necesitamos colocar tanto los estilos como el contenido del microfrontend dentro del shadow root para aplicar el aislamiento de forma adecuada. Dado que es el propio microfrontend quien crea y coloca el contenido dentro del contenedor proporcionado, parece lógico pensar que debe ser el mismo microfrontend quien cree el shadow root en el contenedor si lo necesita. Dado que la API de un shadow root difiere de la de un contenedor `<div>` normal, podemos crear un nuevo contenedor dentro del shadow root para estandarizar el comportamiento de la función `mount`, que se asegura trabajar siempre con un contenedor típico, como vemos en la @4-transforming-parent-container[ilustración].
+
+#figure(
+  image("../figures/example-14-2-standardizing-shadow-root-mount.drawio.svg"),
+  caption: [Transformación del contenedor padre del microfrontend],
+) <4-transforming-parent-container>
+
+A pesar de que el microfrontend mantiene el control de los estilos, el inyector de estilos de Rspack añade los estilos al cuerpo del documento por defecto. Aunque este comportamiento es configurable, la configuración no permite seleccionar un contenedor de forma dinámica que no sea conocido en tiempo de compilación. Por ello, será necesario reemplazar el inyector de estilos y modificar los módulos CSS para que se registren en el nuevo inyector.
+
+Primero, necesitaremos que los módulos CSS expongan su contenido directamente, en lugar de invocar al inyector de estilos. Rspack tiene soporte nativo para esto de manera similar a la configuración que vimos en @4-basic-configuration-for-styling[código]. Sin embargo, Para evitar que el usuario tenga que aplicar el cambio manualmente, podemos modificar el plugin en tiempo de compilación para que el cambio se produzca automáticamente, sobreescribiendo la configuración del usuario, como podemos ver en @4-modifying-configuration-expose-styles[código].
+
+#codly(ranges: ((80, 80), (82, 82), (85, 85), (98, 105), (138, 138)))
+#figure(
+  raw(
+    read("../../examples/14-containerized-css/library/src/build/plugins/rspackPlugin.ts"),
+    block: true,
+    lang: "ts",
+  ),
+  caption: [Modificando la configuración para exponer estilos como cadenas de texto],
+) <4-modifying-configuration-expose-styles>
+
+En este punto, importar un módulo CSS únicamente nos proporcionaría su contenido, pero no se inyectaría automáticamente en el contenedor del microfrontend. Para automatizar este proceso, podemos aplicar el patrón fachada y envolver los módulos CSS con un módulo generado durante la compilación que registre su contenido en el nuevo inyector, a la vez que expone su contenido para el usuario. Debido a que la lógica es compleja, podemos mostrar el funcionamiento de forma gráfica con la @4-facade-css-module-generation[ilustración].
+
+Una de las ventajas de esta práctica es que permite al usuario utilizar CSS modules (no confundir con un módulo CSS del bundler). Esta técnica consiste en definir clases CSS e importar los mismos identificadores dentro de un módulo JavaScript del módulo CSS generado. Las variables importadas corresponden a los identificadores CSS tras haber sufrido una transformación conocida como mangling, que crea cadenas únicas, lo que permite que las clases CSS se apliquen de forma local dentro de los módulos JavaScript que las importen y que no afecten al resto de elementos. Por otro lado, nuestro módulo fachada exporta el contenido CSS en bruto a través del `default export` del módulo, agregando versatilidad al soporte de estilos.
+
+#figure(
+  image("../figures/example-14-3-css-module.drawio.svg"),
+  caption: [Generación de módulos fachada para módulos de CSS],
+) <4-facade-css-module-generation>
+
+Por último, es necesario definir cómo funcionará el nuevo inyector de estilos, tanto a la hora de registrar los estilos como a la hora de registrar el contenedor donde estos estilos se inyectarán. El inyector expondrá una interfaz sencilla para registrar estilos, de forma que no solo los módulos fachada generados puedan registrarse, sino que el usuario además pueda registrar manualmente estilos en tiempo de ejecución. Esta aceptará únicamente un ID para el módulo CSS y su contenido, encargándose de la creación, sincronización e injección de etiquetas `<style>` asociadas, como se muestra en @4-css-runtime-internals[código].
+
+#codly(ranges: ((97, 97), (99, 99), (101, 101), (105, 107), (114, 114), (125, 125)))
+#figure(
+  raw(
+    read("../../examples/14-containerized-css/library/src/runtime/css.ts"),
+    block: true,
+    lang: "ts",
+  ),
+  caption: [Interfaz de registro de estilos CSS en el inyector],
+) <4-css-runtime-internals>
+
+Por otro lado, el registro de contenedores se hace de forma manual por el usuario. Aunque hasta ahora hemos utilizado un único contenedor en el microfrontend, no existe ningún motivo técnico para mantener esta limitación, por lo que nuestro inyector de estilos permitirá registrar cualquier número de contenedores, manteniendo copias de los estilos sincronizadas entre todos los contenedores. Usualmente esto se hará en la función `mount` del microfrontend, tal y como se muestra en @4-registering-css-containers-in-mount[código].
+
+#codly(ranges: ((6, 8), (11, 12), (16, 20), (25, 29), (33, 33), (37, 43)))
+#figure(
+  raw(
+    read("../../examples/14-containerized-css/child/src/entry.main.ts"),
+    block: true,
+    lang: "ts",
+  ),
+  caption: [Interfaz de registro de contenedores en la función `mount`],
+) <4-registering-css-containers-in-mount>
+
+Cabe destacar que `createStyledContainer` acepta un segundo parámetro que permite configurar su comportamiento, como habilitar o deshabilitar la creación del shadow root, que queda a elección del microfrontend. Por otro lado, el runtime también expone funciones para desregistrar módulos CSS y contenedores. Para evitar mantener el registro de todos los contenedores y módulos CSS usados, también expone una función de limpieza, `tearDownStyleScoping`, que permite liberar todos los recursos registrados anteriormente, y que suele llamarse en la función `unmount`. Podemos resumir así el funcionamiento de la inyección de estilos con el diagrama dado por la @4-complete-style-injection-architecture[ilustración].
+
+#figure(
+  image("../figures/example-14-4-css-module-runtime.drawio.svg"),
+  caption: [Arquitectura final de la inyección de estilos],
+) <4-complete-style-injection-architecture>
+
+Si echamos un vistazo a `child` en @4-child-styles-standalone[ilustración], podemos ver como sus estilos se cargan adecuadamente al abrirla independientemente. Además, podemos usar la propia API expuesta por el runtime para observar el módulo CSS que se ha autoregistrado.
+
+#figure(
+  image("../figures/example-14-5-microfrontend-child-standalone.png", width: 100%),
+  caption: [Estilos de `child` cargado forma independiente],
+) <4-child-styles-standalone>
+
+Por otro lado, si abrimos `parent` y cargamos `child`, podemos ver como ahora sus estilos no interfieren de ninguna forma, como se observa en @[ilustración].
+
+#figure(
+  image("../figures/example-14-6-microfrontend-parent-child.png", width: 100%),
+  caption: [`parent` y `child` cargados con estilos aislados usando shadow root],
+)
 
 === Peculiaridades del shadow root

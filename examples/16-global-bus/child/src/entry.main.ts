@@ -3,7 +3,7 @@ import type {
   AppFederationEntryLifecycle,
 } from "../../library/dist/tools";
 import { loadAppInstanceEntry } from "../../library/dist/tools";
-import type { CommunicationEvents } from "../../contract";
+import { BusEvent, type BusEventPayload } from "../../contract";
 import {
   createStyledContainer,
   tearDownStyleScoping,
@@ -15,7 +15,7 @@ export async function mount({
   bus,
 }: {
   container?: HTMLElement;
-  bus?: AppFederationBus<CommunicationEvents>;
+  bus?: AppFederationBus<BusEventPayload>;
 }): Promise<AppFederationEntryLifecycle> {
   if (!container || !bus) {
     throw new Error("Container and bus are required");
@@ -25,12 +25,31 @@ export async function mount({
   innerContainer.className = "myContainer";
   innerContainer.innerHTML = `
     <h1>Child</h1>
-    <p>The child passes the same bus to its subchild.</p>
   `;
+
+  const lastGreeting = document.createElement("p");
+  lastGreeting.innerText = "Last greeting from another app: none";
+  innerContainer.appendChild(lastGreeting);
+
+  const unsubscribeFromHello = bus.subscribe(BusEvent.Hello, (greeting) => {
+    if (greeting.sender !== "child") {
+      lastGreeting.innerText = `Last greeting from ${greeting.sender}`;
+    }
+  });
+
+  const helloButton = document.createElement("button");
+  helloButton.innerText = "Send hello from child";
+  helloButton.addEventListener("click", () => {
+    bus.emit(BusEvent.Hello, {
+      sender: "child",
+    });
+  });
+  innerContainer.appendChild(helloButton);
 
   const subchildContainer = document.createElement("div");
   subchildContainer.style.border = "1px solid #000";
-  subchildContainer.style.margin = "16px 0px";
+  subchildContainer.style.display = "block";
+  subchildContainer.style.marginTop = "8px";
   innerContainer.appendChild(subchildContainer);
 
   const subchildEntry = await loadAppInstanceEntry(
@@ -44,6 +63,7 @@ export async function mount({
   return {
     unmount: () => {
       subchildLifecycle.unmount();
+      unsubscribeFromHello();
       tearDownStyleScoping();
       container.innerHTML = "";
     },

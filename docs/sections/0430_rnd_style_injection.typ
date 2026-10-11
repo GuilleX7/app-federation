@@ -204,5 +204,3 @@ Por otro lado, si abrimos `parent` y cargamos `child`, podemos ver como ahora su
   image("../figures/example-14-6-microfrontend-parent-child.png", width: 100%),
   caption: [`parent` y `child` cargados con estilos aislados usando shadow root],
 )
-
-=== Peculiaridades del shadow root

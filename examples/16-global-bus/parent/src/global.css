@@ -1,4 +1,20 @@
-body {
-  font-family: Arial, sans-serif;
-  color: green;
+* {
+  box-sizing: border-box;
+}
+
+p {
+  padding: 0;
+  margin: 0px;
+  margin-bottom: 8px;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  padding: 0;
+  margin: 0px;
+  margin-bottom: 8px;
 }

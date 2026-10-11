@@ -1,16 +1,15 @@
 import { createBus, loadAppInstanceEntry } from "../../library/dist/tools";
-import {
-  AppFederationBusEvent,
-  type CommunicationEvents,
-} from "../../contract";
+import { BusEvent, type BusEventPayload } from "../../contract";
 
-const bus = createBus<CommunicationEvents>();
-const parentMessageButton = document.createElement("button");
-parentMessageButton.innerText = "Send message to subchild";
-parentMessageButton.addEventListener("click", () => {
-  bus.emit(AppFederationBusEvent.ParentMessage, "Hello from parent!");
+const bus = createBus<BusEventPayload>();
+const helloButton = document.createElement("button");
+helloButton.innerText = "Send hello from child";
+helloButton.addEventListener("click", () => {
+  bus.emit(BusEvent.Hello, {
+    sender: "child",
+  });
 });
-document.body.appendChild(parentMessageButton);
+document.body.appendChild(helloButton);
 
 loadAppInstanceEntry("remote.js")
   .then(async (entry) => {

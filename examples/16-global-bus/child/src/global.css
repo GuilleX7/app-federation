@@ -1,17 +1,26 @@
-body {
-  background-color: aliceblue;
+* {
+  box-sizing: border-box;
 }
 
 .myContainer {
   background-color: rgb(255, 170, 170);
+  padding: 8px;
+  overflow: auto;
 }
 
 p {
   padding: 0;
-  margin: 0;
+  margin: 0px;
+  margin-bottom: 8px;
 }
 
-h1 {
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
   padding: 0;
-  margin: 0;
+  margin: 0px;
+  margin-bottom: 8px;
 }

@@ -1,9 +1,9 @@
-export enum AppFederationBusEvent {
-  ParentMessage = "parent-message",
-  SubchildMessage = "subchild-message",
+export enum BusEvent {
+  Hello = "hello",
 }
 
-export type CommunicationEvents = {
-  [AppFederationBusEvent.ParentMessage]: string;
-  [AppFederationBusEvent.SubchildMessage]: string;
+export type BusEventPayload = {
+  [BusEvent.Hello]: {
+    sender: string;
+  };
 };

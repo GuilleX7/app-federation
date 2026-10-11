@@ -2,10 +2,7 @@ import type {
   AppFederationBus,
   AppFederationEntryLifecycle,
 } from "../../library/dist/tools";
-import {
-  AppFederationBusEvent,
-  type CommunicationEvents,
-} from "../../contract";
+import { BusEvent, type BusEventPayload } from "../../contract";
 import {
   createStyledContainer,
   tearDownStyleScoping,
@@ -17,7 +14,7 @@ export function mount({
   bus,
 }: {
   container?: HTMLElement;
-  bus?: AppFederationBus<CommunicationEvents>;
+  bus?: AppFederationBus<BusEventPayload>;
 }): AppFederationEntryLifecycle {
   if (!container || !bus) {
     throw new Error("Container and bus are required");
@@ -27,31 +24,32 @@ export function mount({
   innerContainer.className = "myContainer";
   innerContainer.innerHTML = `
     <h2>Subchild</h2>
-    <p>Message from parent: none</p>
+    <p>Last greeting from another app: none</p>
   `;
 
-  const parentMessage = innerContainer.querySelector("p");
-  if (!parentMessage) {
-    throw new Error("Subchild message element was not created");
+  const lastGreeting = innerContainer.querySelector("p");
+  if (!lastGreeting) {
+    throw new Error("Subchild greeting element was not created");
   }
 
-  const unsubscribeFromParent = bus.subscribe(
-    AppFederationBusEvent.ParentMessage,
-    (message) => {
-      parentMessage.innerText = `Message from parent: ${message}`;
-    },
-  );
-
-  const subchildMessageButton = document.createElement("button");
-  subchildMessageButton.innerText = "Send message to parent";
-  subchildMessageButton.addEventListener("click", () => {
-    bus.emit(AppFederationBusEvent.SubchildMessage, "Hello from subchild!");
+  const unsubscribeFromHello = bus.subscribe(BusEvent.Hello, (greeting) => {
+    if (greeting.sender !== "subchild") {
+      lastGreeting.innerText = `Last greeting from ${greeting.sender}`;
+    }
   });
-  innerContainer.appendChild(subchildMessageButton);
+
+  const helloButton = document.createElement("button");
+  helloButton.innerText = "Send hello from subchild";
+  helloButton.addEventListener("click", () => {
+    bus.emit(BusEvent.Hello, {
+      sender: "subchild",
+    });
+  });
+  innerContainer.appendChild(helloButton);
 
   return {
     unmount: () => {
-      unsubscribeFromParent();
+      unsubscribeFromHello();
       tearDownStyleScoping();
       container.innerHTML = "";
     },

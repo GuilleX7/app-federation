@@ -10,11 +10,11 @@ Con la solidificación de las SPA como paradigma y la aparición de frameworks c
 
 El gran éxito cosechado por el paradigma SPA y el uso de bundlers ha perdurado hasta nuestros días, donde la mayoría de aplicaciones web se siguen desarrollando con este enfoque. No obstante, la inmutabilidad de los bundles y la aparición de proyectos cada vez más grandes y complejos, especialmente en grandes organizaciones, han llevado a la necesidad de buscar alternativas más flexibles y escalables. Así, en grandes desarrollos, el enfoque ha evolucionado hacia modelos más distribuidos y modulares, como los microfrontends. Este busca resolver los desafíos de escalabilidad, mantenibilidad y autonomía que presentan los monolitos tradicionales, permitiendo que diferentes equipos desarrollen, desplieguen y mantengan aplicaciones independientes que se integran de forma coordinada @cite-andalucia-microfrontends.
 
-Sin embargo, las implementaciones más populares de microfrontends son demasiado complejas, introduciendo una gran cantidad de funcionalidad que resulta indeseable y, a la vez, hace que la implementación sea difícil de estudiar y extender para los propósitos específicos de cada organización en particular.
+En ocasiones, estas implementaciones introducen funcionalidades que resultan indeseables o, de forma opuesta, omiten funcionalidad que resulta esencial.  Debido a su alta complejidad, estas implementaciones son difíciles de estudiar y modificar para los propósitos específicos de cada organización particular, por lo que fallan en ofrecer una solución completa o extensible.
 
 == State-of-the-art <state-of-the-art>
 
-Existen distintos tipos de implementaciones de microfrontends. Por lo general, podemos dividirlas en categorías según tres aspectos principales:
+Existen muchos tipos de implementaciones de microfrontends. En este trabajo las divideremos de acuerdo a tres categorías que se corresponden, principalmente, con su forma de uso, su funcionamiento interno y el momento en el que llevan a cabo la mayor parte del trabajo:
 
 - *Paradigma*: existen implementaciones que requieren registrar los microfrontends en la aplicación padre de forma *declarativa*, mientras que otros permiten cargar microfrontends de forma completamente *programática*, sin necesidad de registro previo o metadatos más allá de la dirección web donde reside el punto de entrada (como veremos en el @managing-execution[capítulo])
 
@@ -22,23 +22,25 @@ Existen distintos tipos de implementaciones de microfrontends. Por lo general, p
 
 - *Tiempo de ejecución*: una implementación puede ser completamente agnóstica con respecto a las herramientas de compilación (bundlers) y funcionar sin modificar los microfrontends en absoluto (en cuyo caso diríamos que es una implementación en *run-time*), o pueden requerir modificar la compilación de los microfrontends para añadir parte o la totalidad de la funcionalidad (*build-time*).
 
-En general, el ecosistema está fuertemente dominado principalmente por dos famosas implementaciones: Module Federation y single-spa. Otras implementaciones menos usadas son qiankun, Nativa Federation, Garfish o micro-app. De acuerdo a nuestra clasificación anterior, podemos organizarlas de la siguiente manera:
+Debido a la alta fragmentación del ecosistema, es difícil encontrar una lista exhaustiva de las diferentes implementaciones existentes. Además, no se han podido encontrar datos claros sobre la cuota de mercado de la mayoría de implementaciones. Sin embargo, el conjunto de búsquedas realizado a través de Google arroja cinco implementaciones prominentes: Module Federation, single-spa, qiankun, Nativa Federation, Garfish o micro-app. De acuerdo a nuestra clasificación anterior, podemos organizarlas de la siguiente manera:
 
 #figure(
   table(
     columns: 4,
     table.header[Implementación][Paradigma][Aislamiento][Tiempo de ejecución],
-    [Module Federation], [Semi-declarativo], [Cooperativo], [Build-time],
+    [Module Federation], [Semideclarativo], [Cooperativo], [Build-time],
     [single-spa], [Declarativo], [Cooperativo], [Run-time],
     [qiankun], [Programático], [Sandboxed], [Run-time],
-    [Native Federation], [Semi-declarativo], [Cooperativo], [Build-time],
+    [Native Federation], [Semideclarativo], [Cooperativo], [Build-time],
     [Garfish], [Programático], [Sandboxed], [Run-time],
     [micro-app], [Programático], [Sandboxed], [Run-time],
   ),
   caption: [Clasificación de implementaciones de microfrontends],
 )
 
-Como podemos observar, las dos implementaciones más relevantes de la actualidad son cooperativas. Sin embargo, tanto Module Federation como single-spa siguen una estructura declarativa: ambas requieren que las aplicaciones padres registren un manifiesto donde se definen todas aquellas aplicaciones hijas que podrán ser cargadas en run-time. Este enfoque dogmático puede ser útil para mantener una estructura fija, pero también obliga a cambiar de forma drástica cómo las aplicaciones están organizadas en la organización y puede limitar la libertad cuando los usuarios tienen otras necesidades.
+Como podemos observar, las dos implementaciones más relevantes de la actualidad son cooperativas. Sin embargo, single-spa sigue una estructura declarativa: requiere que las aplicaciones padres registren un manifiesto donde se definen todas aquellas aplicaciones hijas que podrán ser cargadas en run-time. Este enfoque dogmático puede ser útil para mantener una estructura fija, pero también obliga a cambiar de forma drástica cómo las aplicaciones están organizadas en la organización y puede limitar la libertad cuando los usuarios tienen otras necesidades.
+
+Module Federation y su descendiente, Native Federation, son dos implementaciones semideclarativas, esto es, aunque es común usar manifiestos en tiempo de compilación donde los microfrontends quedan registrados, estas implementaciones también permiten registrarlos en tiempo de ejecución. A la vez, son implementaciones cooperativas y basadas en el tiempo de compilación, lo que las convierte en dos de las opciones más dinámicas de la lista. Sin embargo, presentan algunos problemas: no soportan la creación de múltiples instancias de un mismo microfrontend, y tampoco proporcionan al usuario funcionalidades importantes como el aislamiento de estilos, requiriendo que el usuario implemente su propia solución. @cite-mf-style-isolation
 
 Por otro lado, las soluciones como qiankun, Garfish o micro-app no requieren ninguna modificación en el proceso de compilación de los microfrontends y únicamente requieren mínimos cambios en run-time. Este paradigma conlleva el uso de sandboxing, dado que las aplicaciones hijas no cooperan de ninguna forma con la aplicación padre y, por tanto, es necesario aislarlas del entorno de forma estricta. Aunque esto ayuda a conseguir una separación de responsabilidades estricta y previene que los errores se propaguen de hijos a padres o viceversa, también introduce un mecanismo muy complejo y pesado que, además de introducir posibles bugs, puede reducir el rendimiento, aumentar el tamaño final del bundle y resultar innecesario para los requisitos de otras organizaciones.
 

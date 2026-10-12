@@ -123,7 +123,7 @@ La inclusión de estilos dentro del mismo documento provoca conflictos entre cla
 
 Dado que tenemos acceso al contenido de las etiquetas de estilo y podemos alterar su contenido, una posible solución pasaría por modificar su contenido para renombrar todas las clases, sustituyéndolas con identificadores únicos, lo que evitaría conflictos con elementos externos al microfrontend. Sin embargo, esto tampoco solucionaría el problema con especificadores amplios (como \*),y los estilos externos seguirían afectando a los elementos internos del microfrontend.
 
-Así, la única solución completa a este problema es usar un shadow root. Shadow root es una funcionalidad que forma parte del estándar web y que permite crear un pseudocontenedor que aisla los estilos aplicados bidireccionalmente: los estilos de fuera no se aplican dentro y viceversa.
+En esta situación parece factible usar shadow root, una funcionalidad que forma parte del estándar web y que permite crear un pseudocontenedor que aisla los estilos aplicados bidireccionalmente: los estilos de fuera no se aplican dentro y viceversa.
 
 #figure(
   image("../figures/example-14-1-style-clashing.drawio.svg"),

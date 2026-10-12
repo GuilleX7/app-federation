@@ -4,7 +4,7 @@
 
 === Optimización <bundlers-optimization>
 
-A lo largo de este proyecto se usa de forma extensa el término bundler. Aunque existen muchos bundlers en la actualidad, todos tienen un comportamiento similar: *toman un conjunto de archivos como entrada* (normalmente archivos HTML, CSS, JavaScript u otros archivos multimedia como imágenes, vídeos, sonidos, hasta binarios WebAssembly) y *producen una salida mínima y óptima*, esto es, reducen el número de archivos, el tamaño de cada uno de ellos (eliminando información redundante, como los espacios, los comentarios o incluso minificando código o recodificando imágenes) y genera una distribución llamada bundle que mantiene el mismo comportamiento que los archivos originales.
+A lo largo de este proyecto se usa de forma extensa el término bundler. En términos generales, un bundler analiza los archivos de entrada y sus dependencias, transforma el código y los recursos, y genera uno o varios archivos de salida. Según la herramienta y la configuración, esta distribución puede incluir módulos combinados, código minificado, código no utilizado eliminado o partes que se cargarán bajo demanda. Por tanto, un bundle no tiene por qué consistir en un único archivo, ni todas las optimizaciones se aplican necesariamente a todos los proyectos @cite-webpack-code-splitting, @cite-webpack-tree-shaking.
 
 Por ejemplo, supongamos la plantilla HTML dada en @4-simple-html-template[código].
 
@@ -23,7 +23,7 @@ Por ejemplo, supongamos la plantilla HTML dada en @4-simple-html-template[códig
   caption: [Plantilla HTML],
 ) <4-simple-html-template>
 
-Aunque el ojo humano no detecta redundancia, el estándar HTML no dicta que una plantilla HTML válida necesite saltos de líneas tras su etiquetas. Dado que cada salto de línea se representa con uno o dos bytes, dependiendo del sistema operativo, podemos minimizar el tamaño del archivo con la representación dada en @4-minimal-simple-html-template[código]
+Aunque el ojo humano no detecta redundancia, el estándar HTML no exige saltos de línea entre las etiquetas. Como cada salto de línea ocupa bytes, una herramienta de minificación puede reducir el tamaño de este archivo con la representación dada en @4-minimal-simple-html-template[código]. La minificación es una transformación posible dentro del proceso de construcción; por sí sola no combina dependencias ni garantiza una mejora perceptible del tiempo de carga.
 
 #figure(
   ```html
@@ -32,9 +32,9 @@ Aunque el ojo humano no detecta redundancia, el estándar HTML no dicta que una 
   caption: [Plantilla mínima HTML],
 ) <4-minimal-simple-html-template>
 
-Por supuesto, para el ojo humano, esta última plantilla es difícilmente entendible y modificable. Sin embargo, sigue siendo válida y el archivo habría reducido su tamaño en un par de bytes, por lo que viajaría más rápido por la red y el navegador tendrá que procesar menos información. Los bundlers son los encargados de tomar la @4-simple-html-template[plantilla] y transformarla en la @4-minimal-simple-html-template[plantilla]. Como es de esperar, el resultado de un bundler no suele ser modificado posteriormente, ya que se suele considerar *inmutable*.
+Por supuesto, para el ojo humano, esta última plantilla es difícilmente entendible y modificable. Sin embargo, sigue siendo válida y ocupa menos bytes. Esto reduce la cantidad de datos que se transfieren, aunque el efecto en el tiempo de carga depende, entre otros factores, del tamaño total de los recursos y de la red. Un minificador incluido en la cadena de construcción puede transformar la @4-simple-html-template[plantilla] en la @4-minimal-simple-html-template[plantilla]. El resultado generado suele publicarse como un artefacto de construcción, en lugar de modificarse manualmente.
 
-Aunque el ejemplo anterior no parece un gran beneficio, los bundlers son herramientas sofisticadas capaces de realizar multitud de optimizaciones, a veces no evidentes para los humanos, que permiten mejorar no solo el tamaño del resultado final, sino su optimización. Por ejemplo, veamos el ejemplo dado por el @4-unoptimized-dead-code[código]:
+Aunque el ejemplo anterior no parece un gran beneficio, los bundlers pueden realizar otras optimizaciones que reducen el código incluido en la salida. Por ejemplo, veamos el ejemplo dado por el @4-unoptimized-dead-code[código] @cite-webpack-tree-shaking:
 
 #figure(
   ```js
@@ -91,7 +91,7 @@ Un bundler detectaría que la definición de la constante _b_ no es usada en el 
   caption: [Ejemplo de tree-shaking minimizado],
 ) <4-minimized-tree-shaking>
 
-Este es un procedimiento que debe realizarse con cautela, pues algunos fragmentos de código tienen efectos secundarios (side-effects) que modifican el comportamiento del resto de archivos. No obstante, los bundlers realizan este trabajo de manera autónoma a través de herramientas de ánalisis dinámico.
+Este procedimiento debe realizarse con cautela, pues algunos módulos tienen efectos secundarios (side effects) que modifican el comportamiento del resto del programa. Los bundlers combinan el análisis del código con información de configuración, como las declaraciones de efectos secundarios de los paquetes; por ello, no siempre pueden eliminar código de forma segura sin esa información @cite-webpack-tree-shaking.
 
 A pesar de lo visto en este apartado, los bundlers no solo ejecutan tareas de optimización. Además, proporcionan una configuración extensa a los usuarios que permite procesar y modificar el contenido de cada archivo del proyecto a merced del usuario. Por ejemplo, es posible generar dos bundles distintos de un proyecto con distinta configuración (es decir, con distintas constantes) y optimizar cada una de estas configuraciones por separado.
 
@@ -99,7 +99,7 @@ También es posible reemplazar de forma dinámica el contenido de ciertos archiv
 
 === El runtime: módulos <runtime-modules>
 
-Como ya hemos visto, la optimización es uno de los principales motivos por los que usamos bundlers hoy día. No obstante, existe otra funcionalidad que resulta crítica para esta investigación: el runtime. Para ilustrar qué es el runtime, usaremos ejemplos reales de bundles generados por Rspack, que es el bundler usado en este proyecto.
+Como ya hemos visto, la optimización es uno de los motivos por los que usamos bundlers. No obstante, existe otra funcionalidad que resulta crítica para esta investigación: el runtime que el bundler incorpora cuando funciones como la carga de chunks lo requieren. Para ilustrarlo, usaremos ejemplos reales de bundles generados por Rspack, que es el bundler usado en este proyecto.
 
 Cabe remarcar que todos los bundlers ofrecen, de una forma u otra, un runtime. La elección de Rspack como bundler es deliberada por su extensa configuración y compatibilidad con webpack (uno de los bundlers más conocidos de la industria) y su rapidez (escrito en Rust). Esto no afecta a la generalidad de la investigación ni de la biblioteca prototipo desarrollada, pues esta mantendrá la mayor parte de su lógica agnóstica del bundler, de forma que únicamente necesite pequeños adaptadores para cada bundler específico. La decisión de usar Rspack, por tanto, responde únicamente a limitaciones de tiempo y esfuerzo.
 
@@ -209,12 +209,12 @@ El runtime contiene más métodos que se usan en distintas partes del bundle, pe
 
 === El runtime: chunks <runtime-chunks>
 
-Hasta ahora, tanto el runtime con los módulos estaban contenidos dentro un mismo archivo, que englobaba el bundle completo. Sin embargo, cuando un proyecto aumenta su tamaño, emitir todo el contenido a un archivo comienza a volverse poco práctico, ya que este se vuelve demasiado grande y su transferencia por la red se vuelve más lenta (recordemos que las transferencias en paralelo son una gran ventaja en cuanto a velocidad). Además, presenta otros inconvenientes: si la aplicación tiene partes que el usuario no necesita, estas también tienen que cargar antes de que el usuario pueda ver nada, pues el archivo entero debe descargarse antes de poder ser ejecutado.
+Hasta ahora, tanto el runtime como los módulos estaban contenidos dentro de un mismo archivo. En proyectos mayores, un único bundle inicial puede incluir código de funcionalidades que el usuario todavía no necesita, aumentando la cantidad de JavaScript que debe descargarse antes de usarlas. La división de código permite emitir partes separadas y cargarlas bajo demanda o en paralelo; su efecto depende de cómo se divida y cargue la aplicación @cite-webpack-code-splitting.
 
-Por este motivo, los bundlers introducen el concepto de code splitting, que permite dividir bundles de gran tamaño en distintos archivos de menor tamaño. Esto permite cargar únicamente las partes del proyecto que hacen falta en cada momento, acelerando la carga inicial y, a la vez, permitiendo que diferentes partes del proyecto carguen en paralelo. Generalmente suele existir un chunk inicial, también llamado síncrono, que contiene el runtime, el módulo inicial y algunos de los módulos de los que depende, especialmente si son de menor tamaño. No obstante, no es necesario que el chunk inicial contenga nada más que el runtime, pues este es el encargado comprobar qué módulos son necesarios para la ejecución del módulo inicial y de cargar los chunks no iniciales (también llamados asíncronos) que los contengan.
+El code splitting divide la salida en varios chunks, que pueden cargarse bajo demanda o en paralelo. Cuando se difieren funcionalidades que no son necesarias al inicio, esta técnica puede reducir el código inicial descargado y afectar positivamente al tiempo de carga; también introduce solicitudes y decisiones de particionado que deben evaluarse para cada aplicación. El chunk inicial suele incluir el runtime y los módulos necesarios para arrancar la aplicación, mientras que otros chunks se cargan cuando el runtime los solicita @cite-webpack-code-splitting.
 
-La decisión de cuántos chunks se emiten y qué módulos contendrán se toma de forma semiautomática por el bundle. Este optimiza el tamaño de cada chunk, tratando de mantener una distribución uniforme. Normalmente, las bibliotecas de terceros, que suelen tener un mayor tamaño que el código del proyecto, suelen separarse en chunks asíncronos. No obstante, el usuario también tiene la capacidad de indicar qué módulos deben contenerse en qué chunks, principalmente a través de dos mecanismos:
-- Las sentencias import, propias de JavaScript, representan un punto de carga asíncrona que el bundler suele utilizar para separar chunks. El propio runtime proporciona otras funciones similares, aunque estas no forman parte de JavaScript y son dependientes del bundler.
+La decisión de cuántos chunks se emiten y qué módulos contendrán depende de las reglas y opciones del bundler; no existe una distribución uniforme óptima para todos los proyectos. Las importaciones dinámicas y la configuración de división de chunks permiten al usuario influir en esa distribución @cite-webpack-code-splitting:
+- Las importaciones dinámicas `import()` representan un punto de carga asíncrona que el bundler puede utilizar para separar chunks. El runtime también puede proporcionar otras funciones de carga específicas del bundler.
 - La configuración del bundler, que usualmente permite modificar de forma autoritaria la emisión de chunks y los módulos que contendrán
 
 Para analizar un ejemplo, vamos a modificar la configuración de Rspack dada en @4-minimized-dead-code[código] para forzar al bundler a emitir un chunk asíncrono con el contenido de `utils.ts`. Para ello, podemos añadir el @4-force-chunk-splitting-config[bloque] a la configuración.

@@ -28,7 +28,7 @@ En general, un navegador permite hasta tres formas de inyectar estilos en el DOM
 
 #codly(number-format: numbering.with("1"))
 
-Normalmente, los bundlers suelen recurrir al primer método si no se han configurado explícitamente para actuar de otra forma, delegando así la carga de los estilos al navegador. En este caso, el bundler produce archivos CSS externos y los asocia a chunks específicos. Cuando estos chunks se cargan, el bundler añade la etiqueta `<link>` correspondiente y permite que el navegador cargue estos estilos en paralelo al chunk.
+Normalmente, los bundlers pueden emitir archivos CSS externos y asociarlos a chunks específicos. Cuando estos chunks se cargan, el runtime añade la etiqueta `<link>` correspondiente y permite que el navegador cargue estos estilos junto al chunk. Rspack también admite exportar CSS como texto o inyectarlo mediante etiquetas `<style>`, según la configuración @cite-rspack-css.
 
 Aunque este enfoque es ideal cuando tratamos con una aplicación web que no usa microfrontends o cuando tratamos con una aplicación padre que los carga, presenta algunos problemas dentro de un microfrontend: los estilos aplicados no pueden ser modificados desde el propio microfrontend, y aunque esto no suele ser un problema para una aplicación web normal, resultará ser un inconveniente para el aislamiento de estilos entre microfrontends, como veremos en capítulos posteriores. Así, procederemos con el segundo método, la etiqueta `<style>`.
 
@@ -123,7 +123,7 @@ La inclusión de estilos dentro del mismo documento provoca conflictos entre cla
 
 Dado que tenemos acceso al contenido de las etiquetas de estilo y podemos alterar su contenido, una posible solución pasaría por modificar su contenido para renombrar todas las clases, sustituyéndolas con identificadores únicos, lo que evitaría conflictos con elementos externos al microfrontend. Sin embargo, esto tampoco solucionaría el problema con especificadores amplios (como \*),y los estilos externos seguirían afectando a los elementos internos del microfrontend.
 
-En esta situación parece factible usar shadow root, una funcionalidad que forma parte del estándar web y que permite crear un pseudocontenedor que aisla los estilos aplicados bidireccionalmente: los estilos de fuera no se aplican dentro y viceversa.
+En esta situación parece factible usar shadow root, una funcionalidad del estándar web que permite crear un árbol DOM cuya frontera limita la aplicación de estilos en ambas direcciones: las reglas de la página no seleccionan los elementos internos y las reglas internas no afectan al resto del documento @cite-mdn-shadow-dom.
 
 #figure(
   image("../figures/example-14-1-style-clashing.drawio.svg"),
@@ -137,7 +137,7 @@ Como vemos en el @4-style-clashing[diagrama], necesitamos colocar tanto los esti
   caption: [Transformación del contenedor padre del microfrontend],
 ) <4-transforming-parent-container>
 
-A pesar de que el microfrontend mantiene el control de los estilos, el inyector de estilos de Rspack añade los estilos al cuerpo del documento por defecto. Aunque este comportamiento es configurable, la configuración no permite seleccionar un contenedor de forma dinámica que no sea conocido en tiempo de compilación. Por ello, será necesario reemplazar el inyector de estilos y modificar los módulos CSS para que se registren en el nuevo inyector.
+A pesar de que el microfrontend mantiene el control de los estilos, el inyector de estilos de Rspack añade los estilos al cuerpo del documento por defecto. Aunque este comportamiento es configurable, la configuración no permite seleccionar un contenedor de forma dinámica que no sea conocido en tiempo de compilación. Por ello, será necesario reemplazar el inyector de estilos y modificar los módulos CSS para que se registren en el nuevo inyector @cite-rspack-css.
 
 Primero, necesitaremos que los módulos CSS expongan su contenido directamente, en lugar de invocar al inyector de estilos. Rspack tiene soporte nativo para esto de manera similar a la configuración que vimos en @4-basic-configuration-for-styling[código]. Sin embargo, Para evitar que el usuario tenga que aplicar el cambio manualmente, podemos modificar el plugin en tiempo de compilación para que el cambio se produzca automáticamente, sobreescribiendo la configuración del usuario, como podemos ver en @4-modifying-configuration-expose-styles[código].
 
@@ -153,7 +153,7 @@ Primero, necesitaremos que los módulos CSS expongan su contenido directamente, 
 
 En este punto, importar un módulo CSS únicamente nos proporcionaría su contenido, pero no se inyectaría automáticamente en el contenedor del microfrontend. Para automatizar este proceso, podemos aplicar el patrón fachada y envolver los módulos CSS con un módulo generado durante la compilación que registre su contenido en el nuevo inyector, a la vez que expone su contenido para el usuario. Debido a que la lógica es compleja, podemos mostrar el funcionamiento de forma gráfica con la @4-facade-css-module-generation[ilustración].
 
-Una de las ventajas de esta práctica es que permite al usuario utilizar CSS modules (no confundir con un módulo CSS del bundler). Esta técnica consiste en definir clases CSS e importar los mismos identificadores dentro de un módulo JavaScript del módulo CSS generado. Las variables importadas corresponden a los identificadores CSS tras haber sufrido una transformación conocida como mangling, que crea cadenas únicas, lo que permite que las clases CSS se apliquen de forma local dentro de los módulos JavaScript que las importen y que no afecten al resto de elementos. Por otro lado, nuestro módulo fachada exporta el contenido CSS en bruto a través del `default export` del módulo, agregando versatilidad al soporte de estilos.
+Una de las ventajas de esta práctica es que permite al usuario utilizar CSS Modules (no confundir con un módulo CSS del bundler). Esta técnica consiste en definir clases CSS e importar sus identificadores desde JavaScript. La herramienta transforma los nombres de clase para que tengan alcance local al módulo, reduciendo las colisiones de nombres entre hojas de estilo; por sí sola, esta técnica no encapsula la aplicación frente a todas las reglas CSS externas. Nuestro módulo fachada también exporta el contenido CSS en bruto a través del `default export` @cite-css-modules-local-scope, @cite-rspack-css.
 
 #figure(
   image("../figures/example-14-3-css-module.drawio.svg"),

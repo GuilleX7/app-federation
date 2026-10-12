@@ -14,7 +14,7 @@ Por otro lado, la biblioteca final es un producto software que requiere un dise�
 
 La idea de usar Just Enough Design Up Front (o JEDUF, de sus siglas en inglés) emerge de combinar la necesidad de tener un diseño detallado de alto nivel, pues conocemos con exactitud cómo deben comportarse los microfrontends, con la necesidad de utilizar ciclos de desarrollo ágiles, ya que la implementación cambiará según avance la investigación.
 
-JEDUF es una medología de desarrollo de software que establece que cada proyecto software, dependiendo de su tamaño y objetivos, tiene diferentes necesidades de diseño. En contraste con metodologías parecidas, como Big Design Up Front (BDUF) y No Design Up Front (NDUF), defiende que la necesidad de cambiar los requisitos puede surgir en cualquier momento de la vida del software, tanto durante su desarrollo como durante su uso. Así, es necesario hacer el mínimo diseño posible que sea funcional, añadiendo flexibilidad para futuras mejores y cambios.
+JEDUF es un enfoque que ajusta la cantidad de diseño inicial a las necesidades y el contexto del proyecto, en vez de exigir un diseño exhaustivo antes de empezar la implementación @cite-jeduf. En este trabajo se combina ese enfoque con ciclos iterativos e incrementales: se repite el proceso de investigación y desarrollo, y cada iteración incorpora funcionalidad al producto @cite-agile-alliance-incremental.
 
 Esto se corresponde directamente con la dirección de este proyecto: aunque podemos considerar que el tutorial, la especificación técnica y la biblioteca prototipo alcanzarán eventualmente la definición de hecho, su propia naturaleza experimental impide que realicemos un diseño excesivamente detallado desde el inicio.
 
@@ -22,7 +22,7 @@ Así, este proyecto trata de definir una especificación técnica a través de l
 
 === Desarrollo iterativo e incremental
 
-Aunque existen muchas metodologías para controlar el tiempo de desarrollo, la mayoría añade una complejidad excesiva para una investigación llevada a cabo por una única persona. Así, este proyecto usa una metodología ligera derivada del desarrollo iterativo e incremental. Algunos de los puntos más remarcables son:
+Aunque existen muchas metodologías para controlar el tiempo de desarrollo, la mayoría añade una complejidad excesiva para una investigación llevada a cabo por una única persona. Así, este proyecto usa una metodología ligera derivada del desarrollo iterativo e incremental @cite-agile-alliance-incremental. Algunos de los puntos más remarcables son:
 
 - *Los ciclos iterativos no tienen una duración fija.* En su lugar, cada ciclo durará el tiempo necesario para realizar la investigación necesaria, implementar la funcionalidad en la biblioteca prototipo, crear un ejemplo de referencia, probarlo, eliminar la deuda técnica y documentarlo. No obstante, el uso de hitos se mantiene, pues resulta interesante para medir el progreso a lo largo del tiempo y conocer qué partes del proyecto consumieron más recursos.
 
@@ -92,7 +92,7 @@ Todos los gastos relacionados con el proyecto entran dentro de esta categoría, 
 #let workhoursPerMonth = workdaysPerMonth * workhoursPerDay
 #let hourlyGrossSalary = monthlyGrossSalary / workhoursPerMonth
 
-De acuerdo a Indeed, el salario bruto anual de un ingeniero de software en España es cercano a #eur(annualGrossSalary) en 2026 @cite-indeed-software-engineer-salary, del que deducimos un salario bruto mensual de #eur(monthlyGrossSalary). Asumiendo una jornada laboral estándar de ocho horas al día y veintidós días de trabajo al mes, obtenemos un coste bruto por hora aproximado de #eur(hourlyGrossSalary) tras el redondeo. Podemos calcular así el coste estimado y real de cada una de las tareas, como vemos en la @2-costs[tabla].
+De acuerdo a Indeed, el salario bruto anual de un ingeniero de software en España es cercano a #eur(annualGrossSalary) en 2026 @cite-indeed-software-engineer-salary, del que deducimos un salario bruto mensual de #eur(monthlyGrossSalary). Como referencia estadística general, el INE publica ganancias brutas anuales desglosadas por ocupación en su Encuesta Anual de Estructura Salarial @cite-ine-wage-survey. Asumiendo una jornada laboral estándar de ocho horas al día y veintidós días de trabajo al mes, obtenemos un coste bruto por hora aproximado de #eur(hourlyGrossSalary) tras el redondeo. Podemos calcular así el coste estimado y real de cada una de las tareas, como vemos en la @2-costs[tabla].
 
 #let tasks = tasks.map(task => (
   ..task,

@@ -14,7 +14,7 @@ En ocasiones, estas implementaciones introducen funcionalidades que resultan ind
 
 == State-of-the-art <state-of-the-art>
 
-Existen muchos tipos de implementaciones de microfrontends. En este trabajo las divideremos de acuerdo a tres categorías que se corresponden, principalmente, con su forma de uso, su funcionamiento interno y el momento en el que llevan a cabo la mayor parte del trabajo:
+Existen muchos tipos de implementaciones de microfrontends. En este trabajo las dividiremos de acuerdo a tres categorías que se corresponden, principalmente, con su forma de uso, su funcionamiento interno y el momento en el que llevan a cabo la mayor parte del trabajo:
 
 - *Paradigma*: existen implementaciones que requieren registrar los microfrontends en la aplicación padre de forma *declarativa*, mientras que otros permiten cargar microfrontends de forma completamente *programática*, sin necesidad de registro previo o metadatos más allá de la dirección web donde reside el punto de entrada (como veremos en el @managing-execution[capítulo])
 
@@ -38,11 +38,11 @@ Debido a la fragmentación del ecosistema, es difícil encontrar una lista exhau
   caption: [Clasificación de implementaciones de microfrontends],
 )
 
-Según la clasificación propuesta en este trabajo, Module Federation y single-spa son cooperativas. single-spa suele organizar el registro de aplicaciones en un root config mediante `registerApplication`, que especifica cuándo cada aplicación debe activarse @cite-single-spa-api. Este enfoque puede ser útil para mantener una estructura fija, pero también puede limitar la flexibilidad cuando la organización necesita descubrir aplicaciones dinámicamente.
+Implementaciones declarativas como single-spa suelen organizar el registro de aplicaciones usando una configuración global que especifica cuándo debe activarse cada microfrontend @cite-single-spa-api. Este enfoque puede ser útil para mantener una estructura fija, pero también puede limitar la flexibilidad cuando la organización necesita descubrir aplicaciones dinámicamente.
 
 Module Federation y Native Federation son semideclarativas: aunque es común registrar microfrontends mediante configuración o manifiestos, sus runtimes también ofrecen mecanismos para registrar y cargar módulos de forma dinámica @cite-module-federation-runtime, @cite-native-federation-runtime. A la vez, son implementaciones cooperativas y basadas en el tiempo de compilación, lo que las convierte en dos de las opciones más dinámicas de la lista. Sin embargo, presentan algunos problemas: no soportan la creación de múltiples instancias de un mismo microfrontend, y tampoco proporcionan al usuario funcionalidades importantes como el aislamiento de estilos, requiriendo que el usuario implemente su propia solución @cite-mf-style-isolation.
 
-Por otro lado, las soluciones como qiankun, Garfish o micro-app no requieren ninguna modificación en el proceso de compilación de los microfrontends y únicamente requieren mínimos cambios en run-time. Este paradigma conlleva el uso de sandboxing, dado que las aplicaciones hijas no cooperan de ninguna forma con la aplicación padre y, por tanto, es necesario aislarlas del entorno de forma estricta. Aunque esto ayuda a conseguir una separación de responsabilidades estricta y previene que los errores se propaguen de hijos a padres o viceversa, también introduce un mecanismo muy complejo y pesado que, además de introducir posibles bugs, puede reducir el rendimiento, aumentar el tamaño final del bundle y resultar innecesario para los requisitos de otras organizaciones.
+Por otro lado, las soluciones como qiankun, Garfish o micro-app no requieren ninguna registro de antemano ni modificación en el proceso de compilación de los microfrontends y únicamente requieren mínimos cambios en run-time. Este paradigma conlleva el uso de sandboxing, dado que las aplicaciones hijas no cooperan de ninguna forma con la aplicación padre y, por tanto, es necesario aislarlas del entorno de forma estricta. Aunque esto ayuda a conseguir una separación de responsabilidades estricta y previene que los errores se propaguen de hijos a padres o viceversa, también introduce un mecanismo muy complejo y pesado que, además de introducir posibles bugs, puede reducir el rendimiento o aumentar el tamaño final del bundle.
 
 == Objetivos <goals>
 

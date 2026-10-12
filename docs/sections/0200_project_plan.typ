@@ -92,7 +92,9 @@ Todos los gastos relacionados con el proyecto entran dentro de esta categoría, 
 #let workhoursPerMonth = workdaysPerMonth * workhoursPerDay
 #let hourlyGrossSalary = monthlyGrossSalary / workhoursPerMonth
 
-De acuerdo a Indeed, el salario bruto anual de un ingeniero de software en España es cercano a #eur(annualGrossSalary) en 2026 @cite-indeed-software-engineer-salary, del que deducimos un salario bruto mensual de #eur(monthlyGrossSalary). Como referencia estadística general, el INE publica ganancias brutas anuales desglosadas por ocupación en su Encuesta Anual de Estructura Salarial @cite-ine-wage-survey. Asumiendo una jornada laboral estándar de ocho horas al día y veintidós días de trabajo al mes, obtenemos un coste bruto por hora aproximado de #eur(hourlyGrossSalary) tras el redondeo. Podemos calcular así el coste estimado y real de cada una de las tareas, como vemos en la @2-costs[tabla].
+De acuerdo a Indeed, el salario bruto anual de un ingeniero de software en España es cercano a #eur(annualGrossSalary) en 2026 @cite-indeed-software-engineer-salary, del que deducimos un salario bruto mensual de #eur(monthlyGrossSalary). El INE también publica ganancias brutas anuales desglosadas por ocupación en su Encuesta Anual de Estructura Salarial @cite-ine-wage-survey, cuya cifra en 2024 para el sector de la información y las comunicaciones fue de #eur(42741.94), corroborando el dato obtenido por el portal de trabajo.
+
+Asumiendo una jornada laboral estándar de ocho horas al día y veintidós días de trabajo al mes, obtenemos un coste bruto por hora aproximado de #eur(hourlyGrossSalary) tras el redondeo. Podemos calcular así el coste estimado y real de cada una de las tareas, como vemos en la @2-costs[tabla].
 
 #let tasks = tasks.map(task => (
   ..task,

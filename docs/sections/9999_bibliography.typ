@@ -1,3 +1,3 @@
 = Bibliografía <bibliography>
 
-#bibliography("../bibliography.bib", full: true, title: none)
+#bibliography("../citations.bib", title: none, style: "ieee", full: true)

@@ -136,5 +136,5 @@ Si ahora probamos a correr `parent`, `child` y `subchild`, podremos comprobar c�
 
 #figure(
   image("../figures/example-16-1-bus-events.png"),
-  caption: [dsffs],
+  caption: [Ejemplo de comunicación a través de bus entre `parent`, `child` y `subchild`],
 ) <4-bus-events-example>

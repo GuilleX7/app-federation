@@ -1,3 +1,6 @@
+#import "../utils/units.typ": eur
+
+
 = Planificación del proyecto <project-planning>
 
 En este capítulo vamos a cubrir algunos aspectos formales del proyecto. Comenzaremos explicando la metodología usada a lo largo de la elaboración del trabajo. Después, detallaremos la planificación de tareas. Finalmente, realizaremos un análisis de costes, incluyendo el coste total del proyecto y las desviaciones.
@@ -28,7 +31,126 @@ Aunque existen muchas metodologías para controlar el tiempo de desarrollo, la m
 - *Un bloqueo persistente implica rediseño.* Cuando durante un ciclo iterativo se produce un bloque de duración excesiva; por ejemplo, si tras realizar una investigación se concluye que la implementación sería muy costosa, se debe poner el foco en rediseñar el producto para sortear el problema.
 
 == Planificación de tareas <task-planning>
-#lorem(100)
+
+En esta sección listaremos las tareas que se han llevado a cabo a lo largo del proyecto, junto a su duración estimada, real y la desviación entre ambas de acuerdo a los datos obtenidos.
+
+#let tasks = (
+  (title: [Investigación soluciones \ existentes], estimatedDuration: 10, actualDuration: 8),
+  (title: [Investigación inyección], estimatedDuration: 50, actualDuration: 48),
+  (title: [Investigación estilos], estimatedDuration: 30, actualDuration: 36),
+  (title: [Investigación comunicación], estimatedDuration: 10, actualDuration: 7),
+  (title: [Desarrollo de ejemplos], estimatedDuration: 100, actualDuration: 120),
+  (title: [Documentación final], estimatedDuration: 100, actualDuration: 110),
+)
+#let totalEstimatedDuration = tasks.map(t => t.estimatedDuration).sum()
+#let totalActualDuration = tasks.map(t => t.actualDuration).sum()
+
+#figure(
+  [
+    #show table.cell.where(y: tasks.len() + 1): set text(weight: "bold")
+    #table(
+      columns: 5,
+      table.header([Nº], [Tarea], [Duración \ estimada], [Duración \ real], [Desviación]),
+      ..tasks
+        .enumerate(start: 1)
+        .map(((i, a)) => (
+          [#i],
+          [#a.title],
+          [#a.estimatedDuration h],
+          [#a.actualDuration h],
+          [#{ a.actualDuration - a.estimatedDuration } h],
+        ))
+        .flatten(),
+      table.footer(
+        [],
+        [Total],
+        [#{ totalEstimatedDuration } h],
+        [#{ totalActualDuration } h],
+        [#{ totalActualDuration - totalEstimatedDuration } h],
+      ),
+    )
+  ],
+  caption: [Tareas planeadas, duración estimada, real y desviación],
+) <2-tasks>
+
+De acuerdo a la @2-tasks[tabla], la duración inicial del proyecto se estimó en 300 horas, distribuidas entre investigación, desarrollo y documentación. Sin embargo, la duración final del proyecto ha tenido una desviación de 29 horas, resultando en 329 horas totales.
+
+Los principales motivos para esta desviación son, principalmente, la dificultad de crear proyectos de ejemplo incrementales que contengan código limpio y sencillo para ser incrustado en el documento, y la necesidad de crear una plantilla para el documento final utilizando Typst, el software de maquetación usado.
 
 == Análisis de costes <cost-analysis>
-#lorem(100)
+
+En esta sección proporcionaremos un resumen de los costes totales del proyecto, incluyendo costes directos e indirectos. Además, compararemos el presupuesto estimado con el presupuesto ejecutado.
+
+=== Costes directos
+
+Todos los gastos relacionados con el proyecto entran dentro de esta categoría, tales como el trabajo, el software y las herramientas usadas. Por un lado, todo el software utilizado a lo largo de la investigación y el desarrollo es gratuito y de código abierto, por lo que no pueden tenerse en cuenta. Así, el único gasto directo relacionado con este proyecto habría sido el salario del investigador.
+
+#let annualGrossSalary = 41245
+#let monthlyGrossSalary = annualGrossSalary / 12
+#let workdaysPerMonth = 22
+#let workhoursPerDay = 8
+#let workhoursPerMonth = workdaysPerMonth * workhoursPerDay
+#let hourlyGrossSalary = monthlyGrossSalary / workhoursPerMonth
+
+De acuerdo a Indeed, el salario bruto anual de un ingeniero de software en España es cercano a #eur(annualGrossSalary) en 2026 @cite-indeed-software-engineer-salary, del que deducimos un salario bruto mensual de #eur(monthlyGrossSalary). Asumiendo una jornada laboral estándar de ocho horas al día y veintidós días de trabajo al mes, obtenemos un coste bruto por hora aproximado de #eur(hourlyGrossSalary) tras el redondeo. Podemos calcular así el coste estimado y real de cada una de las tareas, como vemos en la @2-costs[tabla].
+
+#let tasks = tasks.map(task => (
+  ..task,
+  estimatedCost: task.estimatedDuration * hourlyGrossSalary,
+  actualCost: task.actualDuration * hourlyGrossSalary,
+))
+
+#let totalEstimatedCost = tasks.map(task => task.estimatedCost).sum()
+#let totalActualCost = tasks.map(task => task.actualCost).sum()
+
+#figure(
+  [
+    #show table.cell.where(y: tasks.len() + 1): set text(weight: "bold")
+    #table(
+      columns: 5,
+      table.header([Nº], [Tarea], [Coste \ estimado], [Coste \ real], [Desviación]),
+      ..tasks
+        .enumerate(start: 1)
+        .map(((i, a)) => (
+          [#i],
+          [#a.title],
+          eur(a.estimatedCost),
+          eur(a.actualCost),
+          eur(a.actualCost - a.estimatedCost),
+        ))
+        .flatten(),
+      table.footer(
+        [], [Total], eur(totalEstimatedCost), eur(totalActualCost), eur(totalActualCost - totalEstimatedCost)
+      ),
+    )
+  ],
+  caption: [Coste estimado, real y desviación de las tareas],
+) <2-costs>
+
+=== Costes indirectos
+
+En este apartado tendremos en cuenta aquellos gastos que no están relacionados directamente con el proyecto, como el equipo usado. En este caso, el único equipo utilizado consiste en un ordenador personal. Dado que esto es un activo de larga duración (más de 5 años), podemos calcular una amortización simple teniendo en cuenta su coste inicial y su vida estimada.
+
+#let computerInitialCost = 900
+#let yearsOfAmortization = 8
+#let monthlyAmortization = computerInitialCost / (yearsOfAmortization * 12)
+
+Suponiendo un coste inicial aproximado de #eur(computerInitialCost) y una esperanza de vida de #yearsOfAmortization años, podemos asumir una amortización mensual de #eur(monthlyAmortization). Si además suponemos que un mes promedio tiene 30 días, es decir, 720 horas, podemos calcular la amortización total del equipo a lo largo del proyecto, como vemos en la @2-amortization[tabla].
+
+#figure(
+  [
+    #show table.cell.where(y: 2): set text(weight: "bold")
+    #table(
+      columns: 5,
+      table.header([Equipo], [Coste \ inicial], [Vida \ estimada], [Duración de \ uso], [Amortización]),
+      [Ordenador \ personal],
+      eur(computerInitialCost),
+      [#yearsOfAmortization años],
+      [#totalActualDuration h],
+      eur((totalActualDuration / 720) * monthlyAmortization),
+
+      table.footer([Total], [], [], [], eur((totalActualDuration / 720) * monthlyAmortization)),
+    )
+  ],
+  caption: [Amortización del equipo empleado],
+) <2-amortization>

@@ -14,10 +14,11 @@
   "author": "GuilleX7 <guillermox7@gmail.com>",
   "workspaces": [
     "examples/**",
-    "packages/**"
+    "lib"
   ],
   "scripts": {
-    "build": "run-s build-example-1 build-example-2 build-example-3 build-example-4 build-example-5 build-example-6 build-example-7 build-example-8 build-example-9 build-example-10 build-example-11 build-example-12 build-example-13 build-example-14 build-example-15 build-example-16",
+    "build": "run-p build-lib build-example-1 build-example-2 build-example-3 build-example-4 build-example-5 build-example-6 build-example-7 build-example-8 build-example-9 build-example-10 build-example-11 build-example-12 build-example-13 build-example-14 build-example-15 build-example-16",
+    "build-lib": "npm --workspace=lib run build",
     "build-example-1": "npm --workspace=examples/01-minimal-optimized-bundle run build",
     "build-example-2": "npm --workspace=examples/02-minimal-unoptimized-bundle run build",
     "build-example-3": "npm --workspace=examples/03-modules run build",

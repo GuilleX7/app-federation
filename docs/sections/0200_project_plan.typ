@@ -45,10 +45,11 @@ En esta sección listaremos las tareas que se han llevado a cabo a lo largo del 
 #let totalEstimatedDuration = tasks.map(t => t.estimatedDuration).sum()
 #let totalActualDuration = tasks.map(t => t.actualDuration).sum()
 
-#figure(
-  [
-    #show table.cell.where(y: tasks.len() + 1): set text(weight: "bold")
-    #table(
+#[
+  #show table.cell.where(y: 0): set text(weight: "bold")
+  #show table.cell.where(y: tasks.len() + 1): set text(weight: "bold")
+  #figure(
+    table(
       columns: 5,
       table.header([Nº], [Tarea], [Duración \ estimada], [Duración \ real], [Desviación]),
       ..tasks
@@ -68,10 +69,10 @@ En esta sección listaremos las tareas que se han llevado a cabo a lo largo del 
         [#{ totalActualDuration } h],
         [#{ totalActualDuration - totalEstimatedDuration } h],
       ),
-    )
-  ],
-  caption: [Tareas planeadas, duración estimada, real y desviación],
-) <2-tasks>
+    ),
+    caption: [Tareas planeadas, duración estimada, real y desviación],
+  ) <2-tasks>
+]
 
 De acuerdo a la @2-tasks[tabla], la duración inicial del proyecto se estimó en 300 horas, distribuidas entre investigación, desarrollo y documentación. Sin embargo, la duración final del proyecto ha tenido una desviación de 29 horas, resultando en 329 horas totales.
 
@@ -105,10 +106,11 @@ Asumiendo una jornada laboral estándar de ocho horas al día y veintidós días
 #let totalEstimatedCost = tasks.map(task => task.estimatedCost).sum()
 #let totalActualCost = tasks.map(task => task.actualCost).sum()
 
-#figure(
-  [
-    #show table.cell.where(y: tasks.len() + 1): set text(weight: "bold")
-    #table(
+#[
+  #show table.cell.where(y: 0): set text(weight: "bold")
+  #show table.cell.where(y: tasks.len() + 1): set text(weight: "bold")
+  #figure(
+    table(
       columns: 5,
       table.header([Nº], [Tarea], [Coste \ estimado], [Coste \ real], [Desviación]),
       ..tasks
@@ -124,10 +126,10 @@ Asumiendo una jornada laboral estándar de ocho horas al día y veintidós días
       table.footer(
         [], [Total], eur(totalEstimatedCost), eur(totalActualCost), eur(totalActualCost - totalEstimatedCost)
       ),
-    )
-  ],
-  caption: [Coste estimado, real y desviación de las tareas],
-) <2-costs>
+    ),
+    caption: [Coste estimado, real y desviación de las tareas],
+  ) <2-costs>
+]
 
 === Costes indirectos
 
@@ -139,10 +141,11 @@ En este apartado tendremos en cuenta aquellos gastos que no están relacionados 
 
 Suponiendo un coste inicial aproximado de #eur(computerInitialCost) y una esperanza de vida de #yearsOfAmortization años, podemos asumir una amortización mensual de #eur(monthlyAmortization). Si además suponemos que un mes promedio tiene 30 días, es decir, 720 horas, podemos calcular la amortización total del equipo a lo largo del proyecto, como vemos en la @2-amortization[tabla].
 
-#figure(
-  [
-    #show table.cell.where(y: 2): set text(weight: "bold")
-    #table(
+#[
+  #show table.cell.where(y: 0): set text(weight: "bold")
+  #show table.cell.where(y: 2): set text(weight: "bold")
+  #figure(
+    table(
       columns: 5,
       table.header([Equipo], [Coste \ inicial], [Vida \ estimada], [Duración de \ uso], [Amortización]),
       [Ordenador \ personal],
@@ -152,7 +155,7 @@ Suponiendo un coste inicial aproximado de #eur(computerInitialCost) y una espera
       eur((totalActualDuration / 720) * monthlyAmortization),
 
       table.footer([Total], [], [], [], eur((totalActualDuration / 720) * monthlyAmortization)),
-    )
-  ],
-  caption: [Amortización del equipo empleado],
-) <2-amortization>
+    ),
+    caption: [Amortización del equipo empleado],
+  ) <2-amortization>
+]

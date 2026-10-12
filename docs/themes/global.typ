@@ -15,9 +15,7 @@
     smart-skip: true,
   )
 
-  #set text(size: 12pt, font: "New Computer Modern")
-
-  #show figure.where(kind: raw): set figure(supplement: "Code")
+  #set text(lang: "es", size: 12pt, font: "New Computer Modern")
 
   #content
 ]

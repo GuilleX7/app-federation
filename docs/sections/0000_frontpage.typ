@@ -14,7 +14,7 @@
 
 #v(1cm)
 #image("../figures/etsii_us.png")
-#v(3cm)
+#v(2.5cm)
 
 #[
   #set text(size: large)
@@ -24,7 +24,7 @@
 
 #[
   #set text(size: huge)
-  App Federation: integración de microfrontends basada en \ Module Federation
+  App Federation: un enfoque programático para la integración de microfrontends basado en Module Federation
 ]
 
 #[

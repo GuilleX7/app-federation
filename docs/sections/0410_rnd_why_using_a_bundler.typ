@@ -4,9 +4,9 @@
 
 === Optimización <bundlers-optimization>
 
-A lo largo de este proyecto se usa de forma extensa el término bundler. En términos generales, un bundler analiza los archivos de entrada y sus dependencias, transforma el código y los recursos, y genera uno o varios archivos de salida. Según la herramienta y la configuración, esta distribución puede incluir módulos combinados, código minificado, código no utilizado eliminado o partes que se cargarán bajo demanda. Por tanto, un bundle no tiene por qué consistir en un único archivo, ni todas las optimizaciones se aplican necesariamente a todos los proyectos @cite-webpack-code-splitting, @cite-webpack-tree-shaking.
+A lo largo de este proyecto se usa de forma extensa el término bundler. En términos generales, un bundler analiza los archivos de entrada y sus dependencias, transforma el código y los recursos, y genera uno o varios archivos de salida. Según la herramienta y la configuración, esta distribución puede combinar módulos (archivos), minificar el código resultante, eliminar código no utilizado (dead code) o separarlo en partes que se cargarán bajo demanda. Por tanto, un bundler es una herramienta con múltiples propósitos y que permite una configuración extensa, permitiendo que el usuario decida qué transformaciones realizar en el proyecto @cite-webpack-code-splitting, @cite-webpack-tree-shaking.
 
-Por ejemplo, supongamos la plantilla HTML dada en @4-simple-html-template[código].
+En particular, uno de los objetivos comunes es la optimización. Por ejemplo, supongamos la plantilla HTML dada en @4-simple-html-template[código].
 
 #figure(
   ```html

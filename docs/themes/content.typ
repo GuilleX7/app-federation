@@ -56,7 +56,7 @@
 
   #set table(
     inset: 8pt,
-    align: horizon + center,
+    align: left + horizon,
     stroke: (x, y) => {
       return (
         top: if y < 1 { 1pt } else { 0.5pt },
@@ -64,7 +64,6 @@
       )
     },
   )
-  #show table.cell.where(y: 0): set text(weight: "bold")
 
   #set heading(numbering: "1.")
   #show heading.where(level: 1): it => [

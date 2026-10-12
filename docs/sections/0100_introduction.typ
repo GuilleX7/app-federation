@@ -24,19 +24,22 @@ Existen muchos tipos de implementaciones de microfrontends. En este trabajo las 
 
 Debido a la fragmentación del ecosistema, es difícil encontrar una lista exhaustiva de las implementaciones existentes y no se han encontrado datos claros sobre su cuota de mercado. Por ello, este análisis compara seis implementaciones seleccionadas para ilustrar distintos enfoques: Module Federation, single-spa, qiankun, Native Federation, Garfish y micro-app @cite-module-federation-runtime, @cite-single-spa-api, @cite-qiankun-migration, @cite-native-federation-runtime, @cite-garfish, @cite-micro-app. De acuerdo a la clasificación anterior, se organizan de la siguiente manera:
 
-#figure(
-  table(
-    columns: 4,
-    table.header[Implementación][Paradigma][Aislamiento][Tiempo de ejecución],
-    [Module Federation], [Semideclarativo], [Cooperativo], [Build-time],
-    [single-spa], [Declarativo], [Cooperativo], [Run-time],
-    [qiankun], [Programático], [Sandboxed], [Run-time],
-    [Native Federation], [Semideclarativo], [Cooperativo], [Build-time],
-    [Garfish], [Programático], [Sandboxed], [Run-time],
-    [micro-app], [Programático], [Sandboxed], [Run-time],
-  ),
-  caption: [Clasificación de implementaciones de microfrontends],
-)
+#[
+  #show table.cell.where(y: 0): set text(weight: "bold")
+  #figure(
+    table(
+      columns: 4,
+      table.header[Implementación][Paradigma][Aislamiento][Tiempo de ejecución],
+      [Module Federation], [Semideclarativo], [Cooperativo], [Build-time],
+      [single-spa], [Declarativo], [Cooperativo], [Run-time],
+      [qiankun], [Programático], [Sandboxed], [Run-time],
+      [Native Federation], [Semideclarativo], [Cooperativo], [Build-time],
+      [Garfish], [Programático], [Sandboxed], [Run-time],
+      [micro-app], [Programático], [Sandboxed], [Run-time],
+    ),
+    caption: [Clasificación de implementaciones de microfrontends],
+  ) <1-microfrontend-comparison>
+]
 
 Implementaciones declarativas como single-spa suelen organizar el registro de aplicaciones usando una configuración global que especifica cuándo debe activarse cada microfrontend @cite-single-spa-api. Este enfoque puede ser útil para mantener una estructura fija, pero también puede limitar la flexibilidad cuando la organización necesita descubrir aplicaciones dinámicamente.
 
@@ -57,7 +60,7 @@ No obstante, el resultado final de este proyecto no debe ser únicamente una bib
 
 - *Un documento que recoja la investigación realizada a forma de tutorial*, explicando de forma intuitiva y detallada todos los pasos necesarios para implementar un prototipo de la solución propuesta.
 
-- *El diseño e implementación de la biblioteca prototipo*, considerandose finalizada cuando se cumplan los requisitos elicitados y se demuestre su funcionamiento mediante un conjunto de aplicaciones de ejemplo.
+- *El diseño e implementación de la biblioteca prototipo*, considerándose finalizada cuando se cumplan los requisitos elicitados y se demuestre su funcionamiento mediante un conjunto de aplicaciones de ejemplo.
 
 == Estructura <structure>
 
@@ -69,6 +72,6 @@ El @project-analysis[capítulo] describirá de manera formal los actores y requi
 
 El @research-and-development[capítulo] se centra en la investigación, análisis y desarrollo de la implementación de App Federation, funcionando como un tutorial que explica de forma intuitiva todos los conceptos alrededor de los microfrontends y cómo aparecen las necesidades que la biblioteca debe cubrir.
 
-El @user-guide[capítulo] proporciona una guía para los desarrolladores que pretendan usar el producto de este trabajo en su organización, ya sea de forma directa o extendiendo la biblioteca. Además, se hace un pequeño tour por un conjunto de aplicaciones padre-hijo que demuestran las capacidades de la biblioteca.
+// El @user-guide[capítulo] proporciona una guía para los desarrolladores que pretendan usar el producto de este trabajo en su organización, ya sea de forma directa o extendiendo la biblioteca. Además, se hace un pequeño tour por un conjunto de aplicaciones padre-hijo que demuestran las capacidades de la biblioteca.
 
 Finalmente, el @conclusions[capítulo] presenta las conclusiones de este trabajo y sugiere algunas ideas para futuros trabajos que lo extiendan.

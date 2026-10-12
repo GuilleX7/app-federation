@@ -263,7 +263,7 @@ Además, esta interfaz también nos permitirá exponer ciertos aspectos internos
 
 Para proporcionar más control sobre el ciclo de vida del microfrontend, vamos a introducir también un nuevo método, `unmount`, que se encarga de liberar todos los recursos relacionados con la instancia actual del mismo, y que será devuelto por el método `mount`. Para ello, necesitamos cambiar la implementación del método `mount` en `child`, como se muestra en @4-returning-unmount-lifecycle-in-child[código].
 
-#codly(ranges: ((5, 7), (17, 20)))
+#codly(ranges: ((6, 8), (18, 23)))
 #figure(
   raw(
     read("../../examples/10-containerization/child/src/entry.default.ts"),

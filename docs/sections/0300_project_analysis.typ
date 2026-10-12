@@ -648,7 +648,7 @@ Las siguientes tablas elicitan los objetivos y capacidades requeridos para una s
     [Título],
     [Aislamiento visual],
     [Descripción],
-    [Los mecanismos de alcance de estilos deben reducir las interferencias visuales entre aplicaciones cuando se habiliten. No deben presentarse como aislamiento de código, estado, red o permisos.],
+    [Los mecanismos de alcance de estilos deben reducir las interferencias visuales entre aplicaciones cuando se habiliten.],
   ),
   caption: [Requisito no funcional #styleIsolationNonFunctionalRequirementId],
 ) <styleIsolationNonFunctionalRequirement>

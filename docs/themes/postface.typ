@@ -1,5 +1,5 @@
 
-#import "../utils.typ": *
+#import "../utils/constants.typ": *
 
 #let postface-theme(content) = [
   #set page(

@@ -1,4 +1,4 @@
-#import "../utils.typ": *
+#import "../utils/constants.typ": *
 
 #set page(
   margin: 2.5cm,
@@ -24,7 +24,7 @@
 
 #[
   #set text(size: huge)
-  App Federation: un enfoque programático para la integración de microfrontends basado en Module Federation
+  #doc.title
 ]
 
 #[

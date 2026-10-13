@@ -135,31 +135,6 @@ function unregisterModuleCss(moduleId: string): void {
   registeredModules.delete(moduleId);
 }
 
-function createStyledContainer(container: HTMLElement): HTMLDivElement;
-function createStyledContainer(
-  container: HTMLElement,
-  options?: { createShadowRoot?: boolean },
-): HTMLDivElement;
-function createStyledContainer(
-  container: HTMLElement,
-  options?: { returnNestedContainer?: true },
-): HTMLDivElement;
-function createStyledContainer(
-  container: HTMLElement,
-  options?: { returnNestedContainer?: false },
-): ShadowRoot;
-function createStyledContainer(
-  container: HTMLElement,
-  options?: { createShadowRoot?: boolean; returnNestedContainer?: true },
-): HTMLDivElement;
-function createStyledContainer(
-  container: HTMLElement,
-  options?: { createShadowRoot?: false; returnNestedContainer?: false },
-): HTMLElement;
-function createStyledContainer(
-  container: HTMLElement,
-  options?: { createShadowRoot?: true; returnNestedContainer?: false },
-): ShadowRoot;
 function createStyledContainer(
   container: HTMLElement,
   {

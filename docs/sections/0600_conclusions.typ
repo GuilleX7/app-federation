@@ -1,6 +1,6 @@
 #import "@preview/zero:0.7.1": num
 
-= Conclusiones y trabajo futuro <conclusions>
+= Conclusiones <conclusions>
 
 Por un lado, hemos descrito de forma rigurosa cómo debe comportarse una implementación de microfrontends que siga la especificación dada por App Federation. Así, hemos obtenido un documento que sirve tanto de especificación de la arquitectura como de tutorial para el desarrollo de futuras implementaciones que extiendan esta arquitectura.
 

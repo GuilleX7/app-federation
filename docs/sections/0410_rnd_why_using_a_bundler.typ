@@ -114,7 +114,7 @@ Veamos el siguiente ejemplo. Supongamos que tenemos el código fuente de un proy
   caption: [Proyecto básico sin minimizar],
 ) <4-optimized-basic-project>
 
-TypeScript es un super conjunto de JavaScript, por lo que un navegador sería incapaz de ejecutar este programa de forma inmediata. Para conseguir un resultado ejecutable, configuraremos y usaremos el bundler. Un ejemplo sencillo de configuración para nuestro bundler viene dado por @4-optimized-basic-configuracion[código]. Los archivos permiten a los usuarios decidir qué se hará con el proyecto fuente.
+TypeScript es un superconjunto de JavaScript, por lo que un navegador sería incapaz de ejecutar este programa de forma inmediata. Para conseguir un resultado ejecutable, configuraremos y usaremos el bundler. Un ejemplo sencillo de configuración para nuestro bundler viene dado por @4-optimized-basic-configuracion[código]. Los archivos permiten a los usuarios decidir qué se hará con el proyecto fuente.
 
 En nuestro caso, las líneas 4-6 indican el punto de entrada del bundler. Esto es importante, pues todos los proyectos tienen uno o varios puntos de entrada desde los que se comienzan a analizar sus dependencias, incluyendo el resto de archivos de forma transitiva mediante referencias (como import o require en JavaScript). Las líneas 7-9 indican que la carpeta que almacenará el bundle debe ser limpiada cuando se produzca un nuevo bundle, para evitar que archivos antiguos permanezcan en la misma.
 

@@ -173,7 +173,7 @@ describe('styleScope', () => {
       const nestedContainer = createStyledContainer(container, {
         createShadowRoot: false,
         returnNestedContainer: true,
-      });
+      }) as HTMLDivElement;
 
       expect(nestedContainer).toBeInstanceOf(HTMLDivElement);
       expect(nestedContainer.parentElement).toBe(container);
@@ -184,7 +184,7 @@ describe('styleScope', () => {
       const nestedContainer = createStyledContainer(container, {
         createShadowRoot: true,
         returnNestedContainer: true,
-      });
+      }) as HTMLDivElement;
 
       expect(nestedContainer).toBeInstanceOf(HTMLDivElement);
       expect(container.shadowRoot).toBeInstanceOf(ShadowRoot);

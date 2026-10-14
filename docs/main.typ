@@ -18,9 +18,10 @@
 #include "sections/0000_frontpage.typ"
 
 #preface-theme[
-  #include "sections/0001_abstract.typ"
-  #include "sections/0002_acknowledgements.typ"
-  #include "sections/0003_outlines.typ"
+  #include "sections/0010_abstract.typ"
+  // #include "sections/0020_acknowledgements.typ"
+  #include "sections/0030_ai_disclaimer.typ"
+  #include "sections/0040_outlines.typ"
 ]
 
 #content-theme[
@@ -30,7 +31,7 @@
   #include "sections/0200_project_plan.typ"
   #include "sections/0300_project_analysis.typ"
   #include "sections/0400_research_and_development.typ"
-  // #include "sections/0500_user_guide.typ"
+  #include "sections/0500_user_guide.typ"
   #include "sections/0600_conclusions.typ"
 ]
 

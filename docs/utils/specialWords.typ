@@ -1,35 +1,26 @@
 #let italicWords = (
-  "bundle",
-  "bundles",
   "bundler",
   "bundlers",
-  "microfrontend",
-  "microfrontends",
+  "bundle",
+  "bundles",
   "scripting",
-  "run-time",
-  "runtime",
-  "build-time",
   "byte",
-  "true",
-  "false",
-  "dead code",
-  "tree shaking",
-  "side-effects",
-  "reflection",
-  "import",
-  "imports",
-  "require",
-  "entrypoint",
-  "code splitting",
+  "bytes",
   "chunk",
   "chunks",
-  "window",
-  "chunkloader",
   "script",
   "scripts",
+  "microfrontend",
+  "microfrontends",
+  "shadow root",
+  "shadow roots",
+  "CSS Modules",
+  "Just Enough Design Up Front",
+  "Asynchronous Module Definition",
+  "JSON with Padding",
 )
 
-#let word(word) = "[ \(]" + word + "[ ,.\):]"
+#let word(word) = "[ \(]" + word + "[ ,.;:!?\):]"
 #let words(words) = word("(" + words.join("|") + ")")
 
 #let specialWords(content) = {

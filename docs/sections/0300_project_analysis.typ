@@ -39,7 +39,7 @@ En esta sección describimos los actores lógicos que intervienen en los casos d
     [Nombre],
     [Desarrollador de una aplicación remota],
     [Meta],
-    [Proporciona una aplicación para su integración, declara las entradas que ofrece, define la interfaz con la que se comunican y la publica para que el anfitrión pueda cargarla.],
+    [Proporciona una aplicación para su integración, declara las entradas que ofrece, define la interfaz con la que se comunica y la publica para que la aplicación anfitriona pueda cargarla.],
   ),
   caption: [Actor #remoteAppDeveloperActorId],
 ) <remoteAppDeveloperActor>
@@ -122,7 +122,7 @@ Las siguientes tablas elicitan los objetivos y capacidades requeridos para una s
     [Título],
     [Carga programática],
     [Descripción],
-    [El anfitrión debe poder cargar en tiempo de ejecución una aplicación remota conociendo su ubicación y seleccionando el punto de entrada.],
+    [La aplicación anfitriona debe poder cargar en tiempo de ejecución una aplicación remota conociendo su ubicación y seleccionando el punto de entrada.],
   ),
   caption: [Requisito general #programmaticLoadingGeneralRequirementId],
 ) <programmaticLoadingGeneralRequirement>
@@ -139,7 +139,7 @@ Las siguientes tablas elicitan los objetivos y capacidades requeridos para una s
     [Título],
     [Control del ciclo de vida],
     [Descripción],
-    [Cada aplicación remota debe ofrecer operaciones para iniciar su interfaz en un contenedor del anfitrión y finalizarla posteriormente.],
+    [Cada aplicación remota debe ofrecer operaciones para iniciar su interfaz en un contenedor de la aplicación anfitriona y finalizarla posteriormente.],
   ),
   caption: [Requisito general #lifecycleControlGeneralRequirementId],
 ) <lifecycleControlGeneralRequirement>
@@ -230,7 +230,7 @@ Las siguientes tablas elicitan los objetivos y capacidades requeridos para una s
     [Título],
     [Separación de responsabilidades],
     [Descripción],
-    [La solución debe organizarse en módulos con límites claros: uno para la carga e integración de aplicaciones, otro para acceder a la funcionalidad disponibles dentro de las aplicaciones remotas, y otro para la creación de aplicaciones remotas.],
+    [La solución debe organizarse en módulos con límites claros: uno para la carga e integración de aplicaciones, otro para acceder a la funcionalidad disponible dentro de las aplicaciones remotas, y otro para la creación de aplicaciones remotas.],
   ),
   caption: [Requisito de arquitectura #modularPackageArchitectureId],
 ) <modularPackageArchitecture>
@@ -247,7 +247,7 @@ Las siguientes tablas elicitan los objetivos y capacidades requeridos para una s
     [Título],
     [Integración con herramientas de compilación],
     [Descripción],
-    [La solución debe ofrecer una integración con las herramientas de compilación elegidas que permita declarar las entradas remotas y producir los recursos necesarios para que el anfitrión las descubra y cargue.],
+    [La solución debe ofrecer una integración con las herramientas de compilación elegidas que permita declarar las entradas remotas y producir los recursos necesarios para que la aplicación anfitriona las descubra y cargue.],
   ),
   caption: [Requisito de arquitectura #buildToolIntegrationId],
 ) <buildToolIntegration>
@@ -281,7 +281,7 @@ Las siguientes tablas elicitan los objetivos y capacidades requeridos para una s
     [Título],
     [Contrato de ciclo de vida],
     [Descripción],
-    [Cada entrada debe ofrecer una operación para iniciar la aplicación en un contenedor con las opciones acordadas y devolver un control de ciclo de vida que permita finalizarla, quedando a juicio del usuario la interfaz concreta de las mismas.],
+    [Cada entrada debe ofrecer una operación para iniciar la aplicación en un contenedor con las opciones acordadas y devolver un control de ciclo de vida que permita finalizarla, quedando a juicio del usuario la interfaz concreta.],
   ),
   caption: [Requisito de arquitectura #applicationLifecycleArchitectureId],
 ) <applicationLifecycleArchitecture>
@@ -349,7 +349,7 @@ Las siguientes tablas elicitan los objetivos y capacidades requeridos para una s
     [Título],
     [Contratos de comunicación],
     [Descripción],
-    [Las capacidades de comunicación deben poder utilizarse independientemente de la carga de aplicaciones y basarse en contratos explícitos para los datos, las acciones y los eventos, que quedan a elección del usuario],
+    [Las capacidades de comunicación deben poder utilizarse independientemente de la carga de aplicaciones y basarse en contratos explícitos para los datos, las acciones y los eventos, que quedan a elección del usuario.],
   ),
   caption: [Requisito de arquitectura #typedCommunicationArchitectureId],
 ) <typedCommunicationArchitecture>
@@ -388,7 +388,7 @@ Las siguientes tablas elicitan los objetivos y capacidades requeridos para una s
     [Título],
     [Preparar entradas para la integración],
     [Descripción],
-    [El proceso de compilación debe producir recursos que permitan al sistema anfitrión descubrir las entradas declaradas y cargar el código y las dependencias asociados.],
+    [El proceso de compilación debe producir recursos que permitan a la aplicación anfitriona descubrir las entradas declaradas y cargar el código y las dependencias asociados.],
   ),
   caption: [Requisito funcional #generateRemoteEntryFunctionalRequirementId],
 ) <generateRemoteEntryFunctionalRequirement>
@@ -405,7 +405,7 @@ Las siguientes tablas elicitan los objetivos y capacidades requeridos para una s
     [Título],
     [Cargar una aplicación remota],
     [Descripción],
-    [El anfitrión debe poder solicitar una aplicación mediante su ubicación. Las solicitudes repetidas o concurrentes deben reutilizarse cuando sea seguro y puedan asociarse con la aplicación correcta.],
+    [La aplicación anfitriona debe poder solicitar una aplicación mediante su ubicación. Las solicitudes repetidas o concurrentes deben reutilizarse cuando sea seguro y puedan asociarse con la aplicación correcta.],
   ),
   caption: [Requisito funcional #loadRemoteEntryFunctionalRequirementId],
 ) <loadRemoteEntryFunctionalRequirement>
@@ -439,7 +439,7 @@ Las siguientes tablas elicitan los objetivos y capacidades requeridos para una s
     [Título],
     [Montar una aplicación],
     [Descripción],
-    [El anfitrión debe poder solicitar que una aplicación remota inicie su interfaz en un contenedor y recibir un control para gestionar el ciclo de vida de esa instancia.],
+    [La aplicación anfitriona debe poder solicitar que una aplicación remota inicie su interfaz en un contenedor y recibir un control para gestionar el ciclo de vida de esa instancia.],
   ),
   caption: [Requisito funcional #mountRemoteAppFunctionalRequirementId],
 ) <mountRemoteAppFunctionalRequirement>
@@ -682,7 +682,7 @@ Las siguientes tablas elicitan los objetivos y capacidades requeridos para una s
     [Título],
     [Confianza de aplicaciones remotas],
     [Descripción],
-    [El anfitrión debe aplicar una política de confianza a las aplicaciones remotas y basar sus expectativas de seguridad en los límites de aislamiento que el sistema defina explícitamente.],
+    [La aplicación anfitriona debe aplicar una política de confianza a las aplicaciones remotas y basar sus expectativas de seguridad en los límites de aislamiento que el sistema defina explícitamente.],
   ),
   caption: [Requisito no funcional #trustedRemotesNonFunctionalRequirementId],
 ) <trustedRemotesNonFunctionalRequirement>
@@ -727,10 +727,10 @@ Los casos de uso detallan cómo los actores emplean las capacidades descritas en
     [
       1. El desarrollador configura la integración de compilación con las entradas que desea publicar. \
       2. El proceso de compilación prepara las entradas y los recursos necesarios para su carga. \
-      3. El desarrollador publica esos recursos en una ubicación accesible para el anfitrión.
+      3. El desarrollador publica esos recursos en una ubicación accesible para la aplicación anfitriona.
     ],
     [Postcondiciones],
-    [La aplicación remota queda disponible en una URL que puede cargar el anfitrión.],
+    [La aplicación remota queda disponible en una URL que puede cargar la aplicación anfitriona.],
   ),
   caption: [Caso de uso #buildRemoteUseCaseId],
 ) <buildRemoteUseCase>
@@ -746,16 +746,16 @@ Los casos de uso detallan cómo los actores emplean las capacidades descritas en
     [Actores],
     [#hostAppDeveloperActorId, #remoteServerActorId, #browserActorId],
     [Precondiciones],
-    [La entrada remota está publicada y el anfitrión dispone de un elemento contenedor.],
+    [La entrada remota está publicada y la aplicación anfitriona dispone de un elemento contenedor.],
     [Flujo principal],
     [
-      1. El anfitrión solicita una aplicación remota mediante su ubicación y, si es necesario, indica la entrada que desea utilizar. \
+      1. La aplicación anfitriona solicita una aplicación remota mediante su ubicación y, si es necesario, indica la entrada que desea utilizar. \
       2. El sistema resuelve la aplicación y prepara una instancia con sus recursos asociados. \
-      3. El anfitrión solicita que la instancia inicie su interfaz en un contenedor. \
+      3. La aplicación anfitriona solicita que la instancia inicie su interfaz en un contenedor. \
       4. La aplicación presenta su interfaz y devuelve el control de ciclo de vida de la instancia.
     ],
     [Postcondiciones],
-    [La aplicación remota queda montada y el anfitrión conserva el ciclo de vida para desmontarla.],
+    [La aplicación remota queda montada y devuelve el ciclo de vida para desmontarla.],
     [Excepción],
     [Si no se puede obtener o inicializar la aplicación, o no existe la entrada solicitada, el sistema informa del error y no devuelve una instancia iniciada.],
   ),
@@ -776,13 +776,13 @@ Los casos de uso detallan cómo los actores emplean las capacidades descritas en
     [Actores],
     [#hostAppDeveloperActorId, #remoteServerActorId],
     [Precondiciones],
-    [La entrada remota admite más de una instancia y el anfitrión dispone de varios contenedores.],
+    [La entrada remota admite más de una instancia y la aplicación anfitriona dispone de varios contenedores.],
     [Flujo principal],
     [
-      1. El anfitrión solicita la misma aplicación remota para varios contenedores. \
+      1. La aplicación anfitriona solicita la misma aplicación remota para varios contenedores. \
       2. El sistema reutiliza los recursos compartidos cuando sea posible. \
       3. Cada solicitud crea una instancia y un control de ciclo de vida independientes. \
-      4. El anfitrión finaliza cada instancia por separado.
+      4. La aplicación anfitriona finaliza cada instancia por separado.
     ],
     [Postcondiciones],
     [Los recursos compartidos se reutilizan cuando es seguro y cada instancia puede gestionarse de forma independiente.],
@@ -804,12 +804,12 @@ Los casos de uso detallan cómo los actores emplean las capacidades descritas en
     [La aplicación remota declara una o varias entradas identificables.],
     [Flujo principal],
     [
-      1. El anfitrión solicita una aplicación remota. \
-      2. El anfitrión selecciona una entrada declarada mediante la interfaz de carga disponible. \
+      1. La aplicación anfitriona solicita una aplicación remota. \
+      2. La aplicación anfitriona selecciona una entrada declarada mediante la interfaz de carga disponible. \
       3. El sistema devuelve la entrada seleccionada lista para iniciar su interfaz.
     ],
     [Postcondiciones],
-    [El anfitrión obtiene la interfaz de montaje de la entrada seleccionada.],
+    [La aplicación anfitriona obtiene la interfaz de montaje de la entrada seleccionada.],
     [Excepción],
     [Si la entrada solicitada no existe, el error identifica la aplicación y enumera las entradas disponibles cuando se conocen.],
   ),
@@ -881,7 +881,7 @@ Los casos de uso detallan cómo los actores emplean las capacidades descritas en
     [La aplicación anfitriona y la remota acuerdan un contrato para compartir datos y acciones.],
     [Flujo principal],
     [
-      1. El anfitrión establece un canal de comunicación y lo comparte con las aplicaciones participantes. \
+      1. La aplicación anfitriona establece un canal de comunicación y lo comparte con las aplicaciones participantes. \
       2. Las aplicaciones intercambian datos, observan cambios y solicitan las acciones acordadas. \
       3. Cada aplicación cancela las suscripciones que deja de necesitar.
     ],
@@ -908,7 +908,7 @@ Los casos de uso detallan cómo los actores emplean las capacidades descritas en
     [Las aplicaciones comparten un canal de eventos y acuerdan los eventos y contenidos que intercambiarán.],
     [Flujo principal],
     [
-      1. El anfitrión establece un canal de eventos y lo comparte con las aplicaciones participantes. \
+      1. La aplicación anfitriona establece un canal de eventos y lo comparte con las aplicaciones participantes. \
       2. Cada aplicación se suscribe a los eventos que necesita recibir. \
       3. Una aplicación publica un evento y las suscriptoras procesan su contenido. \
       4. Las aplicaciones cancelan sus suscripciones al finalizar y el propietario libera el canal cuando deja de usarse.

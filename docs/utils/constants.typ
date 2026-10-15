@@ -20,7 +20,7 @@
       "dynamic loading",
       "runtime integration",
       "style isolation",
-      "microfrontend comunication",
+      "microfrontend communication",
     ),
   ),
 )

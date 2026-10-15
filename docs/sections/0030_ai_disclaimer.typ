@@ -4,6 +4,8 @@
 
 = Uso de IA generativa
 
-El contenido de este documento ha sido redactado sin hacer uso de ninguna herramienta de inteligencia artificial generativa, garantizando la autoría humana del texto. Sin embargo, se ha hecho uso de esta para la corrección gramatical, léxica y estilística del texto tras su escritura.
+El contenido original de este documento ha sido redactado sin hacer uso de ninguna herramienta de inteligencia artificial generativa, garantizando la autoría humana del texto. Sin embargo, se ha hecho uso de inteligencia artificial para la corrección gramatical, léxica y estilística del texto, generando una segunda versión del mismo.
 
-En cualquier caso, el resultado final ha sido revisado y aprobado por el autor, asegurando la integridad y calidad del contenido, asumiendo total responsabilidad sobre su contenido y reclamando la totalidad de su autoría.
+Para mantener transparencia con las ediciones realizadas en la segunda versión, se adjunta un documento (`TEXT_REVIEW.md`) que contiene todas las correcciones aplicadas por inteligencia artificial.
+
+En cualquier caso, el resultado final ha sido revisado y aprobado por el autor, asegurando la integridad y calidad del contenido. El autor asume total responsabilidad sobre su contenido y reclama su autoría.

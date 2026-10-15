@@ -6,7 +6,7 @@ Por un lado, hemos descrito de forma rigurosa cómo debe comportarse una impleme
 
 Por otro lado, y siguiendo los ejemplos incrementales desarrollados en el ámbito del @research-and-development[capítulo], podemos tomar como artefacto final la biblioteca usada en el último ejemplo, pues cumple todos los requisitos elicitados en el @project-analysis[capítulo]. El resultado es una biblioteca escrita en TypeScript sin dependencias y lista para ser usada en cualquier proyecto web.
 
-Si bien la biblioteca no proporciona el nivel de sofistificación y funcionalidades que otras implementaciones existentes ya incorporan, como las mencionadas en la @state-of-the-art[sección], cumple con el objetivo de ser un prototipo de referencia de la arquitectura de microfrontends propuesta, además de ser ligera (alrededor de #num(1500) líneas de código fuente) y extensible, pues la mayoría de funcionalidades están implementadas de forma modular, como la comunicación entre microfrontends.
+Si bien la biblioteca no proporciona el nivel de sofisticación y las funcionalidades que otras implementaciones existentes ya incorporan, como las mencionadas en la @state-of-the-art[sección], cumple con el objetivo de ser un prototipo de referencia de la arquitectura de microfrontends propuesta, además de ser ligera (alrededor de #num(1500) líneas de código fuente) y extensible, pues la mayoría de funcionalidades están implementadas de forma modular, como la comunicación entre microfrontends.
 
 == Trabajo futuro
 

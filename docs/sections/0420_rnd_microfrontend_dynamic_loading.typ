@@ -2,7 +2,7 @@
 
 == Carga dinámica de microfrontends <dynamic-microfrontend-loading>
 
-Hasta ahora, hemos visto cómo usar un bundler y hemos estudiado el esqueleto de un bundle convencional. A continuación, vamos a pasar a estudiar el comportamiento de dos proyectos: `parent`, la aplicación padre, y `child`, la aplicación hija, siendo ámbas un proyecto estándar de Rspack. Nuestro objetivo en este capítulo será cargar, instanciar y controlar `child` desde `parent` de forma programática, siguiendo una arquitectura de microfrontend típica.
+Hasta ahora, hemos visto cómo usar un bundler y hemos estudiado el esqueleto de un bundle convencional. A continuación, vamos a pasar a estudiar el comportamiento de dos proyectos: `parent`, la aplicación anfitriona, y `child`, la aplicación remota, siendo ambos proyectos estándar de Rspack. Nuestro objetivo en este capítulo será cargar, instanciar y controlar `child` desde `parent` de forma programática, siguiendo una arquitectura de microfrontend típica.
 
 === Cargando una aplicación dentro de otra <loading-microfrontend-inside-microfrontend>
 
@@ -17,7 +17,7 @@ Podemos comenzar definiendo los módulos de entrada de ambos proyectos. El caso 
   caption: [Módulo de entrada inicial de `child`],
 ) <4-initial-child-mount-function>
 
-Por otro lado, en el @4-initial-parent-entrypoint[código] definimos el módulo de entrada de `parent` como una pequeña aplicación que renderiza un botón que carga a `child` (una vez convertido en bundle y servido por un servidor local). La carga se hace a través del mecanismo convencional, usando etiquetas `<script>` @cite-mdn-script-element:
+Por otro lado, en el @4-initial-parent-entrypoint[código] definimos el módulo de entrada de `parent` como una pequeña aplicación que renderiza un botón que carga `child` (una vez convertido en bundle y servido por un servidor local). La carga se hace a través del mecanismo convencional, usando etiquetas `<script>` @cite-mdn-script-element:
 
 #figure(
   raw(
@@ -66,10 +66,10 @@ Tras recrear el bundle, observamos que el IIFE ahora está envuelto por la invoc
     block: true,
     lang: "js",
   ),
-  caption: [Autoregistro JSONP de `child`],
+  caption: [Autorregistro JSONP de `child`],
 ) <4-jsonp-autoregister-in-child>
 
-A pesar de que el IIFE se sigue ejecutando inmediatamente, todos los identificadores exportados pasan a asignarse al objeto `__webpack_exports__` y son retornados al cargador. Si ahora volviésemos a abrir `parent`, veríamos que no solo el botón que carga a `child` ha dejado de funcionar, sino que se lanzan algunos errores en la consola. Esto se debe a que `child` está tratando de autoregistrar el resultado de ejecutar su módulo inicial, pero el cargador aún no existe en el objeto global `window`. Para completar la solución, necesitamos modificar la función de carga de `parent` de forma que tenga esto en cuenta, y que además ejecute la función `mount` registrada.
+A pesar de que el IIFE se sigue ejecutando inmediatamente, todos los identificadores exportados pasan a asignarse al objeto `__webpack_exports__` y son retornados al cargador. Si ahora volviésemos a abrir `parent`, veríamos que no solo el botón que carga `child` ha dejado de funcionar, sino que se lanzan algunos errores en la consola. Esto se debe a que `child` está tratando de autorregistrar el resultado de ejecutar su módulo inicial, pero el cargador aún no existe en el objeto global `window`. Para completar la solución, necesitamos modificar la función de carga de `parent` de forma que tenga esto en cuenta, y que además ejecute la función `mount` registrada.
 
 #codly-range(1, end: 9)
 #figure(
@@ -100,7 +100,7 @@ La secuencia de eventos, por tanto, es la siguiente:
 3. `child` se ejecuta y registra su `RuntimeModuleInstance` en el cargador JSONP de `parent`.
 4. El cargador JSONP crea un nuevo contenedor e invoca la función `mount` de child para renderizarlo.
 
-Es importante destacar que existe una condición de carrera en esta secuencia, pues en un entorno real no podríamos garantizar que otra aplicación iniciase el proceso de carga simultáneamente y, en caso de usar el mismo cargador JSONP, este sería sobreescrito por la aplicación padre que lo defina después. Este y otros detalles relacionados serán tratados en sucesivos capítulos para evitar una complejidad excesiva desde el inicio y facilitar la lectura.
+Es importante destacar que existe una condición de carrera en esta secuencia, pues en un entorno real no podríamos garantizar que otra aplicación no iniciase el proceso de carga simultáneamente y, en caso de usar el mismo cargador JSONP, este sería sobreescrito por la aplicación anfitriona que lo defina después. Este y otros detalles relacionados serán tratados en sucesivos capítulos para evitar una complejidad excesiva desde el inicio y facilitar la lectura.
 
 === Cacheando el punto de entrada <caching-entrypoint>
 
@@ -120,7 +120,7 @@ Para solucionar este problema, podemos añadir una caché con las instancias de 
 
 Ahora, cargar un microfrontend varias veces usará la caché en lugar de volver a cargar el script consecutivamente. Sin embargo, este sistema no está aún completo: al cachear instancias de un microfrontend, montar la misma aplicación varias veces en distintos contenedores provocará que todas compartan el mismo estado.
 
-Por ejemplo, si añadimos un contador a `child` usando una variable global, como se muestra en @4-adding-a-counter-to-child[código], este mantendrá su valor incluso si montamos el microfrontend varias veces. Dado que este comportamiento no es el esperado comúnmente, esto puede desembocar en multitud de errores difíciles de depurar
+Por ejemplo, si añadimos un contador a `child` usando una variable global, como se muestra en @4-adding-a-counter-to-child[código], este mantendrá su valor incluso si montamos el microfrontend varias veces. Dado que este comportamiento no es el esperado comúnmente, esto puede desembocar en multitud de errores difíciles de depurar.
 
 #figure(
   raw(
@@ -133,7 +133,7 @@ Por ejemplo, si añadimos un contador a `child` usando una variable global, como
 
 === Fábrica de instancias <instance-factory>
 
-Para solucionar el problema introducido con la caché de instancias, podemos mover la caché un nivel hacia arriba: en lugar de cachear instancias, podemos cachear una función que genere instancias independientes. Actualmente, Rspack genera una llamada al cargador JSONP al que le pasa como argumento un IIFE que genera una instancia de `child`, por lo que simplemente envolver el IIFE en una función cumpliría la función de fábrica.
+Para solucionar el problema introducido con la caché de instancias, podemos mover la caché un nivel hacia arriba: en lugar de cachear instancias, podemos cachear una función que genere instancias independientes. Actualmente, Rspack genera una llamada al cargador JSONP al que le pasa como argumento un IIFE que genera una instancia de `child`, por lo que simplemente envolver el IIFE en una función lo convertiría en una fábrica de instancias.
 
 Aunque es posible modificar el resultado del bundle manualmente usando la configuración de Rspack para envolverlo en una función, podemos usar un nuevo método de carga similar a JSONP llamado AMD (del inglés _Asynchronous Module Definition_). AMD prescribe una especificación técnica para la carga de módulos de JavaScript, definiendo una API propia. Aunque la especificación es compleja, en este caso únicamente vamos a utilizar la definición de su cargador de módulos, que Rspack soporta nativamente @cite-amd-api. Primero, cambiamos la configuración de `child`:
 
@@ -149,7 +149,7 @@ Aunque es posible modificar el resultado del bundle manualmente usando la config
 
 AMD define `amdContainer` como un objeto global que debe contener ciertos métodos. En particular, `amdContainer.define()` es el método encargado de registrar módulos de JavaScript y acepta hasta tres parámetros, `id`, `dependencies` y `factory`. En nuestro caso, y dado que estamos haciendo un uso básico de AMD, podemos usar una firma simplificada del método que únicamente acepta `factory`, y que es la que emite Rspack por defecto.
 
-Así, si corremos Rspack de nuevo, podemos observar el nuevo autoregistro, esta vez usando la API de AMD:
+Así, si corremos Rspack de nuevo, podemos observar el nuevo autorregistro, esta vez usando la API de AMD:
 
 #codly(ranges: ((1, 2), (60, 62)))
 #figure(
@@ -158,7 +158,7 @@ Así, si corremos Rspack de nuevo, podemos observar el nuevo autoregistro, esta 
     block: true,
     lang: "js",
   ),
-  caption: [Autoregistro usando AMD en `child`],
+  caption: [Autorregistro usando AMD en `child`],
 ) <4-amd-autoregister-in-child>
 
 Con este cambio, es necesario definir nuevos tipos en `parent`. En particular, parentLoader ahora es un objeto que contiene el método `define`. El único parámetro que acepta es `runtimeModuleFactory`, que ahora se define como una función que devuelve una nueva instancia del microfrontend.
@@ -194,7 +194,7 @@ Con estos cambios hemos conseguido realizar una única carga del script y ser ca
 
 === Introduciendo un punto de entrada dual <dual-entrypoint>
 
-Llegados a este punto, `child` se ha convertido formalmente en un microfrontend, pues puede ser cargado a petición desde `parent` y su ciclo de vida es controlable. Sin embargo, desde la introducción de JSONP y posteriormente de AMD como métodos de inyección, hemos perdido la facultad de cargar `child` de forma independiente: si tratamos de acceder a su  servidor de desarrollo directamente, observaremos una pantalla en blanco. Accediendo a la consola podremos observar el siguiente error:
+Llegados a este punto, `child` se ha convertido formalmente en un microfrontend, pues puede ser cargado a petición desde `parent` y su ciclo de vida es controlable. Sin embargo, desde la introducción de JSONP y posteriormente de AMD como métodos de inyección, hemos perdido la facultad de cargar `child` de forma independiente: si tratamos de acceder a su servidor de desarrollo directamente, observaremos una pantalla en blanco. Accediendo a la consola podremos observar el siguiente error:
 
 #figure(
   image("../figures/example-8-2-error-loading-child.png"),
@@ -203,9 +203,9 @@ Llegados a este punto, `child` se ha convertido formalmente en un microfrontend,
 
 Esto se debe a que ahora el bundle generado depende exclusivamente de que exista un cargador global donde pueda registrarse, y de que el cargador adecuado se encargue de crear una instancia de la aplicación.
 
-Como vimos en el @why-bundlers[capítulo], una característica común de los bundlers es que permiten definir varios puntos de entrada a la aplicación. Además de ser útil para compilar aplicaciones que están compuestas por otras subaplicaciones, esta funcionalidad es comúnmente usada para generar bundles de la misma aplicación con diferentes características. Esto se consigue añadiendo configuración específica para cada uno de los puntos de entrada. Por ejemplo, podríamos generar un bundle optimizado para navegadores antiguos y otro para navegador modernos, o generar un bundle para la web y otro para un entorno Node.js.
+Como vimos en el @why-bundlers[capítulo], una característica común de los bundlers es que permiten definir varios puntos de entrada a la aplicación. Además de ser útil para compilar aplicaciones que están compuestas por otras subaplicaciones, esta funcionalidad es comúnmente usada para generar bundles de la misma aplicación con diferentes características. Esto se consigue añadiendo configuración específica para cada uno de los puntos de entrada. Por ejemplo, podríamos generar un bundle optimizado para navegadores antiguos y otro para navegadores modernos, o generar un bundle para la web y otro para un entorno Node.js.
 
-En nuestro caso, vamos a usar esta funcionalidad para generar dos puntos de entrada a la aplicación. Por un lado, tendremos el punto de entrada remoto (llamado `remote`), que se mantendrá idéntico a lo que hemos obtenido hasta ahora: exportará el ciclo de vida del microfrontend y se autoregistrará usando AMD. Por otro lado, vamos a registrar un nuevo punto de entrada, llamado `standalone`, que será capaz de cargar la aplicación de forma autónoma. Podemos hacer esto de varias formas:
+En nuestro caso, vamos a usar esta funcionalidad para generar dos puntos de entrada a la aplicación. Por un lado, tendremos el punto de entrada remoto (llamado `remote`), que se mantendrá idéntico a lo que hemos obtenido hasta ahora: exportará el ciclo de vida del microfrontend y se autorregistrará usando AMD. Por otro lado, vamos a registrar un nuevo punto de entrada, llamado `standalone`, que será capaz de cargar la aplicación de forma autónoma. Podemos hacer esto de varias formas:
 
 1. Convirtiendo `standalone` en un envoltorio de `remote`, en cuyo caso `standalone` actuaría como un `parent` mínimo que usa el cargador AMD para crear una instancia de `remote`.
 2. Dado que `standalone` pertenece al mismo proyecto que `remote`, importar el método `mount` de `remote` y usarlo directamente, pasándole los parámetros necesarios.
@@ -235,9 +235,7 @@ Cabe destacar que hemos renombrado el archivo `index.ts`, que hasta ahora había
   caption: [Creando el punto de entrada `standalone` en `child`],
 ) <4-creating-standalone-entry-in-child>
 
-Como podemos ver en @4-creating-standalone-entry-in-child[código], este punto de entrada es bastante simple: simplemente importa el ciclo de vida del microfrontend y lo invoca con los parámetros que espera. No obstante, cada punto de entrada genera un bundle independiente. Esto quiere decir que, si los distintos puntos de entrada comparten dependencias, se generará un chunk distinto para cada uno de los bundles, resultando en chunks duplicados y espacio en disco malgastado.
-
-Aunque este es un problema sencillo de resolver extrayendo el código de carga de `parent` a una biblioteca para que `standalone` no importe directamente el punto de entrada `standalone`, en el siguiente apartado estudiaremos otro problema que puede resultar no tan evidente.
+Como podemos ver en @4-creating-standalone-entry-in-child[código], este punto de entrada es bastante simple: simplemente importa el ciclo de vida del microfrontend y lo invoca con los parámetros que espera. No obstante, cada punto de entrada genera un bundle independiente. Esto quiere decir que, si los distintos puntos de entrada comparten dependencias, se generará un chunk distinto para cada uno de los bundles, resultando en chunks duplicados y espacio en disco malgastado. Este es un problema sencillo de resolver extrayendo el código de carga de `parent` a una biblioteca para que `standalone` no importe directamente otros puntos de entrada de la aplicación.
 
 #figure(
   image("../figures/example-9-child-loaded.png"),
@@ -246,13 +244,13 @@ Aunque este es un problema sencillo de resolver extrayendo el código de carga d
 
 === Añadiendo un contenedor <containerization>
 
-Llegados a este punto y tras lo explicado en el @dual-entrypoint[capítulo] sobre los puntos de entrada autónomos, aparece una nueva pregunta de forma  inminente: ¿cómo podemos crear varios puntos de entrada remotos sin duplicar chunks?
+Llegados a este punto y tras lo explicado en el @dual-entrypoint[capítulo] sobre los puntos de entrada autónomos, aparece una nueva pregunta de forma inminente: ¿cómo podemos crear varios puntos de entrada remotos sin duplicar chunks?
 
 Si simplemente registrásemos nuevos puntos de entrada en Rspack, todo el código compartido entre ellos se duplicaría. Mientras que los puntos de entrada autónomos pueden usar el cargador para no depender directamente de los puntos de entrada remotos, estos últimos no tienen más remedio que importar directamente sus dependencias, ya que extraer la lógica común a un segundo microfrontend común añadiría complejidad excesiva y atraería errores innecesarios.
 
 Una solución sencilla pasa por añadir un nuevo nivel de abstracción a nuestro punto de entrada remoto. Este nivel de abstracción se conoce como contenedor, y toma su nombre de un concepto similar definido en Module Federation. Hasta ahora, crear una instancia de nuestro microfrontend implicaba que se cargasen todas las dependencias de nuestro único punto de entrada para devolver su ciclo de vida. El contenedor es un módulo mínimo (sin dependencias) que actúa como paso intermedio entre la instanciación del microfrontend y la ejecución de uno de sus puntos de entrada, por lo que ningún otro módulo se instancia antes que él.
 
-Comenzaremos moviendo la lógica actual de `index.remote.ts` en `child` a un nuevo archivo, `entry.default.ts`, que dejará de ser el punto de entrada remoto y pasará a ser uno de los puntos de entrada de la aplicación. Ahora `index.remote.ts` funcionará como contenedor y punto de entrada remoto del microfrontend, por lo que necesitará exponer una nueva interfaz para que la aplicación padre pueda elegir y cargar uno de los puntos de entrada de la aplicación, como podemos ver en @4-child-container-remote-entry[código]. Al usar `import()`, separamos los puntos de entrada usando code splitting, permitiendo que el bundler introduzca carga dinámica para el resto de chunks y, por tanto, cargando e instanciando el contenedor de forma aislada @cite-mdn-js-modules, @cite-webpack-code-splitting.
+Comenzaremos moviendo la lógica actual de `index.remote.ts` en `child` a un nuevo archivo, `entry.default.ts`, que dejará de ser el punto de entrada remoto y pasará a ser uno de los puntos de entrada de la aplicación. Ahora `index.remote.ts` funcionará como contenedor y punto de entrada remoto del microfrontend, por lo que necesitará exponer una nueva interfaz para que la aplicación anfitriona pueda elegir y cargar uno de los puntos de entrada de la aplicación, como podemos ver en @4-child-container-remote-entry[código]. Al usar `import()`, separamos los puntos de entrada usando code splitting, permitiendo que el bundler introduzca carga dinámica para el resto de chunks y, por tanto, cargando e instanciando el contenedor de forma aislada @cite-mdn-js-modules, @cite-webpack-code-splitting.
 
 #codly-range(3)
 #figure(
@@ -264,7 +262,7 @@ Comenzaremos moviendo la lógica actual de `index.remote.ts` en `child` a un nue
   caption: [Contenedor como punto de entrada en `child`],
 ) <4-child-container-remote-entry>
 
-Además, esta interfaz también nos permitirá exponer ciertos aspectos internos del microfrontend, aportando flexibilidad tanto para realizar tareas de configuración de forma transparente al usuario, como permitiendo a este configurar de forma explícita el microfrontend antes de que este cargue sus chunks e instancie cualquiera de sus módulos. Por ejemplo, el public path del microfrontend es la ruta prefijo que este usa para cargar sus chunks. Aunque por defecto Rspack emite lógica en su runtime para autoconfigurar este valor cuando el runtime se ejecuta, puede ser útil si queremos cargar chunks desde un CDN que el bundle desconoce en build-time @cite-webpack-public-path.
+Además, esta interfaz también nos permitirá exponer ciertos aspectos internos del microfrontend, aportando flexibilidad tanto para realizar tareas de configuración de forma transparente al usuario, como para permitir a este configurar de forma explícita el microfrontend antes de que este cargue sus chunks e instancie cualquiera de sus módulos. Por ejemplo, el public path del microfrontend es la ruta prefijo que este usa para cargar sus chunks. Aunque por defecto Rspack emite lógica en su runtime para autoconfigurar este valor cuando el runtime se ejecuta, puede ser útil si queremos cargar chunks desde un CDN que el bundle desconoce en build-time @cite-webpack-public-path.
 
 Para proporcionar más control sobre el ciclo de vida del microfrontend, vamos a introducir también un nuevo método, `unmount`, que se encarga de liberar todos los recursos relacionados con la instancia actual del mismo, y que será devuelto por el método `mount`. Para ello, necesitamos cambiar la implementación del método `mount` en `child`, como se muestra en @4-returning-unmount-lifecycle-in-child[código].
 
@@ -292,7 +290,7 @@ Al haber modificado la interfaz pública del punto de entrada remoto de `child`,
 
 Aunque `RuntimeModuleFactory` mantiene su definición, ahora `RuntimeModuleInstance` ya no contiene el método `mount` del ciclo de vida del microfrontend, sino que expone la nueva API del contenedor. El método `loadEntry` es el encargado de cargar e instanciar el punto de entrada (`RuntimeModuleEntry`) solicitado por el usuario, donde ahora reside `mount`. Por otro lado, `mount` ya no devuelve `void`, sino que devuelve `RuntimeModuleLifecycle`, que es el objeto con el método `unmount`. Estos métodos nos permiten tener un control exhaustivo de la carga, instanciación e incluso la eliminación de cada instancia individual del microfrontend.
 
-En cuanto al cargador de `parent`, necesitamos adaptarlo a la nueva interfaz. Tras la instanciación el contenedor, ahora necesitamos el nombre del punto de entrada de la aplicación que queremos instanciar. Esto significa que la función `loadMicrofrontend` necesita un nuevo parámetro para permitir al usuario decidir. Dado que tener un único punto de entrada a la aplicación sigue siendo un caso de uso común, usaremos el punto de entrada llamado `default` como valor por defecto en caso de omisión del parámetro, que coincide con el nombre del archivo que usamos en el punto de entrada de la aplicación anteriormente, `entry.default.ts`. Además, también cambia su valor de retorno, pues en lugar de volver `void` pasa a devolver el `RuntimeModuleLifecycle` obtenido por el método `mount`.
+En cuanto al cargador de `parent`, necesitamos adaptarlo a la nueva interfaz. Tras la instanciación del contenedor, ahora necesitamos el nombre del punto de entrada de la aplicación que queremos instanciar. Esto significa que la función `loadMicrofrontend` necesita un nuevo parámetro para permitir al usuario decidir. Dado que tener un único punto de entrada a la aplicación sigue siendo un caso de uso común, usaremos el punto de entrada llamado `default` como valor por defecto en caso de omisión del parámetro, que apunta al archivo que usamos como punto de entrada de la aplicación anteriormente, `entry.default.ts`. Además, también cambia su valor de retorno, pues en lugar de devolver `void` pasa a devolver el `RuntimeModuleLifecycle` obtenido por el método `mount`.
 
 #codly(ranges: ((46, 49), (70, 83)))
 #figure(
@@ -320,7 +318,7 @@ Con esto, habremos implementado satisfactoriamente la gestión de múltiples pun
 
 === Estableciendo un public path dinámico <setting-dynamic-public-path>
 
-En el @containerization[capítulo] hemos añadido algunas funciones útiles al contenedor como `getPublicPath`, aunque aún no le hemos dado ningún uso, ni internamente ni dentro del propio microfrontend. Si la llamamos y mostramos el valor retornado en el contenedor del microfrontend, observaremos un comportamiento erróneo: diferentes instancias del mismo microfrontend tienen diferente public path a pesar de haber sido cargadas desde la misma URL e instancias usando la misma fábrica, como podemos ver en la @4-two-instances-wrong-public-path[ilustración].
+En el @containerization[capítulo] hemos añadido algunas funciones útiles al contenedor como `getPublicPath`, aunque aún no le hemos dado ningún uso, ni internamente ni dentro del propio microfrontend. Si la llamamos y mostramos el valor retornado en el contenedor del microfrontend, observaremos un comportamiento erróneo: diferentes instancias del mismo microfrontend tienen diferente public path a pesar de haber sido cargadas desde la misma URL e instanciadas usando la misma fábrica, como podemos ver en la @4-two-instances-wrong-public-path[ilustración].
 
 #figure(
   image("../figures/example-10-wrong-public-path.png"),
@@ -351,7 +349,7 @@ Sin embargo, tras las mejoras introducidas en el @caching-entrypoint[capítulo],
   caption: [El cargador de `parent` establece el public path de `child`],
 ) <4-parent-setting-public-path>
 
-Donde `computePublicPath` es una pequeña función que calcula una ruta relativa a la ruta actual:
+`computePublicPath` es una pequeña función que calcula una ruta relativa a la ruta actual del documento:
 
 #codly(ranges: ((144, 146),))
 #figure(
@@ -363,7 +361,7 @@ Donde `computePublicPath` es una pequeña función que calcula una ruta relativa
   caption: [Función utilitaria `computePublicPath`],
 )
 
-Ahora podemos comprobar como todas las instancias creadas a partir de la misma fábrica obtienen el mismo public path:
+Ahora podemos comprobar cómo todas las instancias creadas a partir de la misma fábrica obtienen el mismo public path:
 
 #figure(
   image("../figures/example-11-1-proper-public-path.png"),
@@ -372,7 +370,7 @@ Ahora podemos comprobar como todas las instancias creadas a partir de la misma f
 
 === Manejando la concurrencia <handling-concurrency>
 
-A lo largo de los capítulos anteriores, hemos establecido un escenario simple: una aplicación padre (`parent`) carga a la aplicación hija (`hija`) de forma secuencial. Sin embargo, un entorno real suele distar de esta situación. Incluso si asumiésemos el escenario simplificado, el simple hecho de operar de forma asíncrona sin control puede provocar problemas de todo tipo, como condiciones de carrera o, en el peor de los casos, un deadlock.
+A lo largo de los capítulos anteriores, hemos establecido un escenario simple: una aplicación anfitriona (`parent`) carga la aplicación remota (`child`) de forma secuencial. Sin embargo, un entorno real suele distar de esta situación. Incluso si asumiésemos el escenario simplificado, el simple hecho de operar de forma asíncrona sin control puede provocar problemas de todo tipo, como condiciones de carrera o, en el peor de los casos, un deadlock.
 
 Por ejemplo, supongamos que `parent` llama a `loadMicrofrontend` y, antes de que este haya terminado de cargar el script que contiene el punto de entrada remoto, vuelve a hacer otra llamada. Este escenario sería fácilmente reproducible en la actualidad si los scripts cargasen a través de la red (y no en `localhost`) y un usuario pulsase el botón de cargar microfrontend varias veces seguidas.
 
@@ -383,7 +381,7 @@ Para resolver este problema, necesitamos introducir varias medidas:
 - La caché de fábricas debe rellenarse desde el momento en que comienza la carga de la fábrica, para evitar cargas simultáneas de la misma fábrica.
 - Debemos introducir una cola de carga para evitar que múltiples llamadas al mismo cargador se solapen entre ellas.
 
-No obstante, existe un detalle que también tenemos que tener en cuenta: la localidad. Hasta ahora, la caché de fábricas ha existido únicamente dentro de la instancia de `parent`. Sin embargo, si múltiples aplicaciones intentasen cargar microfrontends a la vez, cada una usaría su propia instancia de la caché, lo que conllevaría, de nuevo, a cargar fábricas ya cargadas y aparecerían problemas de solapamiento, pues cada cargador tendría su propia cola de carga. Para evitarlo, debemos introducir una tercera medida:
+No obstante, existe un detalle que también tenemos que tener en cuenta: la localidad. Hasta ahora, la caché de fábricas ha existido únicamente dentro de la instancia de `parent`. Sin embargo, si múltiples aplicaciones intentasen cargar microfrontends a la vez, cada una usaría su propia instancia de la caché, lo que conllevaría, de nuevo, cargar fábricas ya cargadas y provocaría problemas de solapamiento, pues cada cargador tendría su propia cola de carga. Para evitarlo, debemos introducir una tercera medida:
 
 - Todo el estado debe migrarse al objeto global donde reside el cargador AMD, y el cargador de microfrontends no debe tener estado.
 
@@ -411,7 +409,7 @@ El cargador de microfrontends ahora comprueba si una fábrica está ya cargada o
   caption: [Comprobación de caché en el cargador de `parent`],
 )
 
-Si la fábrica no está cargada, nos ponemos en la cola para cargar y, además, esperamos a que el último en la cola termine:
+Si la fábrica no está cargada, nos ponemos en la cola para cargar y, además, esperamos a que el último en la cola, sin contarnos a nosotros mismos, termine:
 
 #codly(ranges: ((89, 96),))
 #figure(
@@ -432,7 +430,7 @@ Una vez el último en la cola ha terminado de cargar, la invocación actual del 
     block: true,
     lang: "ts",
   ),
-  caption: [Moviendo el estado del cargador al objeto global],
+  caption: [Iniciando la carga del punto de entrada remoto],
 )
 
 Si la carga falla, simplemente nos retiramos de la cola y reportamos el error al usuario, además de quitar la promesa de carga de la fábrica de la caché, para que futuras llamadas vuelvan a intentar cargar la misma fábrica:
@@ -480,7 +478,7 @@ Con esto hemos conseguido un proceso concurrente ordenado donde cualquier númer
 
 === Migrando a una arquitectura reusable <library-plugin>
 
-Actualmente, ya somos capaces de cargar microfrontends de forma concurrente, crear múltiples instancias aisladas entre sí y establecer los parámetros básicos (como el public path) para garantizar su correcto funcionamiento. Para ir un paso más allá, debemos extraer la lógica de `parent` y `child` a una biblioteca común que nos permita mantener tanto a las aplicaciones padres como a las hijas casi completamente abstraidas del funcionamiento de la arquitectura.
+Actualmente, ya somos capaces de cargar microfrontends de forma concurrente, crear múltiples instancias aisladas entre sí y establecer los parámetros básicos (como el public path) para garantizar su correcto funcionamiento. Para ir un paso más allá, debemos extraer la lógica de `parent` y `child` a una biblioteca común que nos permita mantener tanto a las aplicaciones anfitrionas como a las remotas casi completamente abstraídas del funcionamiento de la arquitectura.
 
 A diferencia de los anteriores capítulos y debido a la extensión y complejidad de estos cambios, este capítulo hará una revisión a grandes rasgos de la arquitectura de la biblioteca, y de cómo cada una de sus partes se corresponde con cada uno de los sistemas desarrollados para resolver los problemas encontrados a lo largo de la investigación.
 
@@ -503,7 +501,7 @@ El módulo de compilación contiene las herramientas necesarias para configurar 
   caption: [Plugin para Rspack],
 ) <4-rspack-plugin-example>
 
-Por otro lado, el módulo de runtime implementa el comportamiento interno del microfrontend y da soporte a la carga del mismo, la interacción con otros microfrontends y es inyectado en el bundle final usando las herramientas de compilación. Cabe destacar que, aunque se encuentra dentro del bundle, no se usa ni se referencia directamente desde el código del usuario. Efectivamente, en gran parte este módulo se compone del punto de entrada remoto que escribimos manualmente en los ejemplos anteriores, aunque con ligeras modificaciones, pues su contenido es generado dinámicamente según las opciones que el usuario pasa a las herramientas de compilación.
+Por otro lado, el módulo de runtime implementa el comportamiento interno del microfrontend y da soporte a la carga del mismo y a la interacción con otros microfrontends. Es inyectado en el bundle final usando las herramientas de compilación. Cabe destacar que, aunque se encuentra dentro del bundle, no se usa ni se referencia directamente desde el código del usuario. Efectivamente, en gran parte este módulo se compone del punto de entrada remoto que escribimos manualmente en los ejemplos anteriores, aunque con ligeras modificaciones, pues su contenido es generado dinámicamente según las opciones que el usuario pasa a las herramientas de compilación.
 
 Para ver las distintas dependencias generadas entre estos dos módulos, podemos observar la @4-library-usage-build[ilustración].
 
@@ -533,12 +531,12 @@ El uso del plugin es directo a partir de su definición y los ejemplos trabajado
     block: true,
     lang: "ts",
   ),
-  caption: [Generador de punto de entrada remoto],
+  caption: [Configuración del plugin en tiempo de compilación],
 ) 
 
 El punto de entrada remoto generado es clave durante el tiempo de ejecución, pues es el primer módulo de la aplicación que se instancia tras el runtime del bundler. Así, expone el contrato que permite que el cargador de microfrontends interactúe con él. Con esto finaliza el proceso de compilación del microfrontend a cargar, generando como resultado un bundle. Este bundle puede servirse desde cualquier dirección y puede usarse sin necesidad de registro alguno.
 
-Así, el proceso de carga comienza con el módulo restante de la librería, el módulo de herramientas. Este módulo es la única parte de la librería que se encuentra en las aplicaciones padres, y es el encargado de conocer la interfaz expuesta por el punto de entrada remoto para cargar el microfrotend. Así, este módulo es agnóstico con respecto al bundler; de hecho, no es necesario usar ningún bundler en la aplicación padre para poder usarlo, ya que es un conjunto de herramientas autocontenidas y que únicamente usan funcionalidad nativa del navegador.
+Así, el proceso de carga comienza con el módulo restante de la librería, el módulo de herramientas. Este módulo es la única parte de la librería que se encuentra en las aplicaciones anfitrionas, y es el encargado de conocer la interfaz expuesta por el punto de entrada remoto para cargar el microfrontend. Así, este módulo es agnóstico con respecto al bundler; de hecho, no es necesario usar ningún bundler en la aplicación anfitriona para poder usarlo, ya que es un conjunto de herramientas autocontenidas y que únicamente usan funcionalidad nativa del navegador.
 
 Este módulo contiene el cargador de microfrontends, que es el punto de entrada para la carga. Este comienza cargando el punto de entrada remoto si este aún no se encuentra en la caché del cargador global AMD. Así, el script es inyectado en la página, ejecutando primero el runtime del bundler y procediendo este a instanciar el punto de entrada remoto generado anteriormente. El punto de entrada remoto no tiene dependencias y expone los puntos de entrada de la aplicación, además del resto de funciones de utilidad que definimos en el @containerization[capítulo]. Podemos observar este procedimiento esquematizado en la @4-remote-entry-load[ilustración].
 

@@ -6,7 +6,7 @@ En este capítulo, recorreremos el uso de la biblioteca de principio a fin, prop
 
 == Preparar la biblioteca
 
-Los prerequisitos para preparar la biblioteca son tener una instalación válida de Node.js, incluyendo el gestor de paquetes, NPM. Cualquier versión moderna (> 18) debería ser suficiente, pero se recomienda usar la última versión estable. A fecha de escritura de este documento, se recomienda usar Node 26.
+Los prerrequisitos para preparar la biblioteca son tener una instalación válida de Node.js, incluyendo el gestor de paquetes, NPM. Cualquier versión moderna (> 18) debería ser suficiente, pero se recomienda usar la última versión estable. A fecha de escritura de este documento, se recomienda usar Node 26.
 
 El código de la biblioteca se encuentra en el directorio `lib/`. Dado que está escrita en TypeScript es necesario transpilarla a JavaScript, proceso que generará la carpeta `lib/dist/` donde viven los archivos resultantes y que podrán importarse en otros proyectos.
 
@@ -47,7 +47,7 @@ Así, podemos añadirla a un proyecto externo usando el siguiente comando en la 
 
 == Exponer una aplicación remota
 
-Para exponer una aplicación remota, necesitamos importar y usar `AppFederationRspackPlugin` en Rspack. El plugin puede configurarse a través de un objeto que se pasa a su constructor. El único parámetro requerido es la lista de puntos de entrada de la aplicación, `entries`, representada como un objeto cuya clave es el nombre del punto de entrada y el valor debe apuntar al archivo de entrada. Si únicamente se pasa una cadena de texto, entonces el nombre de la entrada será `default` por defecto, como vemos en @5-user-guide-remote-plugin[código].
+Para exponer una aplicación remota, necesitamos importar y usar `AppFederationRspackPlugin` en Rspack. El plugin puede configurarse a través de un objeto que se pasa a su constructor. El único parámetro requerido es la lista de puntos de entrada de la aplicación, `entries`, representada como un objeto cuyas claves son el nombre del punto de entrada y cuyos valores deben apuntar a los archivos de entrada. Si únicamente se pasa una cadena de texto, entonces el nombre de la entrada será `default`, como vemos en @5-user-guide-remote-plugin[código].
 
 #figure(
   raw(
@@ -62,7 +62,7 @@ También es posible pasar otros parámetros como `remoteEntryName`, que indica e
 
 === Interfaz del punto de entrada
 
-Cada entrada debe exportar una función `mount`, cuya interfaz debe ser definida por el contrato entre la aplicación padre y la remota. Normalmente, este contrato incluye un contenedor, que queda reflejado en los tipos de App Federation. Sin embargo, esto es opcional, y la función puede aceptar cualquier otro parámetro. El resultado de ejecutar la función `mount` es un objeto (o una promesa que devuelve un objeto) que contiene el método `unmount`, que debe liberar todos los recursos de la instancia de la aplicación.
+Cada entrada debe exportar una función `mount`, cuya interfaz debe ser definida por el contrato entre la aplicación anfitriona y la remota. Normalmente, este contrato incluye un contenedor, que queda reflejado en los tipos de App Federation. Sin embargo, esto es opcional, y la función puede aceptar cualquier otro parámetro. El resultado de ejecutar la función `mount` es un objeto (o una promesa que devuelve un objeto) que contiene el método `unmount`, que debe liberar todos los recursos de la instancia de la aplicación.
 
 #figure(
   raw(
@@ -75,7 +75,7 @@ Cada entrada debe exportar una función `mount`, cuya interfaz debe ser definida
 
 === Inyectar estilos en la aplicación remota
 
-Para que el plugin pueda procesar los módulos CSS importados por la aplicación remota, es necesario introducir una regla de procesado CSS como convencional de Rspack. No es necesario añadir ninguna configuración específica, pues el plugin se encarga de modificar la regla para usar el inyector de estilos de App Federation.
+Para que el plugin pueda procesar los módulos CSS importados por la aplicación remota, es necesario introducir una regla de procesado CSS convencional de Rspack. No es necesario añadir ninguna configuración específica, pues el plugin se encarga de modificar la regla para usar el inyector de estilos de App Federation.
 
 #figure(
   raw(
@@ -140,9 +140,9 @@ Si hay un plugin HTML registrado en Rspack, es necesario indicarle que no incluy
 
 == Cargar una aplicación remota desde la anfitriona
 
-Para cargar una aplicación remota, la aplicación anfitrión solo necesita tener instalada la biblioteca. Existen varias funciones disponibles: `loadAppInstance`, que carga el punto de entrada remoto y crea una nueva instancia de la aplicación, y `loadAppInstanceEntry`, que además pide a la aplicación que cargue uno de sus puntos de entrada dado como parámetro. En caso de omisión, se carga el punto de entrada `default`.
+Para cargar una aplicación remota, la aplicación anfitriona solo necesita tener instalada la biblioteca. Existen varias funciones disponibles: `loadAppInstance`, que carga el punto de entrada remoto y crea una nueva instancia de la aplicación, y `loadAppInstanceEntry`, que además pide a la aplicación que cargue uno de sus puntos de entrada dado como parámetro. En caso de omisión, se carga el punto de entrada `default`.
 
-Ambas funciones aceptan la URL del archivo remoto. Una vez obtenido el punto de entrada de la aplicación, es responsabilidad del anfitrión llamar a `mount` con los parámetros necesarios y conservar el ciclo de vida devuelto para poder desmontar la aplicación en el futuro, como vemos en @5-user-guide-load-remote[código].
+Ambas funciones aceptan la URL del archivo remoto. Una vez obtenido el punto de entrada de la aplicación, es responsabilidad de la aplicación anfitriona llamar a `mount` con los parámetros necesarios y conservar el ciclo de vida devuelto para poder desmontar la aplicación en el futuro, como vemos en @5-user-guide-load-remote[código].
 
 #figure(
   raw(
@@ -155,7 +155,7 @@ Ambas funciones aceptan la URL del archivo remoto. Una vez obtenido el punto de 
 
 == Compartir información entre aplicaciones
 
-La biblioteca ofrece dos mecanismos sencillos. El puente (`AppFederationBridge`) sirve para la comunicación directa entre una aplicación padre y una hija. El bus (`AppFederationBus`) permite que varias aplicaciones intercambien eventos sin retransmitirlos por cada nivel de la jerarquía. En ambos casos conviene definir los tipos compartidos en un contrato que puedan importar los participantes.
+La biblioteca ofrece dos mecanismos sencillos. El puente (`AppFederationBridge`) sirve para la comunicación directa entre una aplicación anfitriona y una remota. El bus (`AppFederationBus`) permite que varias aplicaciones intercambien eventos sin retransmitirlos por cada nivel de la jerarquía. En ambos casos conviene definir los tipos compartidos en un contrato que puedan importar los participantes.
 
 #figure(
   raw(
@@ -166,9 +166,9 @@ La biblioteca ofrece dos mecanismos sencillos. El puente (`AppFederationBridge`)
   caption: [Creación de un puente y un bus en la aplicación anfitriona],
 ) <5-user-guide-bridge-host>
 
-Nótese que es responsabilidad del anfitrión llamar al método `bus.dispose()` para limpiar la memoria asociada al bus. Esto debe ocurrir cuando todas las aplicaciones que usan el bus ya no estén montadas.
+Nótese que es responsabilidad de la aplicación anfitriona llamar al método `bus.dispose()` para limpiar la memoria asociada al bus. Esto debe ocurrir cuando todas las aplicaciones que usan el bus ya no estén montadas.
 
-La aplicación hija recibe el puente y el bus a través de los parámetros de `mount`. Dado que por defecto `mount` no define ninguno de estos campos, es necesario proporcionar los tipos adecuados en la propia definición de la función, como vemos en @5-user-guide-bridge-child[código].
+La aplicación remota recibe el puente y el bus a través de los parámetros de `mount`. Dado que por defecto `mount` no define ninguno de estos campos, es necesario proporcionar los tipos adecuados en la propia definición de la función, como vemos en @5-user-guide-bridge-child[código].
 
 #figure(
   raw(
@@ -179,7 +179,7 @@ La aplicación hija recibe el puente y el bus a través de los parámetros de `m
   caption: [Recibiendo el puente y el bus en la aplicación remota],
 ) <5-user-guide-bridge-child>
 
-`AppFederationBridge` permite usar las acciones definidas por la aplicación anfitriona fácilmente, solo es necesario invocar los métodos correspondientes en el puente. Por ejemplo, si la acción `selectProduct` está definida en el puente, la aplicación remota puede llamarla así:
+`AppFederationBridge` permite usar las acciones definidas por la aplicación anfitriona fácilmente; solo es necesario invocar los métodos correspondientes en el puente. Por ejemplo, si la acción `selectProduct` está definida en el puente, la aplicación remota puede llamarla así:
 
 #raw(
   read("../../examples/17-user-guide/14-bridge-action.ts"),
@@ -187,7 +187,7 @@ La aplicación hija recibe el puente y el bus a través de los parámetros de `m
   lang: "ts",
 )
 
-Las props definidas pueden ser accedidas de forma síncrona o a través de una suscripción a los cambios en el puente. Por ejemplo:
+Se puede acceder a las props definidas de forma síncrona o a través de una suscripción a los cambios en el puente. Por ejemplo:
 
 #raw(
   read("../../examples/17-user-guide/15-bridge-props.ts"),
@@ -195,7 +195,7 @@ Las props definidas pueden ser accedidas de forma síncrona o a través de una s
   lang: "ts",
 )
 
-Para usar el bus y escuchar eventos se puede usar el método `subscribe`, que devuelve una función para cancelar la suscripción.
+Para usar el bus y escuchar eventos existe el método `subscribe`, que devuelve una función para cancelar la suscripción.
 
 #raw(
   read("../../examples/17-user-guide/16-bus-subscribe.ts"),

@@ -25,7 +25,7 @@
 ]
 
 #content-theme[
-  // #show: specialWords
+  #show: specialWords
 
   #include "sections/0100_introduction.typ"
   #include "sections/0200_project_plan.typ"

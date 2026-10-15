@@ -11,18 +11,38 @@
       #counter(page).display()
     ],
     header: context [
-      #let pages-with-headings = query(selector(heading.where(level: 1))).map(it => it.location().page())
+      #let headingsInPage = (
+        query(heading).filter(heading => heading.location().page() == here().page()).map(heading => heading.level)
+      )
 
-      #if not pages-with-headings.contains(here().page()) [
-        #set align(if calc.rem(here().page(), 2) == 0 { left } else { right })
-        #set text(size: regular)
-        #let current-heading = query(selector(heading.where(level: 1).before(here()))).last()
+      #let lowestHeadingInPage = if headingsInPage.len() != 0 {
+        calc.min(..headingsInPage)
+      } else {
+        0
+      }
 
-        #pad[
-          *Capítulo #counter(heading).get().first(). #current-heading.body.text*
-        ]
-        #block(above: 4pt, fill: black, width: 100%, height: 0.5pt)
+      #if lowestHeadingInPage == 1 {
+        return
+      }
+
+      #let parentHeadings = if lowestHeadingInPage == 0 {
+        query(selector(heading).before(here()))
+      } else {
+        query(selector(heading.where(level: lowestHeadingInPage - 1)).before(here()))
+      }
+
+      #if parentHeadings.len() == 0 {
+        return
+      }
+
+      #let parentHeading = parentHeadings.last()
+
+      #set align(if calc.rem(here().page(), 2) == 0 { left } else { right })
+      #set text(size: regular)
+      #pad[
+        *Capítulo #counter(heading).at(parentHeading.location()).map(str).join([.]). #parentHeading.body*
       ]
+      #block(above: 4pt, fill: black, width: 100%, height: 0.5pt)
     ],
   )
 
@@ -86,7 +106,6 @@
       below: 1cm,
     )
   ]
-
 
   #show heading.where(level: 2): it => {
     set text(size: very-large)

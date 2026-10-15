@@ -85,6 +85,11 @@ Aunque la comunicación a través de props y acciones permite la comunicación e
 
 Para evitar este acoplamiento y suplir este caso de uso, la librería también proporciona una implementación simple de un bus, un mecanismo de comunicación entre microfrontends descrito también en arquitecturas de referencia @cite-andalucia-microfrontends. De forma similar al puente de props, el bus permite a sus usuarios suscribirse a un evento identificado de forma única por un ID. Todos los usuarios del bus pueden emitir cualquier evento, independientemente de su ID, y pueden acompañarlo con una carga de datos arbitraria. Es responsabilidad de los propios consumidores y productores determinar cuál debe ser el formato del ID de los eventos y los datos compartidos.
 
+#figure(
+  image("../figures/example-15-2-bus.drawio.svg"),
+  caption: [Comunicación global mediante bus entre `parent`, `child` y `subchild`],
+) <4-global-bus-communication>
+
 De nuevo, la implementación se encuentra separada en un archivo sin dependencias cuyo tipado se describe en @4-app-federation-bus-definition[código].
 
 #codly(ranges: ((1, 16),))

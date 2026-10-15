@@ -187,12 +187,17 @@ Por otro lado, la lógica del cargador también cambia: en lugar de cachear inst
 
 Con estos cambios hemos conseguido realizar una única carga del script y ser capaces de crear instancias aisladas usando la misma fábrica cacheada, reduciendo el impacto en memoria y tiempo de ejecución.
 
+#figure(
+  image("../figures/example-8-1-factory-instance-isolation.drawio.svg", width: 100%),
+  caption: [Flujo de carga de fábricas y creación de una instancia],
+) <4-factory-instance-isolation>
+
 === Introduciendo un punto de entrada dual <dual-entrypoint>
 
 Llegados a este punto, `child` se ha convertido formalmente en un microfrontend, pues puede ser cargado a petición desde `parent` y su ciclo de vida es controlable. Sin embargo, desde la introducción de JSONP y posteriormente de AMD como métodos de inyección, hemos perdido la facultad de cargar `child` de forma independiente: si tratamos de acceder a su  servidor de desarrollo directamente, observaremos una pantalla en blanco. Accediendo a la consola podremos observar el siguiente error:
 
 #figure(
-  image("../figures/example-8-error-loading-child.png"),
+  image("../figures/example-8-2-error-loading-child.png"),
   caption: [Error al cargar `child` de forma independiente],
 )
 
@@ -361,7 +366,7 @@ Donde `computePublicPath` es una pequeña función que calcula una ruta relativa
 Ahora podemos comprobar como todas las instancias creadas a partir de la misma fábrica obtienen el mismo public path:
 
 #figure(
-  image("../figures/example-11-proper-public-path.png"),
+  image("../figures/example-11-1-proper-public-path.png"),
   caption: [Dos instancias de `child` con el mismo public path],
 ) <4-two-instances-proper-public-path>
 
@@ -465,6 +470,11 @@ Cuando el script que contiene el punto de entrada remoto se cargue y ejecute, in
   ),
   caption: [Carga del script y resolución de la promesa],
 )
+
+#figure(
+  image("../figures/example-11-2-concurrent-factory-loading.drawio.svg", width: 100%),
+  caption: [Coordinación de cargas concurrentes mediante caché y cola global],
+) <4-concurrent-factory-loading>
 
 Con esto hemos conseguido un proceso concurrente ordenado donde cualquier número de actores (o instancias de cargadores) cooperan para evitar condiciones de carrera y deadlocks.
 

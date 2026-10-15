@@ -6,6 +6,11 @@
 
 A lo largo de este proyecto se usa de forma extensa el término bundler. En términos generales, un bundler analiza los archivos de entrada y sus dependencias, transforma el código y los recursos, y genera uno o varios archivos de salida. Según la herramienta y la configuración, esta distribución puede combinar módulos (archivos), minificar el código resultante, eliminar código no utilizado (dead code) o separarlo en partes que se cargarán bajo demanda. Por tanto, un bundler es una herramienta con múltiples propósitos y que permite una configuración extensa, permitiendo que el usuario decida qué transformaciones realizar en el proyecto @cite-webpack-code-splitting, @cite-webpack-tree-shaking.
 
+#figure(
+  image("../figures/example-1-bundler-pipeline.drawio.svg", width: 100%),
+  caption: [Flujo de generación de un bundle],
+) <4-bundler-pipeline>
+
 En particular, uno de los objetivos comunes es la optimización. Por ejemplo, supongamos la plantilla HTML dada en @4-simple-html-template[código].
 
 #figure(
@@ -205,6 +210,11 @@ Por último, cabe destacar el final del archivo, que contiene el denominado entr
   caption: [Declaración del entrypoint del runtime],
 )
 
+#figure(
+  image("../figures/example-3-module-runtime-cache.drawio.svg"),
+  caption: [Búsqueda, ejecución y caché de módulos en el runtime],
+) <4-module-runtime-cache>
+
 El runtime contiene más métodos que se usan en distintas partes del bundle, pero no nos enfocaremos en ellos por ahora. Como el resto del runtime, estos métodos únicamente son emitidos cuando son necesarios, optimizando de nuevo el tamaño del bundle.
 
 === El runtime: chunks <runtime-chunks>
@@ -244,6 +254,11 @@ Al generar el bundle, esta vez obtenemos dos archivos distintos: uno contiene el
 `__webpack_require__.O` es una de las funciones usadas por el runtime de Rspack para comprobar si un chunk (y todos sus módulos) está cargado o no, y en caso de que no lo esté, cargarlo dentro de la definición de módulos del runtime, de forma que esté disponible para el módulo de entrada antes de que este se ejecute.
 
 La carga de chunks es un procedimiento transparente al usuario, pero que puede configurarse y realizarse de diferentes formas. Por defecto, Rspack carga otros scripts usando la etiqueta `<script>` nativa del navegador. Una vez la etiqueta se añade al DOM, el navegador comienza la carga y ejecución del script enlazado. Como todos los scripts dentro de una misma ventana comparten un contexto global (la variable window), el script hace referencia a una función de carga definida por el runtime de Rspack previamente (conocida como chunkloader) y se autoregistra dentro del runtime. A este procedimiento se le conoce usualmente como _JSONP_ (del inglés _JSON with Padding_) y, aunque alcanzó su pico de popularidad antes de la introducción del estándar ESM, que añade otras formas de importar scripts, JSONP ha mantenido su popularidad hasta hoy por ser un método robusto y sencillo.
+
+#figure(
+  image("../figures/example-4-async-chunk-loading.drawio.svg", width: 100%),
+  caption: [Secuencia de carga y registro de un chunk asíncrono con Rspack],
+) <4-async-chunk-loading>
 
 Así, ojeando el contenido del chunk asíncrono, podemos ver cómo hace uso de JSONP en @4-async-chunk-jsonp-register[código], donde `rspackChunkexamples_04_chunks` es una función global definida por el runtime de Rspack que actúa como chunkloader:
 

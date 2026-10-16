@@ -98,7 +98,7 @@ El contenido del archivo CSS ha sido incrustado como un módulo dentro del mismo
   caption: [Módulo generado por `global.css` en el bundle de `child`],
 ) <4-global-css-as-a-module>
 
-Como vemos, la cadena de texto se pasa como parámetro a la función del runtime `__webpack_require__.is`, esta es, el inyector de estilos del runtime de Rspack, que se encuentra definido en @4-rspack-style-injector-is[código].
+Como vemos, la cadena de texto se pasa como parámetro a la función del runtime `__webpack_require__.is`. Esta función funciona como el inyector de estilos del runtime de Rspack, que se encuentra definido en @4-rspack-style-injector-is[código].
 
 #codly(ranges: ((321, 329),))
 #figure(
@@ -160,7 +160,7 @@ Una de las ventajas de esta práctica es que permite al usuario utilizar CSS Mod
   caption: [Generación de módulos fachada para módulos de CSS],
 ) <4-facade-css-module-generation>
 
-Por último, es necesario definir cómo funcionará el nuevo inyector de estilos, tanto a la hora de registrar los estilos como el contenedor que los albergará. El inyector expondrá una interfaz sencilla para registrar estilos, de forma que no solo los módulos fachada generados puedan registrarse, sino que el usuario además pueda usarlo manualmente en tiempo de ejecución. Esta aceptará únicamente un ID para el módulo CSS y su contenido, encargándose de la creación, sincronización e inyección de etiquetas `<style>` asociadas, como se muestra en @4-css-runtime-internals[código].
+Por último, es necesario definir cómo funcionará el nuevo inyector de estilos a la hora de registrar tanto los estilos como el contenedor que los albergará. El inyector expondrá una interfaz sencilla para registrar estilos, de forma que no solo los módulos fachada generados puedan registrarse, sino que el usuario además pueda usarlo manualmente en tiempo de ejecución. Esta aceptará únicamente un ID para el módulo CSS y su contenido, encargándose de la creación, sincronización e inyección de etiquetas `<style>` asociadas, como se muestra en @4-css-runtime-internals[código].
 
 #codly(ranges: ((97, 97), (99, 99), (101, 101), (105, 107), (114, 114), (125, 125)))
 #figure(

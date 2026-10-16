@@ -1,3 +1,3 @@
-import { sum } from "./utils.ts";
+import { add } from "./utils.ts";
 
-console.log(sum(1, 2));
+console.log(add(1, 2));

@@ -349,7 +349,7 @@ Sin embargo, tras las mejoras introducidas en el @caching-entrypoint[capítulo],
   caption: [El cargador de `parent` establece el public path de `child`],
 ) <4-parent-setting-public-path>
 
-`computePublicPath` es una pequeña función que calcula una ruta relativa a la ruta actual del documento:
+`computePublicPath` es una pequeña función que calcula una ruta relativa a la ruta base del documento actual:
 
 #codly(ranges: ((144, 146),))
 #figure(

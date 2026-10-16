@@ -139,7 +139,7 @@ En este apartado tendremos en cuenta aquellos gastos que no están relacionados 
 #let yearsOfAmortization = 8
 #let monthlyAmortization = computerInitialCost / (yearsOfAmortization * 12)
 
-Suponiendo un coste inicial aproximado de #eur(computerInitialCost) y vida útil estimada de #yearsOfAmortization años, podemos asumir una amortización mensual de #eur(monthlyAmortization). Si además suponemos que un mes promedio tiene 30 días, es decir, 720 horas, podemos calcular la amortización total del equipo a lo largo del proyecto, como vemos en la @2-amortization[tabla].
+Suponiendo un coste inicial aproximado de #eur(computerInitialCost) y una vida útil estimada de #yearsOfAmortization años, podemos asumir una amortización mensual de #eur(monthlyAmortization). Si además suponemos que un mes promedio tiene 30 días, es decir, 720 horas, podemos calcular la amortización total del equipo a lo largo del proyecto, como vemos en la @2-amortization[tabla].
 
 #[
   #show table.cell.where(y: 0): set text(weight: "bold")

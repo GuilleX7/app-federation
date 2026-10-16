@@ -47,7 +47,7 @@ Así, podemos añadirla a un proyecto externo usando el siguiente comando en la 
 
 == Exponer una aplicación remota
 
-Para exponer una aplicación remota, necesitamos importar y usar `AppFederationRspackPlugin` en Rspack. El plugin puede configurarse a través de un objeto que se pasa a su constructor. El único parámetro requerido es la lista de puntos de entrada de la aplicación, `entries`, representada como un objeto cuyas claves son el nombre del punto de entrada y cuyos valores deben apuntar a los archivos de entrada. Si únicamente se pasa una cadena de texto, entonces el nombre de la entrada será `default`, como vemos en @5-user-guide-remote-plugin[código].
+Para exponer una aplicación remota, necesitamos importar y usar `AppFederationRspackPlugin` en Rspack. El plugin puede configurarse a través de un objeto que se pasa a su constructor. El único parámetro requerido es la lista de puntos de entrada de la aplicación, `entries`, representada como un objeto cuyas claves son los nombres de los puntos de entrada y cuyos valores deben apuntar a los archivos de entrada. Si únicamente se pasa una cadena de texto, entonces el nombre de la entrada será `default`, como vemos en @5-user-guide-remote-plugin[código].
 
 #figure(
   raw(

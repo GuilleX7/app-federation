@@ -1,7 +1,9 @@
-
+#import "global.typ": global-theme
 #import "../utils/constants.typ": *
 
 #let preface-theme(content) = [
+  #show: global-theme
+
   #set page(
     numbering: "I",
     margin: 2.5cm,

@@ -1,7 +1,11 @@
-
+#import "global.typ": global-theme
+#import "../utils/specialWords.typ": specialWords
 #import "../utils/constants.typ": *
 
 #let content-theme(content) = [
+  #show: global-theme
+  #show: specialWords
+
   #set page(
     numbering: "1",
     margin: (inside: 3.5cm, outside: 2.5cm, top: 2.5cm, bottom: 2.5cm),
@@ -79,8 +83,8 @@
     align: left + horizon,
     stroke: (x, y) => {
       return (
-        top: if y < 1 { 1pt } else { 0.5pt },
-        bottom: 1pt,
+        top: if y < 1 { 1.5pt } else { 0.5pt },
+        bottom: 1.5pt,
       )
     },
   )
@@ -124,8 +128,6 @@
       #it.body
     ]
   }
-
-  #counter(page).update(1)
 
   #content
 ]

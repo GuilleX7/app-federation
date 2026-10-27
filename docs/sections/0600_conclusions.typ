@@ -1,4 +1,7 @@
+#import "../themes/content.typ": content-theme
 #import "@preview/zero:0.7.1": num
+
+#show: content-theme
 
 = Conclusiones <conclusions>
 

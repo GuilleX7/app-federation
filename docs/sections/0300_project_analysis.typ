@@ -1,4 +1,7 @@
+#import "../themes/content.typ": content-theme
 #import "../utils/string.typ": id
+
+#show: content-theme
 
 = Análisis y diseño de requisitos <project-analysis>
 
@@ -6,7 +9,7 @@ En este capítulo analizaremos los objetivos del proyecto para elicitar los requ
 
 == Actores <actors>
 
-En esta sección describimos los actores lógicos que intervienen en los casos de uso. Una persona puede representar más de un actor.
+Los actores representan los roles o perfiles de usuario que interactúan con el sistema. En este contexto, consideramos actor a una entidad lógica que interviene en los casos de uso. Cabe recalcar que una persona puede representar más de un actor, y que un actor no necesariamente corresponde a una persona física.
 
 #let twoColumnTable(..rows) = [
   #show table.cell.where(x: 0): set text(weight: "bold")
@@ -88,7 +91,7 @@ En esta sección describimos los actores lógicos que intervienen en los casos d
 
 == Requisitos generales <general-requirements>
 
-Las siguientes tablas elicitan los objetivos y capacidades requeridos para una solución que integra microfrontends desarrollados y publicados de forma independiente.
+Los requisitos generales definen las propiedades y capacidades de alto nivel que la solución debe cumplir para solucionar el problema propuesto.
 
 #let generalRequirementIdCounter = counter("generalRequirement")
 #let generalRequirementIdParams = (prefix: "GR-", length: 2)
@@ -214,6 +217,8 @@ Las siguientes tablas elicitan los objetivos y capacidades requeridos para una s
 ) <standaloneGeneralRequirement>
 
 == Requisitos de arquitectura <architectural-requirements>
+
+Los requisitos de arquitectura definen la estructura e imponen las restricciones que guían el diseño y el desarrollo del sistema, asegurando que cumpla con los objetivos del proyecto y facilite la integración de los distintos componentes.
 
 #let architecturalRequirementIdCounter = counter("architecturalRequirement")
 #let architecturalRequirementIdParams = (prefix: "AR-", length: 2)
@@ -355,6 +360,8 @@ Las siguientes tablas elicitan los objetivos y capacidades requeridos para una s
 ) <typedCommunicationArchitecture>
 
 == Requisitos funcionales <functional-requirements>
+
+Los requisitos funcionales describen las capacidades que el sistema debe ofrecer para cumplir con los objetivos del proyecto.
 
 #let functionalRequirementIdCounter = counter("functionalRequirement")
 #let functionalRequirementIdParams = (prefix: "FR-", length: 2)
@@ -565,6 +572,8 @@ Las siguientes tablas elicitan los objetivos y capacidades requeridos para una s
 
 == Requisitos no funcionales <non-functional-requirements>
 
+Los requisitos no funcionales definen las propiedades y restricciones del sistema que no están directamente relacionadas con funcionalidades específicas.
+
 #let nonFunctionalRequirementIdCounter = counter("nonFunctionalRequirement")
 #let nonFunctionalRequirementIdParams = (prefix: "RNF-", length: 2)
 
@@ -671,23 +680,6 @@ Las siguientes tablas elicitan los objetivos y capacidades requeridos para una s
 ) <typeSafetyNonFunctionalRequirement>
 
 #nonFunctionalRequirementIdCounter.step()
-#let trustedRemotesNonFunctionalRequirementId = context id(
-  nonFunctionalRequirementIdCounter.at(<trustedRemotesNonFunctionalRequirement>).at(0),
-  ..nonFunctionalRequirementIdParams,
-)
-#figure(
-  twoColumnTable(
-    [Identificador],
-    trustedRemotesNonFunctionalRequirementId,
-    [Título],
-    [Confianza de aplicaciones remotas],
-    [Descripción],
-    [La aplicación anfitriona debe aplicar una política de confianza a las aplicaciones remotas y basar sus expectativas de seguridad en los límites de aislamiento que el sistema defina explícitamente.],
-  ),
-  caption: [Requisito no funcional #trustedRemotesNonFunctionalRequirementId],
-) <trustedRemotesNonFunctionalRequirement>
-
-#nonFunctionalRequirementIdCounter.step()
 #let browserRequirementsNonFunctionalRequirementId = context id(
   nonFunctionalRequirementIdCounter.at(<browserRequirementsNonFunctionalRequirement>).at(0),
   ..nonFunctionalRequirementIdParams,
@@ -706,7 +698,7 @@ Las siguientes tablas elicitan los objetivos y capacidades requeridos para una s
 
 == Casos de uso <use-cases>
 
-Los casos de uso detallan cómo los actores emplean las capacidades descritas en las tablas anteriores. Sus identificadores se generan de forma independiente.
+Los casos de uso detallan cómo los actores emplean las capacidades descritas en las tablas anteriores.
 
 #let useCaseIdCounter = counter("useCase")
 #let useCaseIdParams = (prefix: "UC-", length: 2)
@@ -720,7 +712,7 @@ Los casos de uso detallan cómo los actores emplean las capacidades descritas en
     [Nombre],
     [Compilar y publicar una aplicación remota],
     [Actores],
-    [#remoteAppDeveloperActorId, #remoteServerActorId],
+    [#link(<remoteAppDeveloperActor>)[#remoteAppDeveloperActorId], #link(<remoteServerActor>)[#remoteServerActorId]],
     [Precondiciones],
     [El proyecto remoto dispone de una o varias entradas de aplicación y utiliza una herramienta de compilación compatible.],
     [Flujo principal],
@@ -744,7 +736,7 @@ Los casos de uso detallan cómo los actores emplean las capacidades descritas en
     [Nombre],
     [Cargar y montar una entrada remota],
     [Actores],
-    [#hostAppDeveloperActorId, #remoteServerActorId, #browserActorId],
+    [#link(<hostAppDeveloperActor>)[#hostAppDeveloperActorId], #link(<remoteServerActor>)[#remoteServerActorId], #link(<browserActor>)[#browserActorId]],
     [Precondiciones],
     [La entrada remota está publicada y la aplicación anfitriona dispone de un elemento contenedor.],
     [Flujo principal],
@@ -774,7 +766,7 @@ Los casos de uso detallan cómo los actores emplean las capacidades descritas en
     [Nombre],
     [Montar varias instancias de una aplicación],
     [Actores],
-    [#hostAppDeveloperActorId, #remoteServerActorId],
+    [#link(<hostAppDeveloperActor>)[#hostAppDeveloperActorId], #link(<remoteServerActor>)[#remoteServerActorId]],
     [Precondiciones],
     [La entrada remota admite más de una instancia y la aplicación anfitriona dispone de varios contenedores.],
     [Flujo principal],
@@ -799,7 +791,7 @@ Los casos de uso detallan cómo los actores emplean las capacidades descritas en
     [Nombre],
     [Seleccionar una entrada remota],
     [Actores],
-    [#hostAppDeveloperActorId, #remoteAppDeveloperActorId],
+    [#link(<hostAppDeveloperActor>)[#hostAppDeveloperActorId], #link(<remoteAppDeveloperActor>)[#remoteAppDeveloperActorId]],
     [Precondiciones],
     [La aplicación remota declara una o varias entradas identificables.],
     [Flujo principal],
@@ -825,7 +817,7 @@ Los casos de uso detallan cómo los actores emplean las capacidades descritas en
     [Nombre],
     [Ejecutar la aplicación de forma autónoma],
     [Actores],
-    [#remoteAppDeveloperActorId, #endUserActorId, #browserActorId],
+    [#link(<remoteAppDeveloperActor>)[#remoteAppDeveloperActorId], #link(<endUserActor>)[#endUserActorId], #link(<browserActor>)[#browserActorId]],
     [Precondiciones],
     [La aplicación remota incluye una forma de iniciarse sin una aplicación anfitriona.],
     [Flujo principal],
@@ -848,7 +840,7 @@ Los casos de uso detallan cómo los actores emplean las capacidades descritas en
     [Nombre],
     [Aislar los estilos de una aplicación],
     [Actores],
-    [#remoteAppDeveloperActorId, #browserActorId],
+    [#link(<remoteAppDeveloperActor>)[#remoteAppDeveloperActorId], #link(<browserActor>)[#browserActorId]],
     [Precondiciones],
     [La aplicación remota declara sus estilos y recibe un contenedor para presentar su interfaz.],
     [Flujo principal],
@@ -876,7 +868,7 @@ Los casos de uso detallan cómo los actores emplean las capacidades descritas en
     [Nombre],
     [Compartir datos y acciones entre aplicaciones],
     [Actores],
-    [#hostAppDeveloperActorId, #remoteAppDeveloperActorId],
+    [#link(<hostAppDeveloperActor>)[#hostAppDeveloperActorId], #link(<remoteAppDeveloperActor>)[#remoteAppDeveloperActorId]],
     [Precondiciones],
     [La aplicación anfitriona y la remota acuerdan un contrato para compartir datos y acciones.],
     [Flujo principal],
@@ -903,7 +895,7 @@ Los casos de uso detallan cómo los actores emplean las capacidades descritas en
     [Nombre],
     [Comunicar aplicaciones mediante eventos],
     [Actores],
-    [#hostAppDeveloperActorId, #remoteAppDeveloperActorId],
+    [#link(<hostAppDeveloperActor>)[#hostAppDeveloperActorId], #link(<remoteAppDeveloperActor>)[#remoteAppDeveloperActorId]],
     [Precondiciones],
     [Las aplicaciones comparten un canal de eventos y acuerdan los eventos y contenidos que intercambiarán.],
     [Flujo principal],

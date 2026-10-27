@@ -1,7 +1,9 @@
-
+#import "global.typ": global-theme
 #import "../utils/constants.typ": *
 
 #let postface-theme(content) = [
+  #show: global-theme
+
   #set page(
     numbering: "1",
     margin: 2.5cm,

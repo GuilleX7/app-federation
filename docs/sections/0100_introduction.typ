@@ -1,3 +1,7 @@
+#import "../themes/content.typ": content-theme
+
+#show: content-theme
+
 = Introducción <introduction>
 
 == Motivación <motivation>

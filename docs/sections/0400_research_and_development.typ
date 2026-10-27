@@ -1,3 +1,6 @@
+#import "../themes/content.typ": content-theme
+
+#show: content-theme
 
 = Investigación y desarrollo <research-and-development>
 

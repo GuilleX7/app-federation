@@ -1,5 +1,9 @@
 #import "@preview/codly:2.0.0" as codly
 
+#import "0300_project_analysis.typ" as req: *
+
+#import "../utils/traceability.typ": requirementTraceabilityTable
+
 == Comunicación entre microfrontends <communication-between-microfrontends>
 
 Llegados a este punto, hemos finalizado con la carga de microfrontends y la inyección de estilos, pero aún no hemos definido una arquitectura explícita para la comunicación entre microfrontends. No obstante, esto es una elección deliberada. A lo largo de los ejemplos, la función `mount` de la interfaz del microfrontend aceptaba un único parámetro, el contenedor. Sin embargo, no existe ningún motivo técnico para que un número arbitrario de parámetros no pueda ser pasado a esta función, ya que se encuentra en la frontera de responsabilidades entre la librería y el código del usuario.
@@ -89,6 +93,13 @@ Así, `child` puede acceder de forma directa al valor actual de las props y susc
   caption: [`child` usando y suscribiéndose a las props recibidas de `parent`],
 ) <4-child-using-props>
 
+#requirementTraceabilityTable(
+  [#link(<communicationGeneralRequirement>)[#req.communicationGeneralRequirementId]],
+  [#link(<shareDataAndActionsFunctionalRequirement>)[#req.shareDataAndActionsFunctionalRequirementId]],
+  [#link(<resourceCleanupNonFunctionalRequirement>)[#req.resourceCleanupNonFunctionalRequirementId], #link(<typeSafetyNonFunctionalRequirement>)[#req.typeSafetyNonFunctionalRequirementId]],
+  [#link(<communicateThroughDataChannelUseCase>)[#req.communicateThroughDataChannelUseCaseId]],
+)
+
 === Comunicación global: buses
 
 Aunque la comunicación a través de props y acciones permite la comunicación entre dos microfrontends distanciados en el árbol jerárquico, requiere que los nodos intermedios hagan de retransmisores de la información. Esto puede desembocar en un acoplamiento innecesario de los microfrontends, pues no solo necesitan saber la interfaz con la que se comunican con sus parientes más inmediatos, sino que también necesitan tener conocimiento de toda la cadena de props y acciones que pasan por ellos, requiriendo cambios en caso de moverlos en la jerarquía.
@@ -161,3 +172,10 @@ Si ahora probamos a correr `parent`, `child` y `subchild`, podremos comprobar c�
   image("../figures/example-16-1-bus-events.png"),
   caption: [Ejemplo de comunicación a través de bus entre `parent`, `child` y `subchild`],
 ) <4-bus-events-example>
+
+#requirementTraceabilityTable(
+  [#link(<communicationGeneralRequirement>)[#req.communicationGeneralRequirementId]],
+  [#link(<exchangeEventsFunctionalRequirement>)[#req.exchangeEventsFunctionalRequirementId]],
+  [---],
+  [#link(<communicateThroughEventsUseCase>)[#req.communicateThroughEventsUseCaseId]],
+)

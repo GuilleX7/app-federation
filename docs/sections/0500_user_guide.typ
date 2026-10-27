@@ -1,4 +1,7 @@
+#import "../themes/content.typ": content-theme
 #import "@preview/codly:2.0.0" as codly
+
+#show: content-theme
 
 = Manual de usuario <user-guide>
 

@@ -1,5 +1,9 @@
 #import "@preview/codly:2.0.0" as codly
 
+#import "../utils/traceability.typ": requirementTraceabilityTable
+
+#import "0300_project_analysis.typ" as req: *
+
 == Estilos en microfrontends <microfrontend-styles>
 
 Hasta ahora, nuestros microfrontends han consistido exclusivamente en módulos JavaScript que son ejecutados e inyectados en una misma ventana. Aunque esto sigue siendo un aspecto fundamental de la arquitectura, los microfrontends suelen incluir otro tipo de archivos, como estilos en cascada, imágenes, vídeos, sonidos, entre otros.
@@ -23,7 +27,7 @@ En general, un navegador permite hasta tres formas de inyectar estilos en el DOM
 - A través de una etiqueta `<style>`, que permite cargar estilos a través del propio contenido de la etiqueta. #[
     #show: codly.number-show_(it => none)
     #codly.new(```html
-<style>body { ... }</style>
+    <style>body { ... }</style>
     ```)
   ]
 
@@ -135,6 +139,13 @@ Si ahora cargamos `child` desde `parent`, observaremos que los estilos se cargan
   caption: [Resultado de la inyección no controlada de estilos de `child` en `parent`],
 ) <4-uncontrolled-injection-child-in-parent>
 
+#requirementTraceabilityTable(
+  [---],
+  [---],
+  [#link(<browserRequirementsNonFunctionalRequirement>)[#req.browserRequirementsNonFunctionalRequirementId]],
+  [---],
+)
+
 === Inyección controlada: shadow root
 
 La inclusión de estilos dentro del mismo documento provoca conflictos entre clases y efectos no deseados. Incluso si la etiqueta fuese inyectada dentro del contenedor del microfrontend, sus estilos seguirían aplicándose de forma global en el documento.
@@ -228,3 +239,10 @@ Por otro lado, si abrimos `parent` y cargamos `child`, podemos ver cómo ahora s
   image("../figures/example-14-6-microfrontend-parent-child.png", width: 100%),
   caption: [`parent` y `child` cargados con estilos aislados usando shadow root],
 ) <4-parent-child-styles-isolated>
+
+#requirementTraceabilityTable(
+  [#link(<styleInjectionGeneralRequirement>)[#req.styleInjectionGeneralRequirementId], #link(<standaloneGeneralRequirement>)[#req.standaloneGeneralRequirementId]],
+  [#link(<unmountRemoteAppFunctionalRequirement>)[#req.unmountRemoteAppFunctionalRequirementId], #link(<manageApplicationStylesFunctionalRequirement>)[#req.manageApplicationStylesFunctionalRequirementId], \ #link(<limitStyleConflictsFunctionalRequirement>)[#req.limitStyleConflictsFunctionalRequirementId], #link(<releaseStyleResourcesFunctionalRequirement>)[#req.releaseStyleResourcesFunctionalRequirementId]],
+  [#link(<resourceCleanupNonFunctionalRequirement>)[#req.resourceCleanupNonFunctionalRequirementId], #link(<styleIsolationNonFunctionalRequirement>)[#req.styleIsolationNonFunctionalRequirementId]],
+  [#link(<useStandaloneEntryUseCase>)[#req.useStandaloneEntryUseCaseId], #link(<isolateStylesUseCase>)[#req.isolateStylesUseCaseId]],
+)

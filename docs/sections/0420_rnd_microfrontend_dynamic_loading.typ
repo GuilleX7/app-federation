@@ -1,5 +1,9 @@
 #import "@preview/codly:2.0.0" as codly
 
+#import "../utils/traceability.typ": requirementTraceabilityTable
+
+#import "0300_project_analysis.typ" as req: *
+
 == Carga dinámica de microfrontends <dynamic-microfrontend-loading>
 
 Hasta ahora, hemos visto cómo usar un bundler y hemos estudiado el esqueleto de un bundle convencional. A continuación, vamos a pasar a estudiar el comportamiento de dos proyectos: `parent`, la aplicación anfitriona, y `child`, la aplicación remota, siendo ambos proyectos estándar de Rspack. Nuestro objetivo en este capítulo será cargar, instanciar y controlar `child` desde `parent` de forma programática, siguiendo una arquitectura de microfrontend típica.
@@ -33,6 +37,13 @@ Por otro lado, en el @4-initial-parent-entrypoint[código] definimos el módulo 
 ) <4-initial-parent-entrypoint>
 
 Este procedimiento, sin embargo, presenta varios problemas. El más evidente es que, una vez cargado `child`, este se autoejecuta y añade su contenedor al cuerpo del documento, sin que `parent` pueda controlar cuándo y dónde debe renderizarse. Como vimos en el @4-unoptimized-bundle[ejemplo], los bundles usan el patrón IIFE para no interferir con el entorno, pero también para ejecutarse inmediatamente tras ser enlazados en un documento HTML.
+
+#requirementTraceabilityTable(
+  [#link(<remoteCompositionGeneralRequirement>)[#req.remoteCompositionGeneralRequirementId], #link(<programmaticLoadingGeneralRequirement>)[#req.programmaticLoadingGeneralRequirementId]],
+  [---],
+  [---],
+  [#link(<loadAndMountUseCase>)[#req.loadAndMountUseCaseId]],
+)
 
 === Controlando la ejecución <managing-execution>
 
@@ -116,6 +127,13 @@ La secuencia de eventos, por tanto, es la siguiente:
 
 Es importante destacar que existe una condición de carrera en esta secuencia, pues en un entorno real no podríamos garantizar que otra aplicación no iniciase el proceso de carga simultáneamente y, en caso de usar el mismo cargador JSONP, este sería sobreescrito por la aplicación anfitriona que lo defina después. Este y otros detalles relacionados serán tratados en sucesivos capítulos para evitar una complejidad excesiva desde el inicio y facilitar la lectura.
 
+#requirementTraceabilityTable(
+  [#link(<lifecycleControlGeneralRequirement>)[#req.lifecycleControlGeneralRequirementId]],
+  [---],
+  [---],
+  [---],
+)
+
 === Cacheando el punto de entrada <caching-entrypoint>
 
 Con la implementación actual somos capaces de controlar la ejecución de `child` gracias al cargador JSONP. Sin embargo, el proceso es algo ineficiente: cada vez que queremos crear una instancia de `child`, volvemos a cargar y ejecutar una y otra vez su bundle. Aunque normalmente un navegador cacheará el archivo descargado, la manipulación del DOM para añadir la etiqueta `<script>` es lenta y la ejecución de un script genera un overhead innecesario.
@@ -148,6 +166,13 @@ Por ejemplo, si añadimos un contador a `child` usando una variable global, como
   ),
   caption: [Añadiendo un contador a `child`],
 ) <4-adding-a-counter-to-child>
+
+#requirementTraceabilityTable(
+  [#link(<programmaticLoadingGeneralRequirement>)[#req.programmaticLoadingGeneralRequirementId]],
+  [#link(<loadRemoteEntryFunctionalRequirement>)[#req.loadRemoteEntryFunctionalRequirementId]],
+  [#link(<cachingPerformanceNonFunctionalRequirement>)[#req.cachingPerformanceNonFunctionalRequirementId]],
+  [---],
+)
 
 === Fábrica de instancias <instance-factory>
 
@@ -218,6 +243,13 @@ Con estos cambios hemos conseguido realizar una única carga del script y ser ca
   caption: [Flujo de carga de fábricas y creación de una instancia],
 ) <4-factory-instance-isolation>
 
+#requirementTraceabilityTable(
+  [---],
+  [#link(<loadNamedAppInstanceFunctionalRequirement>)[#req.loadNamedAppInstanceFunctionalRequirementId]],
+  [#link(<cachingPerformanceNonFunctionalRequirement>)[#req.cachingPerformanceNonFunctionalRequirementId]],
+  [#link(<mountMultipleInstancesUseCase>)[#req.mountMultipleInstancesUseCaseId]],
+)
+
 === Introduciendo un punto de entrada dual <dual-entrypoint>
 
 Llegados a este punto, `child` se ha convertido formalmente en un microfrontend, pues puede ser cargado a petición desde `parent` y su ciclo de vida es controlable. Sin embargo, desde la introducción de JSONP y posteriormente de AMD como métodos de inyección, hemos perdido la facultad de cargar `child` de forma independiente: si tratamos de acceder a su servidor de desarrollo directamente, observaremos una pantalla en blanco. Accediendo a la consola podremos observar el siguiente error:
@@ -270,6 +302,13 @@ Como podemos ver en @4-creating-standalone-entry-in-child[código], este punto d
 #figure(
   image("../figures/example-9-child-loaded.png"),
   caption: [`child` cargado de forma independiente],
+)
+
+#requirementTraceabilityTable(
+  [#link(<standaloneGeneralRequirement>)[#req.standaloneGeneralRequirementId]],
+  [---],
+  [---],
+  [#link(<useStandaloneEntryUseCase>)[#req.useStandaloneEntryUseCaseId]],
 )
 
 === Añadiendo un contenedor <containerization>
@@ -356,6 +395,14 @@ Con esto, habremos implementado satisfactoriamente la gestión de múltiples pun
   caption: [Añadiendo un botón para eliminar instancias de `child`],
 ) <4-adding-unload-for-child-instances>
 
+#requirementTraceabilityTable(
+  [#link(<lifecycleControlGeneralRequirement>)[#req.lifecycleControlGeneralRequirementId]],
+  [#link(<loadNamedAppInstanceFunctionalRequirement>)[#req.loadNamedAppInstanceFunctionalRequirementId], #link(<mountRemoteAppFunctionalRequirement>)[#req.mountRemoteAppFunctionalRequirementId],\
+    #link(<unmountRemoteAppFunctionalRequirement>)[#req.unmountRemoteAppFunctionalRequirementId], #link(<loadFailureFunctionalRequirement>)[#req.loadFailureFunctionalRequirementId]],
+  [#link(<resourceCleanupNonFunctionalRequirement>)[#req.resourceCleanupNonFunctionalRequirementId], #link(<typeSafetyNonFunctionalRequirement>)[#req.typeSafetyNonFunctionalRequirementId]],
+  [#link(<loadAndMountUseCase>)[#req.loadAndMountUseCaseId], #link(<loadNamedEntryUseCase>)[#req.loadNamedEntryUseCaseId]],
+)
+
 === Estableciendo un public path dinámico <setting-dynamic-public-path>
 
 En el @containerization[capítulo] hemos añadido algunas funciones útiles al contenedor como `getPublicPath`, aunque aún no le hemos dado ningún uso, ni internamente ni dentro del propio microfrontend. Si la llamamos y mostramos el valor retornado en el contenedor del microfrontend, observaremos un comportamiento erróneo: diferentes instancias del mismo microfrontend tienen diferente public path a pesar de haber sido cargadas desde la misma URL e instanciadas usando la misma fábrica, como podemos ver en la @4-two-instances-wrong-public-path[ilustración].
@@ -413,6 +460,13 @@ Ahora podemos comprobar cómo todas las instancias creadas a partir de la misma 
   image("../figures/example-11-1-proper-public-path.png"),
   caption: [Dos instancias de `child` con el mismo public path],
 ) <4-two-instances-proper-public-path>
+
+#requirementTraceabilityTable(
+  [---],
+  [#link(<loadNamedAppInstanceFunctionalRequirement>)[#req.loadNamedAppInstanceFunctionalRequirementId]],
+  [---],
+  [#link(<mountMultipleInstancesUseCase>)[#req.mountMultipleInstancesUseCaseId]],
+)
 
 === Manejando la concurrencia <handling-concurrency>
 
@@ -536,6 +590,13 @@ Cuando el script que contiene el punto de entrada remoto se cargue y ejecute, in
 
 Con esto hemos conseguido un proceso concurrente ordenado donde cualquier número de actores (o instancias de cargadores) cooperan para evitar condiciones de carrera y deadlocks.
 
+#requirementTraceabilityTable(
+  [---],
+  [#link(<loadRemoteEntryFunctionalRequirement>)[#req.loadRemoteEntryFunctionalRequirementId], #link(<loadFailureFunctionalRequirement>)[#req.loadFailureFunctionalRequirementId]],
+  [#link(<concurrentLoadsNonFunctionalRequirement>)[#req.concurrentLoadsNonFunctionalRequirementId]],
+  [---],
+)
+
 === Migrando a una arquitectura reusable <library-plugin>
 
 Actualmente, ya somos capaces de cargar microfrontends de forma concurrente, crear múltiples instancias aisladas entre sí y establecer los parámetros básicos (como el public path) para garantizar su correcto funcionamiento. Para ir un paso más allá, debemos extraer la lógica de `parent` y `child` a una biblioteca común que nos permita mantener tanto a las aplicaciones anfitrionas como a las remotas casi completamente abstraídas del funcionamiento de la arquitectura.
@@ -598,7 +659,7 @@ El uso del plugin es directo a partir de su definición y los ejemplos trabajado
     ranges: ((5, 5), (26, 26), (30, 33), (44, 45)),
   ),
   caption: [Configuración del plugin en tiempo de compilación],
-) 
+)
 
 El punto de entrada remoto generado es clave durante el tiempo de ejecución, pues es el primer módulo de la aplicación que se instancia tras el runtime del bundler. Así, expone el contrato que permite que el cargador de microfrontends interactúe con él. Con esto finaliza el proceso de compilación del microfrontend a cargar, generando como resultado un bundle. Este bundle puede servirse desde cualquier dirección y puede usarse sin necesidad de registro alguno.
 
@@ -608,12 +669,19 @@ Este módulo contiene el cargador de microfrontends, que es el punto de entrada 
 
 #figure(
   image("../figures/example-12-3-library-runtime-usage.drawio.svg"),
-  caption: [Carga del punto de entrada remoto]
+  caption: [Carga del punto de entrada remoto],
 ) <4-remote-entry-load>
 
 Tras devolver el control al cargador de microfrontends, este crea una nueva instancia, establece el public path apropiado y devuelve el control al usuario. El usuario puede entonces llamar a la función `loadEntry` para iniciar la carga de uno de los puntos de entrada de la aplicación, llamando posteriormente a la función `mount` y completando el proceso de carga, como podemos ver en @4-calling-app-entrypoint.
 
 #figure(
   image("../figures/example-12-4-library-instantiation-usage.drawio.svg"),
-  caption: [Carga del punto de entrada de la aplicación]
+  caption: [Carga del punto de entrada de la aplicación],
 ) <4-calling-app-entrypoint>
+
+#requirementTraceabilityTable(
+  [#link(<independentBuildGeneralRequirement>)[#req.independentBuildGeneralRequirementId]],
+  [#link(<configureRemoteBuildFunctionalRequirement>)[#req.configureRemoteBuildFunctionalRequirementId], #link(<generateRemoteEntryFunctionalRequirement>)[#req.generateRemoteEntryFunctionalRequirementId]],
+  [#link(<frameworkNeutralityNonFunctionalRequirement>)[#req.frameworkNeutralityNonFunctionalRequirementId], #link(<browserRequirementsNonFunctionalRequirement>)[#req.browserRequirementsNonFunctionalRequirementId]],
+  [#link(<buildRemoteUseCase>)[#req.buildRemoteUseCaseId]],
+)

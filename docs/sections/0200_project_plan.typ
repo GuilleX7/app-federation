@@ -1,5 +1,7 @@
+#import "../themes/content.typ": content-theme
 #import "../utils/units.typ": eur
 
+#show: content-theme
 
 = Planificación del proyecto <project-planning>
 

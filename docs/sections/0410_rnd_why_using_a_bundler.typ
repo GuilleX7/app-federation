@@ -25,7 +25,7 @@ En particular, uno de los objetivos comunes es la optimización. Por ejemplo, su
     <p>I'm here!</p>
     </body>
     </html>
-    ```,
+    ```
   ),
   caption: [Plantilla HTML],
 ) <4-simple-html-template>

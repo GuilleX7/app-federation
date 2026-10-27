@@ -1,4 +1,4 @@
-#import "@preview/codly:1.3.0": *
+#import "@preview/codly:2.0.0" as codly
 
 == Comunicación entre microfrontends <communication-between-microfrontends>
 
@@ -6,12 +6,14 @@ Llegados a este punto, hemos finalizado con la carga de microfrontends y la inye
 
 Dado que pasar un número arbitrario de parámetros posicionales es propenso a errores, en el @library-plugin[capítulo] el tipado de la función `mount` cambió para admitir un objeto como primer parámetro. Este objeto puede contener opcionalmente una propiedad `container` que representa el contenedor que hemos pasado en el resto de ejemplos. Sin embargo, este objeto también puede contener cualquier otra propiedad que el usuario decida pasar desde la aplicación anfitriona y recibir en la aplicación remota, como podemos ver en @4-mount-arbitrary-typing[código].
 
-#codly(ranges: ((23, 26),))
 #figure(
-  raw(
-    read("../../examples/15-props-actions/library/src/types.ts"),
-    block: true,
-    lang: "ts",
+  codly.new(
+    raw(
+      read("../../examples/15-props-actions/library/src/types.ts"),
+      block: true,
+      lang: "ts",
+    ),
+    ranges: ((23, 26),),
   ),
   caption: [Tipado de la función `mount`],
 ) <4-mount-arbitrary-typing>
@@ -33,48 +35,56 @@ Sin embargo, como la función `mount` se ejecuta una única vez por instancia, n
 
 Esta es exactamente la implementación llevada a cabo en el ámbito de este capítulo, permitiendo un manejo más complejo de la comunicación sin añadir complejidad de forma excesiva. Toda la lógica se concentra en un único archivo sin dependencias que expone un tipo llamado `AppFederationBridge`, con dos módulos bien definidos: uno para pasar props y otro para acciones, aunque este último no requiere lógica adicional, como podemos ver en @4-app-federation-bridge-definition[código].
 
-#codly(ranges: ((3, 19),))
 #figure(
-  raw(
-    read("../../examples/15-props-actions/library/src/tools/bridge.ts"),
-    block: true,
-    lang: "ts",
+  codly.new(
+    raw(
+      read("../../examples/15-props-actions/library/src/tools/bridge.ts"),
+      block: true,
+      lang: "ts",
+    ),
+    ranges: ((3, 19),),
   ),
   caption: [Definición de `AppFederationBridge`],
 ) <4-app-federation-bridge-definition>
 
 La instanciación del puente puede realizarse en el mismo instante en que el microfrontend es montado, permitiendo establecer las props iniciales y las acciones sin necesidad de líneas adicionales de código, como podemos ver en @4-instantiating-app-federation-bridge[código].
 
-#codly(ranges: ((25, 46),))
 #figure(
-  raw(
-    read("../../examples/15-props-actions/parent/src/index.ts"),
-    block: true,
-    lang: "ts",
+  codly.new(
+    raw(
+      read("../../examples/15-props-actions/parent/src/index.ts"),
+      block: true,
+      lang: "ts",
+    ),
+    ranges: ((25, 46),),
   ),
   caption: [Instanciando `AppFederationBridge` en `parent` y pasándolo a `child`],
 ) <4-instantiating-app-federation-bridge>
 
 En el lado de `child`, podemos recibir el puente de forma directa a través del primer parámetro de `mount`, como podemos ver en @4-receiving-bridge-in-child-mount[código]. Dado que `child` no tiene acceso al tipo de las props y las acciones que usa el puente, necesita redefinirlos y usarlos en la definición de `mount`. Una solución sería extraer los tipos a un archivo común entre ambos proyectos, o incluso crear una librería compartida con la interfaz de las aplicaciones, de forma que todas hagan referencia al mismo contrato.
 
-#codly(ranges: ((12, 24),))
 #figure(
-  raw(
-    read("../../examples/15-props-actions/child/src/entry.main.ts"),
-    block: true,
-    lang: "ts",
+  codly.new(
+    raw(
+      read("../../examples/15-props-actions/child/src/entry.main.ts"),
+      block: true,
+      lang: "ts",
+    ),
+    ranges: ((12, 24),),
   ),
   caption: [Recibiendo `AppFederationBridge` en la función `mount` de `child`],
 ) <4-receiving-bridge-in-child-mount>
 
 Así, `child` puede acceder de forma directa al valor actual de las props y suscribirse para escuchar futuros cambios de los valores, como podemos ver en @4-child-using-props[código].
 
-#codly(ranges: ((33, 46),))
 #figure(
-  raw(
-    read("../../examples/15-props-actions/child/src/entry.main.ts"),
-    block: true,
-    lang: "ts",
+  codly.new(
+    raw(
+      read("../../examples/15-props-actions/child/src/entry.main.ts"),
+      block: true,
+      lang: "ts",
+    ),
+    ranges: ((33, 46),),
   ),
   caption: [`child` usando y suscribiéndose a las props recibidas de `parent`],
 ) <4-child-using-props>
@@ -92,12 +102,14 @@ Para evitar este acoplamiento y suplir este caso de uso, la librería también p
 
 De nuevo, la implementación se encuentra separada en un archivo sin dependencias cuyo tipado se describe en @4-app-federation-bus-definition[código].
 
-#codly(ranges: ((1, 16),))
 #figure(
-  raw(
-    read("../../examples/16-global-bus/library/src/tools/bus.ts"),
-    block: true,
-    lang: "ts",
+  codly.new(
+    raw(
+      read("../../examples/16-global-bus/library/src/tools/bus.ts"),
+      block: true,
+      lang: "ts",
+    ),
+    ranges: ((1, 16),),
   ),
   caption: [Definición de `AppFederationBus`],
 ) <4-app-federation-bus-definition>
@@ -105,34 +117,40 @@ De nuevo, la implementación se encuentra separada en un archivo sin dependencia
 Su uso es sencillo. En esta ocasión, vamos a definir tanto los identificadores como la carga de datos de los eventos como tipos compartidos en un archivo en común que todos los consumidores y productores del bus pueden importar, reduciendo la duplicidad del código y evitando posibles erratas. Definiremos un único evento, llamado `hello`, cuya carga de datos se compone únicamente de un parámetro, `name`, que indica el nombre del emisor del evento, como vemos en @4-hello-event-definition[código].
 
 #figure(
-  raw(
-    read("../../examples/16-global-bus/contract.ts"),
-    block: true,
-    lang: "ts",
+  codly.new(
+    raw(
+      read("../../examples/16-global-bus/contract.ts"),
+      block: true,
+      lang: "ts",
+    ),
   ),
   caption: [Definición del contrato del evento `hello`],
 ) <4-hello-event-definition>
 
 Dado que el estado del bus debe ser global, el bus es instanciado por la aplicación anfitriona y transmitido por todos los microfrontends en la jerarquía. Dado que no necesitan conocer nada más que el nombre de la propiedad con la que el bus se transmite a través de `mount`, es posible desacoplar los cambios en los eventos y su carga de su posterior retransmisión. En @4-bus-instantiation-in-parent[código], la aplicación anfitriona crea el bus, se suscribe al evento `hello` que hemos definido y monta la primera aplicación remota, pasándole el bus:
 
-#codly(ranges: ((23, 33),))
 #figure(
-  raw(
-    read("../../examples/16-global-bus/parent/src/index.ts"),
-    block: true,
-    lang: "ts",
+  codly.new(
+    raw(
+      read("../../examples/16-global-bus/parent/src/index.ts"),
+      block: true,
+      lang: "ts",
+    ),
+    ranges: ((23, 33),),
   ),
   caption: [Instanciación del bus en la aplicación anfitriona],
 ) <4-bus-instantiation-in-parent>
 
 La lógica es simple: cuando un microfrontend recibe un evento `hello` cuyo emisor (`sender`) es distinto al nombre que se ha autoasignado a sí mismo, muestra el nombre del emisor en su propio contenedor. Además de introducir un nuevo microfrontend en la arquitectura, llamado `subchild`, cada aplicación incluye un botón que emite el evento con su nombre como emisor, como vemos en @4-subchild-event-emit-logic[código].
 
-#codly(ranges: ((12, 18), (41, 48), (57, 57)))
 #figure(
-  raw(
-    read("../../examples/16-global-bus/subchild/src/entry.main.ts"),
-    block: true,
-    lang: "ts",
+  codly.new(
+    raw(
+      read("../../examples/16-global-bus/subchild/src/entry.main.ts"),
+      block: true,
+      lang: "ts",
+    ),
+    ranges: ((12, 18), (41, 48), (57, 57)),
   ),
   caption: [Lógica de emisión de eventos de `subchild`],
 ) <4-subchild-event-emit-logic>

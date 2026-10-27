@@ -1,4 +1,4 @@
-#import "@preview/codly:1.3.0": *
+#import "@preview/codly:2.0.0" as codly
 
 == Estilos en microfrontends <microfrontend-styles>
 
@@ -12,21 +12,27 @@ Aunque los estilos entran dentro de esta categoría de archivos procesables, pre
 
 En general, un navegador permite hasta tres formas de inyectar estilos en el DOM:
 
-#codly(number-format: none)
 
-- A través de una etiqueta `<link rel="stylesheet">`, que permite cargar estilos provenientes de un archivo externo. ```html
-  <link rel="stylesheet" href="global.css" />
-  ```
+- A través de una etiqueta `<link rel="stylesheet">`, que permite cargar estilos provenientes de un archivo externo. #[
+    #show: codly.number-show_(it => none)
+    #codly.new(```html
+    <link rel="stylesheet" href="global.css" />
+    ```)
+  ]
 
-- A través de una etiqueta `<style>`, que permite cargar estilos a través del propio contenido de la etiqueta. ```html
-    <style>body { ... }</style>
-  ```
+- A través de una etiqueta `<style>`, que permite cargar estilos a través del propio contenido de la etiqueta. #[
+    #show: codly.number-show_(it => none)
+    #codly.new(```html
+<style>body { ... }</style>
+    ```)
+  ]
 
-- A través de la propiedad `style` de la clase `DOMElement`, presente en todos los elementos del DOM accesibles desde JavaScript, y que permite modificar los estilos de elementos individuales de forma programática. ```ts
-  document.body.style.width = "100%";
-  ```
-
-#codly(number-format: numbering.with("1"))
+- A través de la propiedad `style` de la clase `DOMElement`, presente en todos los elementos del DOM accesibles desde JavaScript, y que permite modificar los estilos de elementos individuales de forma programática. #[
+    #show: codly.number-show_(it => none)
+    #codly.new(```ts
+    document.body.style.width = "100%";
+    ```)
+  ]
 
 Normalmente, los bundlers pueden emitir archivos CSS externos y asociarlos a chunks específicos. Cuando estos chunks se cargan, el runtime añade la etiqueta `<link>` correspondiente y permite que el navegador cargue estos estilos junto al chunk. Rspack también admite exportar CSS como texto o inyectarlo mediante etiquetas `<style>`, según la configuración @cite-rspack-css.
 
@@ -41,12 +47,14 @@ Este método suele funcionar de la siguiente forma: cuando un módulo JavaScript
 
 Podemos configurar Rspack para inyectar etiquetas `<style>` usando una configuración básica descrita en @4-basic-configuration-for-styling[código].
 
-#codly(ranges: ((5, 5), (12, 13), (24, 32), (51, 51)))
 #figure(
-  raw(
-    read("../../examples/13-naive-css-injection/child/rspack.config.ts"),
-    block: true,
-    lang: "ts",
+  codly.new(
+    raw(
+      read("../../examples/13-naive-css-injection/child/rspack.config.ts"),
+      block: true,
+      lang: "ts",
+    ),
+    ranges: ((5, 5), (12, 13), (24, 32), (51, 51)),
   ),
   caption: [Configuración básica para la inyección de estilos en Rspack],
 ) <4-basic-configuration-for-styling>
@@ -54,58 +62,68 @@ Podemos configurar Rspack para inyectar etiquetas `<style>` usando una configura
 Para comprobar el resultado, podemos añadir un nuevo archivo CSS a nuestra aplicación `child` e importarlo dentro del punto de entrada de la aplicación. Añadiremos algunos estilos globales para la ventana, así como la definición de una clase CSS básica, como vemos en @4-global-css-content[código].
 
 #figure(
-  raw(
-    read("../../examples/13-naive-css-injection/child/src/global.css"),
-    block: true,
-    lang: "css",
+  codly.new(
+    raw(
+      read("../../examples/13-naive-css-injection/child/src/global.css"),
+      block: true,
+      lang: "css",
+    ),
   ),
   caption: [Contenido del archivo `global.css`],
 ) <4-global-css-content>
 
 Ahora, importamos este archivo en el punto de entrada de la aplicación `child`, como vemos en @4-importing-global-css-in-child[código]. El bundler procesará el archivo y lo incrustará dentro del módulo resultante.
 
-#codly(ranges: ((7, 7), (11, 15), (20, 21), (26, 27), (31, 36)))
 #figure(
-  raw(
-    read("../../examples/13-naive-css-injection/child/src/entry.main.ts"),
-    block: true,
-    lang: "ts",
+  codly.new(
+    raw(
+      read("../../examples/13-naive-css-injection/child/src/entry.main.ts"),
+      block: true,
+      lang: "ts",
+    ),
+    ranges: ((7, 7), (11, 15), (20, 21), (26, 27), (31, 36)),
   ),
   caption: [Importando `global.css` en el punto de entrada de `child`],
 ) <4-importing-global-css-in-child>
 
 Si compilamos `child`, podremos observar cómo el módulo de entrada hace referencia al módulo que contiene el archivo CSS, como vemos en @4-referencing-global-css-from-entrypoint[código].
 
-#codly(ranges: ((6, 10), (16, 17)))
 #figure(
-  raw(
-    read("../../examples/13-naive-css-injection/child/dist/src_entry_main_ts.js"),
-    block: true,
-    lang: "js",
+  codly.new(
+    raw(
+      read("../../examples/13-naive-css-injection/child/dist/src_entry_main_ts.js"),
+      block: true,
+      lang: "js",
+    ),
+    ranges: ((6, 10), (16, 17)),
   ),
   caption: [Referencia a `global.css` desde el módulo de entrada de `child`],
 ) <4-referencing-global-css-from-entrypoint>
 
 El contenido del archivo CSS ha sido incrustado como un módulo dentro del mismo chunk donde se encuentra el punto de entrada de la aplicación, como vemos en @4-global-css-as-a-module[código].
 
-#codly(ranges: ((51, 57),))
 #figure(
-  raw(
-    read("../../examples/13-naive-css-injection/child/dist/src_entry_main_ts.js"),
-    block: true,
-    lang: "js",
+  codly.new(
+    raw(
+      read("../../examples/13-naive-css-injection/child/dist/src_entry_main_ts.js"),
+      block: true,
+      lang: "js",
+    ),
+    ranges: ((51, 57),),
   ),
   caption: [Módulo generado por `global.css` en el bundle de `child`],
 ) <4-global-css-as-a-module>
 
 Como vemos, la cadena de texto se pasa como parámetro a la función del runtime `__webpack_require__.is`. Esta función funciona como el inyector de estilos del runtime de Rspack, que se encuentra definido en @4-rspack-style-injector-is[código].
 
-#codly(ranges: ((321, 329),))
 #figure(
-  raw(
-    read("../../examples/13-naive-css-injection/child/dist/remote.js"),
-    block: true,
-    lang: "js",
+  codly.new(
+    raw(
+      read("../../examples/13-naive-css-injection/child/dist/remote.js"),
+      block: true,
+      lang: "js",
+    ),
+    ranges: ((321, 329),),
   ),
   caption: [Definición del inyector de estilos del runtime de Rspack],
 ) <4-rspack-style-injector-is>
@@ -141,12 +159,14 @@ A pesar de que el microfrontend mantiene el control de los estilos, el inyector 
 
 Primero, necesitaremos que los módulos CSS expongan su contenido directamente, en lugar de invocar al inyector de estilos. Rspack tiene soporte nativo para esto de manera similar a la configuración que vimos en @4-basic-configuration-for-styling[código]. Sin embargo, para evitar que el usuario tenga que aplicar el cambio manualmente, podemos modificar el plugin en tiempo de compilación para que el cambio se produzca automáticamente, sobreescribiendo la configuración del usuario, como podemos ver en @4-modifying-configuration-expose-styles[código].
 
-#codly(ranges: ((80, 80), (82, 82), (85, 85), (98, 105), (138, 138)))
 #figure(
-  raw(
-    read("../../examples/14-containerized-css/library/src/build/plugins/rspackPlugin.ts"),
-    block: true,
-    lang: "ts",
+  codly.new(
+    raw(
+      read("../../examples/14-containerized-css/library/src/build/plugins/rspackPlugin.ts"),
+      block: true,
+      lang: "ts",
+    ),
+    ranges: ((80, 80), (82, 82), (85, 85), (98, 105), (138, 138)),
   ),
   caption: [Modificando la configuración para exponer estilos como cadenas de texto],
 ) <4-modifying-configuration-expose-styles>
@@ -162,24 +182,28 @@ Una de las ventajas de esta práctica es que permite al usuario utilizar CSS Mod
 
 Por último, es necesario definir cómo funcionará el nuevo inyector de estilos a la hora de registrar tanto los estilos como el contenedor que los albergará. El inyector expondrá una interfaz sencilla para registrar estilos, de forma que no solo los módulos fachada generados puedan registrarse, sino que el usuario además pueda usarlo manualmente en tiempo de ejecución. Esta aceptará únicamente un ID para el módulo CSS y su contenido, encargándose de la creación, sincronización e inyección de etiquetas `<style>` asociadas, como se muestra en @4-css-runtime-internals[código].
 
-#codly(ranges: ((97, 97), (99, 99), (101, 101), (105, 107), (114, 114), (125, 125)))
 #figure(
-  raw(
-    read("../../examples/14-containerized-css/library/src/runtime/css.ts"),
-    block: true,
-    lang: "ts",
+  codly.new(
+    raw(
+      read("../../examples/14-containerized-css/library/src/runtime/css.ts"),
+      block: true,
+      lang: "ts",
+    ),
+    ranges: ((97, 97), (99, 99), (101, 101), (105, 107), (114, 114), (125, 125)),
   ),
   caption: [Interfaz de registro de estilos CSS en el inyector],
 ) <4-css-runtime-internals>
 
 Por otro lado, el registro de contenedores se hace de forma manual por el usuario. Aunque hasta ahora hemos utilizado un único contenedor en el microfrontend, no existe ningún motivo técnico para mantener esta limitación, por lo que nuestro inyector de estilos permitirá registrar cualquier número de contenedores, manteniendo copias de los estilos sincronizadas entre todos los contenedores. Usualmente esto se hará en la función `mount` del microfrontend, tal y como se muestra en @4-registering-css-containers-in-mount[código].
 
-#codly(ranges: ((6, 8), (11, 12), (16, 20), (25, 29), (33, 33), (37, 43)))
 #figure(
-  raw(
-    read("../../examples/14-containerized-css/child/src/entry.main.ts"),
-    block: true,
-    lang: "ts",
+  codly.new(
+    raw(
+      read("../../examples/14-containerized-css/child/src/entry.main.ts"),
+      block: true,
+      lang: "ts",
+    ),
+    ranges: ((6, 8), (11, 12), (16, 20), (25, 29), (33, 33), (37, 43)),
   ),
   caption: [Interfaz de registro de contenedores en la función `mount`],
 ) <4-registering-css-containers-in-mount>

@@ -1,4 +1,4 @@
-#import "@preview/codly:1.3.0": *
+#import "@preview/codly:2.0.0" as codly
 
 == ¿Por qué usar un bundler? <why-bundlers>
 
@@ -14,26 +14,30 @@ A lo largo de este proyecto se usa de forma extensa el término bundler. En tér
 En particular, uno de los objetivos comunes es la optimización. Por ejemplo, supongamos la plantilla HTML dada en @4-simple-html-template[código].
 
 #figure(
-  ```html
-  <!DOCTYPE html>
-  <html>
-  <head>
-  <title>Hello world!</title>
-  </head>
-  <body>
-  <p>I'm here!</p>
-  </body>
-  </html>
-  ```,
+  codly.new(
+    ```html
+    <!DOCTYPE html>
+    <html>
+    <head>
+    <title>Hello world!</title>
+    </head>
+    <body>
+    <p>I'm here!</p>
+    </body>
+    </html>
+    ```,
+  ),
   caption: [Plantilla HTML],
 ) <4-simple-html-template>
 
 Aunque el ojo humano no detecta redundancia, el estándar HTML no exige saltos de línea entre las etiquetas. Como cada salto de línea ocupa bytes, una herramienta de minificación puede reducir el tamaño de este archivo con la representación dada en @4-minimal-simple-html-template[código]. La minificación es una transformación posible dentro del proceso de construcción; por sí sola no combina dependencias ni garantiza una mejora perceptible del tiempo de carga.
 
 #figure(
-  ```html
-  <!DOCTYPE html><html><head><title>Hello world!</title></head><body><p>I'm here!</p></body></html>
-  ```,
+  codly.new(
+    ```html
+    <!DOCTYPE html><html><head><title>Hello world!</title></head><body><p>I'm here!</p></body></html>
+    ```,
+  ),
   caption: [Plantilla mínima HTML],
 ) <4-minimal-simple-html-template>
 
@@ -42,19 +46,21 @@ Por supuesto, para el ojo humano, esta última plantilla es difícilmente entend
 Aunque el ejemplo anterior no parece un gran beneficio, los bundlers pueden realizar otras optimizaciones que reducen el código incluido en la salida. Por ejemplo, veamos el ejemplo dado por el @4-unoptimized-dead-code[código] @cite-webpack-tree-shaking:
 
 #figure(
-  ```js
-  // src/constants.js
-  export const DEBUG = false
+  codly.new(
+    ```js
+    // src/constants.js
+    export const DEBUG = false
 
-  // src/main.js
-  import { DEBUG } from './constants.js'
+    // src/main.js
+    import { DEBUG } from './constants.js'
 
-  if (DEBUG) {
-    console.log("Some debug information here!")
-  }
+    if (DEBUG) {
+      console.log("Some debug information here!")
+    }
 
-  someOtherFunction()
-  ```,
+    someOtherFunction()
+    ```,
+  ),
   caption: [Ejemplo de dead code sin minimizar],
 ) <4-unoptimized-dead-code>
 
@@ -63,36 +69,42 @@ Este patrón es ampliamente usado en proyectos web para obtener información de 
 Un bundler puede tomar este código y, a través de análisis estático, producir el siguiente código optimizado (@4-minimized-dead-code):
 
 #figure(
-  ```js
-  // dist/main.js
-  someOtherFunction()
-  ```,
+  codly.new(
+    ```js
+    // dist/main.js
+    someOtherFunction()
+    ```,
+  ),
   caption: [Ejemplo de dead code minimizado],
 ) <4-minimized-dead-code>
 
 Nótese que los dos archivos fuente del proyecto se han combinado en uno, _main.js_, y tanto la definición de la constante como la comprobación lógica han sido eliminadas del resultado. Esto se debe a que los bundlers ejecutan una lógica sofisticada para eliminar código muerto (dead code), cuya ejecución no puede darse. Entre otras optimizaciones de este estilo se encuentra el tree shaking, que reduce el contenido de los archivos fuente tomando únicamente lo que se usa de ellos, y descartando todas aquellas variables y funciones que no intervienen de ninguna manera en la ejecución. Por ejemplo, dado el fragmento mostrado en @4-unminimized-tree-shaking[código]:
 
 #figure(
-  ```js
-  // src/constants.js
-  export const a = "Hello"
-  export const b = "World!"
+  codly.new(
+    ```js
+    // src/constants.js
+    export const a = "Hello"
+    export const b = "World!"
 
-  // src/main.js
-  import { a } from './constants.js'
+    // src/main.js
+    import { a } from './constants.js'
 
-  console.log(a)
-  ```,
+    console.log(a)
+    ```,
+  ),
   caption: [Ejemplo de tree-shaking sin minimizar],
 ) <4-unminimized-tree-shaking>
 
 Un bundler detectaría que la definición de la constante _b_ no es usada en el proyecto, descartándola del resultado final como se muestra en el fragmento de @4-minimized-tree-shaking[código]. Nótese que no solo se ha descartado la declaración innecesaria, sino que también se ha eliminado la declaración de `a` y su contenido se ha usado directamente como parámetro de `console.log`, eliminando toda la redundancia posible sin alterar el comportamiento final.
 
 #figure(
-  ```js
-  // dist/main.js
-  console.log("Hello")
-  ```,
+  codly.new(
+    ```js
+    // dist/main.js
+    console.log("Hello")
+    ```,
+  ),
   caption: [Ejemplo de tree-shaking minimizado],
 ) <4-minimized-tree-shaking>
 
@@ -111,10 +123,12 @@ Cabe remarcar que todos los bundlers ofrecen, de una forma u otra, un runtime. L
 Veamos el siguiente ejemplo. Supongamos que tenemos el código fuente de un proyecto contenido en un único archivo TypeScript, llamado `main.ts`, dado por @4-optimized-basic-project[código]:
 
 #figure(
-  raw(
-    read("../../examples/01-minimal-optimized-bundle/index.ts"),
-    lang: "ts",
-    block: true,
+  codly.new(
+    raw(
+      read("../../examples/01-minimal-optimized-bundle/index.ts"),
+      lang: "ts",
+      block: true,
+    ),
   ),
   caption: [Proyecto básico sin minimizar],
 ) <4-optimized-basic-project>
@@ -126,10 +140,12 @@ En nuestro caso, las líneas 4-6 indican el punto de entrada del bundler. Esto e
 Finalmente, las líneas 10-23 configuran el bundler para reconocer archivos _.ts_ (asociados con TypeScript), transpilarlos a JavaScript (para que el navegador pueda ejecutarlos) y, en concreto, para usar únicamente características de ES2017 (una versión del estándar de JavaScript). Esto permite que usemos características de versiones recientes de JavaScript en el código fuente que el bundler convertirá usando características presentes en estándares antiguos cuando sea posible, aumentando la compatibilidad de nuestro bundle.
 
 #figure(
-  raw(
-    read("../../examples/01-minimal-optimized-bundle/rspack.config.ts"),
-    lang: "ts",
-    block: true,
+  codly.new(
+    raw(
+      read("../../examples/01-minimal-optimized-bundle/rspack.config.ts"),
+      lang: "ts",
+      block: true,
+    ),
   ),
   caption: [Configuración básica de Rspack],
 ) <4-optimized-basic-configuracion>
@@ -137,22 +153,26 @@ Finalmente, las líneas 10-23 configuran el bundler para reconocer archivos _.ts
 Para nuestra sorpresa, el resultado de ejecutar nuestro bundler con esta configuración es el siguiente (@4-optimized-bundle):
 
 #figure(
-  raw(
-    read("../../examples/01-minimal-optimized-bundle/dist/main.js"),
-    lang: "js",
-    block: true,
+  codly.new(
+    raw(
+      read("../../examples/01-minimal-optimized-bundle/dist/main.js"),
+      lang: "js",
+      block: true,
+    ),
   ),
   caption: [Bundle minimizado],
 ) <4-optimized-bundle>
 
 Rspack optimiza el resultado por defecto, y dado que nuestro ejemplo era excesivamente sencillo, no podemos apreciar ningún ejemplo de runtime en el resultado, pues el bundler ha determinado que no es necesario. Podemos ver un resultado más interesante si desactivamos la optimización del bundler (@4-unoptimized-project-configuration):
 
-#codly-range(24, end: 29)
 #figure(
-  raw(
-    read("../../examples/02-minimal-unoptimized-bundle/rspack.config.ts"),
-    lang: "ts",
-    block: true,
+  codly.new(
+    raw(
+      read("../../examples/02-minimal-unoptimized-bundle/rspack.config.ts"),
+      lang: "ts",
+      block: true,
+    ),
+    ranges: ((24, 29),),
   ),
   caption: [Desactivación de la optimización de Rspack],
 ) <4-unoptimized-project-configuration>
@@ -160,10 +180,12 @@ Rspack optimiza el resultado por defecto, y dado que nuestro ejemplo era excesiv
 Con estas nuevas instrucciones, veamos el nuevo resultado del bundle en el @4-unoptimized-bundle[código]:
 
 #figure(
-  raw(
-    read("../../examples/02-minimal-unoptimized-bundle/dist/main.js"),
-    lang: "js",
-    block: true,
+  codly.new(
+    raw(
+      read("../../examples/02-minimal-unoptimized-bundle/dist/main.js"),
+      lang: "js",
+      block: true,
+    ),
   ),
   caption: [Bundle sin minimizar],
 ) <4-unoptimized-bundle>
@@ -174,12 +196,14 @@ Sin embargo, esto sigue siendo un ejemplo mínimo de runtime con respecto al que
 
 Si abrimos el archivo resultante del bundle, localizado en `examples/03-modules/dist/main.js`, el archivo inicia, como en los casos anteriores, con una IIFE para evitar que las variables del runtime de Rspack contaminen el entorno del script. Lo siguiente que encontramos es la definición de los módulos del bundle (véase el @4-runtime-modules[código]). Como hemos explicado, los bundlers reducen la cantidad de archivos resultantes. Para ello, usan un versátil sistema interno de módulos que representan archivos que en el proyecto fuente estuvieron separados en archivos. Por lo general, un archivo equivale a un módulo, aunque esto no se cumple en casos más complejos.
 
-#codly-range(3, end: 17)
 #figure(
-  raw(
-    read("../../examples/03-modules/dist/main.js"),
-    lang: "js",
-    block: true,
+  codly.new(
+    raw(
+      read("../../examples/03-modules/dist/main.js"),
+      lang: "js",
+      block: true,
+    ),
+    ranges: ((3, 17),),
   ),
   caption: [Declaración de módulos del runtime],
 ) <4-runtime-modules>
@@ -188,24 +212,28 @@ Es fácil deducir que el contenido de nuestro fichero `utils.ts` ha sido convert
 
 Otra parte interesante del runtime es la caché de módulos y la definición de `__webpack_require__`, que podemos observar en @4-runtime-module-cache[código]. El cometido de esta parte del runtime es cachear las instancias de los módulos ya ejecutados. Esto permite que los módulos mantengan su propio estado a lo largo de la ejecución del programa. Cuando otro módulo necesita cargar otro, usa la función `__webpack_require__`. Esta función primero comprueba si existe una instancia del módulo en caché, en cuyo caso la devuelve. Si no, crea una nueva instancia y la guarda en caché. Todos los módulos acceden a la misma instancia de los demás y la usan.
 
-#codly-range(19, end: 37)
 #figure(
-  raw(
-    read("../../examples/03-modules/dist/main.js"),
-    lang: "js",
-    block: true,
+  codly.new(
+    raw(
+      read("../../examples/03-modules/dist/main.js"),
+      lang: "js",
+      block: true,
+    ),
+    ranges: ((19, 37),),
   ),
   caption: [Declaración de la caché del runtime],
 ) <4-runtime-module-cache>
 
 Por último, cabe destacar el final del archivo, que contiene el denominado entrypoint. Este se corresponde con el módulo de entrada definido en la configuración dada en @4-optimized-basic-configuracion[código]. Aunque la sintaxis no coincide exactamente con el contenido original del archivo (por ejemplo, los imports se han reemplazado por llamadas a `__webpack_require__`), el proceso de transformación realizado mantiene la misma semántica que el código original.
 
-#codly-range(64)
 #figure(
-  raw(
-    read("../../examples/03-modules/dist/main.js"),
-    lang: "js",
-    block: true,
+  codly.new(
+    raw(
+      read("../../examples/03-modules/dist/main.js"),
+      lang: "js",
+      block: true,
+    ),
+    range: (64,),
   ),
   caption: [Declaración del entrypoint del runtime],
 )
@@ -229,24 +257,28 @@ La decisión de cuántos chunks se emiten y qué módulos contendrán depende de
 
 Para analizar un ejemplo, vamos a modificar la configuración de Rspack para forzar al bundler a emitir un chunk asíncrono con el contenido de `utils.ts`. Para ello, podemos añadir el @4-force-chunk-splitting-config[bloque] a la configuración.
 
-#codly-range(29, end: 37)
 #figure(
-  raw(
-    read("../../examples/04-chunks/rspack.config.ts"),
-    lang: "ts",
-    block: true,
+  codly.new(
+    raw(
+      read("../../examples/04-chunks/rspack.config.ts"),
+      lang: "ts",
+      block: true,
+    ),
+    range: (29, 37),
   ),
   caption: [Forzando code splitting en la configuración],
 ) <4-force-chunk-splitting-config>
 
 Al generar el bundle, esta vez obtenemos dos archivos distintos: uno contiene el runtime de Rspack junto al módulo de entrada, mientras que el contenido de `utils.ts` se ha movido a otro archivo homónimo. Si ahora inspeccionamos el entrypoint del bundle en @4-chunk-loading-entrypoint-bundle[código], la lógica ha cambiado sutilmente:
 
-#codly-range(151, end: 158)
 #figure(
-  raw(
-    read("../../examples/04-chunks/dist/main.js"),
-    lang: "ts",
-    block: true,
+  codly.new(
+    raw(
+      read("../../examples/04-chunks/dist/main.js"),
+      lang: "ts",
+      block: true,
+    ),
+    range: (151, 158),
   ),
   caption: [Bundle con carga de chunks en entrypoint],
 ) <4-chunk-loading-entrypoint-bundle>
@@ -263,10 +295,12 @@ La carga de chunks es un procedimiento transparente al usuario, pero que puede c
 Así, ojeando el contenido del chunk asíncrono, podemos ver cómo hace uso de JSONP en @4-async-chunk-jsonp-register[código], donde `rspackChunkexamples_04_chunks` es una función global definida por el runtime de Rspack que actúa como chunkloader:
 
 #figure(
-  raw(
-    read("../../examples/04-chunks/dist/utils-utils_ts.js"),
-    lang: "ts",
-    block: true,
+  codly.new(
+    raw(
+      read("../../examples/04-chunks/dist/utils-utils_ts.js"),
+      lang: "ts",
+      block: true,
+    ),
   ),
   caption: [Registro JSONP de un chunk asíncrono],
 ) <4-async-chunk-jsonp-register>

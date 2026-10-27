@@ -1,4 +1,3 @@
-#import "@preview/codly:1.3.0": *
 
 = Investigación y desarrollo <research-and-development>
 

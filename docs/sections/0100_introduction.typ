@@ -10,7 +10,7 @@ Con la expansión de las SPA y la aparición de frameworks cada vez más potente
 
 En proyectos grandes, especialmente en organizaciones con varios equipos, mantener y evolucionar una aplicación frontend monolítica puede plantear desafíos de coordinación y despliegue. Los microfrontends son una de las alternativas propuestas: dividen la aplicación en partes que pueden ser desarrolladas y desplegadas de manera independiente y luego integradas en un producto común. Este enfoque puede aportar autonomía a los equipos, pero también introduce costes y complejidad que deben valorarse según el contexto @cite-fowler-microfrontends, @cite-peltonen-microfrontends-review, @cite-andalucia-microfrontends.
 
-== State-of-the-art <state-of-the-art>
+== Estado del arte <state-of-the-art>
 
 Existen muchos tipos de implementaciones de microfrontends. En este trabajo las dividiremos de acuerdo a tres categorías que se corresponden, principalmente, con su forma de uso, su funcionamiento interno y el momento en el que llevan a cabo la mayor parte del trabajo:
 

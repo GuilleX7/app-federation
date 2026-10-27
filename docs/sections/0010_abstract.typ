@@ -2,17 +2,13 @@
 
 #set heading(outlined: false, bookmarked: true)
 
-= Abstract
-
-==== Español
+= Resumen
 
 #doc.description.es
 
 Palabras clave: #doc.keywords.es.map(keyword => emph(keyword)).join([, ])
 
-#v(1cm)
-
-==== English
+= Abstract
 
 #doc.description.en
 

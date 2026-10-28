@@ -10,6 +10,13 @@ Hasta ahora, hemos visto cómo usar un bundler y hemos estudiado el esqueleto de
 
 === Cargando una aplicación dentro de otra <loading-microfrontend-inside-microfrontend>
 
+#requirementTraceabilityTable(
+  [#link(<remoteCompositionGeneralRequirement>)[#req.remoteCompositionGeneralRequirementId], #link(<programmaticLoadingGeneralRequirement>)[#req.programmaticLoadingGeneralRequirementId]],
+  [---],
+  [---],
+  [#link(<loadAndMountUseCase>)[#req.loadAndMountUseCaseId]],
+)
+
 Podemos comenzar definiendo los módulos de entrada de ambos proyectos. El caso de `child` es simple: vamos a definir una función de entrada `mount` que crea un contenedor (el microfrontend) y lo añade al cuerpo del documento, como podemos ver en el @4-initial-child-mount-function[código]. Nótese que, por ahora, será el mismo `child` quien ejecute la función:
 
 #figure(
@@ -19,6 +26,7 @@ Podemos comenzar definiendo los módulos de entrada de ambos proyectos. El caso 
       block: true,
       lang: "ts",
     ),
+    file: "examples/05-initial-microfrontend/child/index.ts",
   ),
   caption: [Módulo de entrada inicial de `child`],
 ) <4-initial-child-mount-function>
@@ -32,20 +40,21 @@ Por otro lado, en el @4-initial-parent-entrypoint[código] definimos el módulo 
       block: true,
       lang: "ts",
     ),
+    file: "examples/05-initial-microfrontend/parent/index.ts",
   ),
   caption: [Módulo de entrada inicial de `parent`],
 ) <4-initial-parent-entrypoint>
 
 Este procedimiento, sin embargo, presenta varios problemas. El más evidente es que, una vez cargado `child`, este se autoejecuta y añade su contenedor al cuerpo del documento, sin que `parent` pueda controlar cuándo y dónde debe renderizarse. Como vimos en el @4-unoptimized-bundle[ejemplo], los bundles usan el patrón IIFE para no interferir con el entorno, pero también para ejecutarse inmediatamente tras ser enlazados en un documento HTML.
 
-#requirementTraceabilityTable(
-  [#link(<remoteCompositionGeneralRequirement>)[#req.remoteCompositionGeneralRequirementId], #link(<programmaticLoadingGeneralRequirement>)[#req.programmaticLoadingGeneralRequirementId]],
-  [---],
-  [---],
-  [#link(<loadAndMountUseCase>)[#req.loadAndMountUseCaseId]],
-)
-
 === Controlando la ejecución <managing-execution>
+
+#requirementTraceabilityTable(
+  [#link(<lifecycleControlGeneralRequirement>)[#req.lifecycleControlGeneralRequirementId]],
+  [---],
+  [---],
+  [---],
+)
 
 Para evitar este comportamiento indeseable y mantener el control de la ejecución de los microfrontends, podemos aplicar un mecanismo idéntico al JSONP que utiliza el runtime para cargar chunks. Para que JSONP funcione, necesitamos configurar tanto `child` como `parent` para que ambos conozcan el identificador de la función de carga.
 
@@ -58,6 +67,7 @@ Así, podemos modificar la configuración de `child` para informar a Rspack de q
       block: true,
       lang: "ts",
     ),
+    file: "examples/06-jsonp-entry/child/rspack.config.ts",
     range: (5, 13),
   ),
   caption: [Configurando child para usar JSONP],
@@ -72,6 +82,7 @@ Además, necesitamos algunos cambios en el código fuente: por un lado, la funci
       block: true,
       lang: "ts",
     ),
+    file: "examples/06-jsonp-entry/child/index.ts",
   ),
   caption: [Exportando `mount` desde child],
 ) <4-child-exporting-mount>
@@ -85,6 +96,7 @@ Tras recrear el bundle, observamos que el IIFE ahora está envuelto por la invoc
       block: true,
       lang: "js",
     ),
+    file: "examples/06-jsonp-entry/child/dist/main.js",
     ranges: ((1, 2), (57, 60)),
   ),
   caption: [Autorregistro JSONP de `child`],
@@ -99,6 +111,7 @@ A pesar de que el IIFE se sigue ejecutando inmediatamente, todos los identificad
       block: true,
       lang: "ts",
     ),
+    file: "examples/06-jsonp-entry/parent/index.ts",
     range: (1, 9),
   ),
   caption: [Tipado del cargador JSONP],
@@ -113,6 +126,7 @@ Primero, procedemos definiendo en @4-jsonp-loader-types[código] los tipos que u
       block: true,
       lang: "ts",
     ),
+    file: "examples/06-jsonp-entry/parent/index.ts",
     ranges: ((18, 18), (24, 32)),
   ),
   caption: [Definición del cargador JSONP en `parent`],
@@ -125,16 +139,16 @@ La secuencia de eventos, por tanto, es la siguiente:
 3. `child` se ejecuta y registra su `RuntimeModuleInstance` en el cargador JSONP de `parent`.
 4. El cargador JSONP crea un nuevo contenedor e invoca la función `mount` de child para renderizarlo.
 
-Es importante destacar que existe una condición de carrera en esta secuencia, pues en un entorno real no podríamos garantizar que otra aplicación no iniciase el proceso de carga simultáneamente y, en caso de usar el mismo cargador JSONP, este sería sobreescrito por la aplicación anfitriona que lo defina después. Este y otros detalles relacionados serán tratados en sucesivos capítulos para evitar una complejidad excesiva desde el inicio y facilitar la lectura.
-
-#requirementTraceabilityTable(
-  [#link(<lifecycleControlGeneralRequirement>)[#req.lifecycleControlGeneralRequirementId]],
-  [---],
-  [---],
-  [---],
-)
+Es importante destacar que existe una condición de carrera en esta secuencia, pues en un entorno real no podríamos garantizar que otra aplicación no iniciase el proceso de carga simultáneamente y, en caso de usar el mismo cargador JSONP, este sería sobrescrito por la aplicación anfitriona que lo defina después. Este y otros detalles relacionados serán tratados en sucesivos capítulos para evitar una complejidad excesiva desde el inicio y facilitar la lectura.
 
 === Cacheando el punto de entrada <caching-entrypoint>
+
+#requirementTraceabilityTable(
+  [#link(<programmaticLoadingGeneralRequirement>)[#req.programmaticLoadingGeneralRequirementId]],
+  [#link(<loadRemoteEntryFunctionalRequirement>)[#req.loadRemoteEntryFunctionalRequirementId]],
+  [#link(<cachingPerformanceNonFunctionalRequirement>)[#req.cachingPerformanceNonFunctionalRequirementId]],
+  [---],
+)
 
 Con la implementación actual somos capaces de controlar la ejecución de `child` gracias al cargador JSONP. Sin embargo, el proceso es algo ineficiente: cada vez que queremos crear una instancia de `child`, volvemos a cargar y ejecutar una y otra vez su bundle. Aunque normalmente un navegador cacheará el archivo descargado, la manipulación del DOM para añadir la etiqueta `<script>` es lenta y la ejecución de un script genera un overhead innecesario.
 
@@ -147,6 +161,7 @@ Para solucionar este problema, podemos añadir una caché con las instancias de 
       block: true,
       lang: "ts",
     ),
+    file: "examples/07-caching-entry/parent/index.ts",
     ranges: ((22, 36), (43, 47)),
   ),
   caption: [Cacheando `RuntimeModuleInstance` en `parent`],
@@ -163,18 +178,19 @@ Por ejemplo, si añadimos un contador a `child` usando una variable global, como
       block: true,
       lang: "ts",
     ),
+    file: "examples/07-caching-entry/child/index.ts",
   ),
   caption: [Añadiendo un contador a `child`],
 ) <4-adding-a-counter-to-child>
 
-#requirementTraceabilityTable(
-  [#link(<programmaticLoadingGeneralRequirement>)[#req.programmaticLoadingGeneralRequirementId]],
-  [#link(<loadRemoteEntryFunctionalRequirement>)[#req.loadRemoteEntryFunctionalRequirementId]],
-  [#link(<cachingPerformanceNonFunctionalRequirement>)[#req.cachingPerformanceNonFunctionalRequirementId]],
-  [---],
-)
-
 === Fábrica de instancias <instance-factory>
+
+#requirementTraceabilityTable(
+  [---],
+  [#link(<loadNamedAppInstanceFunctionalRequirement>)[#req.loadNamedAppInstanceFunctionalRequirementId]],
+  [#link(<cachingPerformanceNonFunctionalRequirement>)[#req.cachingPerformanceNonFunctionalRequirementId]],
+  [#link(<mountMultipleInstancesUseCase>)[#req.mountMultipleInstancesUseCaseId]],
+)
 
 Para solucionar el problema introducido con la caché de instancias, podemos mover la caché un nivel hacia arriba: en lugar de cachear instancias, podemos cachear una función que genere instancias independientes. Actualmente, Rspack genera una llamada al cargador JSONP al que le pasa como argumento un IIFE que genera una instancia de `child`, por lo que simplemente envolver el IIFE en una función lo convertiría en una fábrica de instancias.
 
@@ -187,6 +203,7 @@ Aunque es posible modificar el resultado del bundle manualmente usando la config
       block: true,
       lang: "ts",
     ),
+    file: "examples/08-runtime-factory/child/rspack.config.ts",
     range: (5, 13),
   ),
   caption: [Usando AMD como cargador en `child`],
@@ -203,6 +220,7 @@ Así, si corremos Rspack de nuevo, podemos observar el nuevo autorregistro, esta
       block: true,
       lang: "js",
     ),
+    file: "examples/08-runtime-factory/child/dist/main.js",
     ranges: ((1, 2), (60, 62)),
   ),
   caption: [Autorregistro usando AMD en `child`],
@@ -217,6 +235,7 @@ Con este cambio, es necesario definir nuevos tipos en `parent`. En particular, p
       block: true,
       lang: "ts",
     ),
+    file: "examples/08-runtime-factory/parent/index.ts",
     range: (1, 13),
   ),
   caption: [Definiendo los tipos de AMD en `parent`],
@@ -231,6 +250,7 @@ Por otro lado, la lógica del cargador también cambia: en lugar de cachear inst
       block: true,
       lang: "ts",
     ),
+    file: "examples/08-runtime-factory/parent/index.ts",
     ranges: ((26, 26), (28, 29), (34, 41), (49, 54)),
   ),
   caption: [Usando la API de AMD en el cargador de `parent`],
@@ -243,14 +263,14 @@ Con estos cambios hemos conseguido realizar una única carga del script y ser ca
   caption: [Flujo de carga de fábricas y creación de una instancia],
 ) <4-factory-instance-isolation>
 
-#requirementTraceabilityTable(
-  [---],
-  [#link(<loadNamedAppInstanceFunctionalRequirement>)[#req.loadNamedAppInstanceFunctionalRequirementId]],
-  [#link(<cachingPerformanceNonFunctionalRequirement>)[#req.cachingPerformanceNonFunctionalRequirementId]],
-  [#link(<mountMultipleInstancesUseCase>)[#req.mountMultipleInstancesUseCaseId]],
-)
-
 === Introduciendo un punto de entrada dual <dual-entrypoint>
+
+#requirementTraceabilityTable(
+  [#link(<standaloneGeneralRequirement>)[#req.standaloneGeneralRequirementId]],
+  [---],
+  [---],
+  [#link(<useStandaloneEntryUseCase>)[#req.useStandaloneEntryUseCaseId]],
+)
 
 Llegados a este punto, `child` se ha convertido formalmente en un microfrontend, pues puede ser cargado a petición desde `parent` y su ciclo de vida es controlable. Sin embargo, desde la introducción de JSONP y posteriormente de AMD como métodos de inyección, hemos perdido la facultad de cargar `child` de forma independiente: si tratamos de acceder a su servidor de desarrollo directamente, observaremos una pantalla en blanco. Accediendo a la consola podremos observar el siguiente error:
 
@@ -279,6 +299,7 @@ Para registrar un nuevo punto de entrada, simplemente lo añadimos en la configu
       block: true,
       lang: "ts",
     ),
+    file: "examples/09-dual-entry/child/rspack.config.ts",
     ranges: ((4, 16), (48, 48)),
   ),
   caption: [Registrando el punto de entrada `standalone` en `child`],
@@ -293,6 +314,7 @@ Cabe destacar que hemos renombrado el archivo `index.ts`, que hasta ahora había
       block: true,
       lang: "ts",
     ),
+    file: "examples/09-dual-entry/child/src/index.standalone.ts",
   ),
   caption: [Creando el punto de entrada `standalone` en `child`],
 ) <4-creating-standalone-entry-in-child>
@@ -300,18 +322,23 @@ Cabe destacar que hemos renombrado el archivo `index.ts`, que hasta ahora había
 Como podemos ver en @4-creating-standalone-entry-in-child[código], este punto de entrada es bastante simple: simplemente importa el ciclo de vida del microfrontend y lo invoca con los parámetros que espera. No obstante, cada punto de entrada genera un bundle independiente. Esto quiere decir que, si los distintos puntos de entrada comparten dependencias, se generará un chunk distinto para cada uno de los bundles, resultando en chunks duplicados y espacio en disco malgastado. Este es un problema sencillo de resolver extrayendo el código de carga de `parent` a una biblioteca para que `standalone` no importe directamente otros puntos de entrada de la aplicación.
 
 #figure(
-  image("../figures/example-9-child-loaded.png"),
+  box(
+    image("../figures/example-9-child-loaded.png"),
+    stroke: 2pt + black,
+  ),
   caption: [`child` cargado de forma independiente],
 )
 
+=== Añadiendo un contenedor <containerization>
+
 #requirementTraceabilityTable(
-  [#link(<standaloneGeneralRequirement>)[#req.standaloneGeneralRequirementId]],
-  [---],
-  [---],
-  [#link(<useStandaloneEntryUseCase>)[#req.useStandaloneEntryUseCaseId]],
+  [#link(<lifecycleControlGeneralRequirement>)[#req.lifecycleControlGeneralRequirementId]],
+  [#link(<loadNamedAppInstanceFunctionalRequirement>)[#req.loadNamedAppInstanceFunctionalRequirementId], #link(<mountRemoteAppFunctionalRequirement>)[#req.mountRemoteAppFunctionalRequirementId],\
+    #link(<unmountRemoteAppFunctionalRequirement>)[#req.unmountRemoteAppFunctionalRequirementId], #link(<loadFailureFunctionalRequirement>)[#req.loadFailureFunctionalRequirementId]],
+  [#link(<resourceCleanupNonFunctionalRequirement>)[#req.resourceCleanupNonFunctionalRequirementId], #link(<typeSafetyNonFunctionalRequirement>)[#req.typeSafetyNonFunctionalRequirementId]],
+  [#link(<loadAndMountUseCase>)[#req.loadAndMountUseCaseId], #link(<loadNamedEntryUseCase>)[#req.loadNamedEntryUseCaseId]],
 )
 
-=== Añadiendo un contenedor <containerization>
 
 Llegados a este punto y tras lo explicado en el @dual-entrypoint[capítulo] sobre los puntos de entrada autónomos, aparece una nueva pregunta de forma inminente: ¿cómo podemos crear varios puntos de entrada remotos sin duplicar chunks?
 
@@ -328,6 +355,7 @@ Comenzaremos moviendo la lógica actual de `index.remote.ts` en `child` a un nue
       block: true,
       lang: "ts",
     ),
+    file: "examples/10-containerization/child/src/index.remote.ts",
     range: (3,),
   ),
   caption: [Contenedor como punto de entrada en `child`],
@@ -344,6 +372,7 @@ Para proporcionar más control sobre el ciclo de vida del microfrontend, vamos a
       block: true,
       lang: "ts",
     ),
+    file: "examples/10-containerization/child/src/entry.default.ts",
     ranges: ((6, 8), (18, 23)),
   ),
   caption: [Retornando `unmount` desde `mount` en `child`],
@@ -358,6 +387,7 @@ Al haber modificado la interfaz pública del punto de entrada remoto de `child`,
       block: true,
       lang: "ts",
     ),
+    file: "examples/10-containerization/parent/src/index.ts",
     ranges: ((9, 23),),
   ),
   caption: [Tipos del contenedor en el cargador de `parent`],
@@ -374,6 +404,7 @@ En cuanto al cargador de `parent`, necesitamos adaptarlo a la nueva interfaz. Tr
       block: true,
       lang: "ts",
     ),
+    file: "examples/10-containerization/parent/src/index.ts",
     ranges: ((46, 49), (70, 83)),
   ),
   caption: [Usando el contenedor en el cargador de `parent`],
@@ -390,20 +421,20 @@ Con esto, habremos implementado satisfactoriamente la gestión de múltiples pun
       block: true,
       lang: "ts",
     ),
+    file: "examples/10-containerization/parent/src/index.ts",
     ranges: ((32, 42),),
   ),
   caption: [Añadiendo un botón para eliminar instancias de `child`],
 ) <4-adding-unload-for-child-instances>
 
-#requirementTraceabilityTable(
-  [#link(<lifecycleControlGeneralRequirement>)[#req.lifecycleControlGeneralRequirementId]],
-  [#link(<loadNamedAppInstanceFunctionalRequirement>)[#req.loadNamedAppInstanceFunctionalRequirementId], #link(<mountRemoteAppFunctionalRequirement>)[#req.mountRemoteAppFunctionalRequirementId],\
-    #link(<unmountRemoteAppFunctionalRequirement>)[#req.unmountRemoteAppFunctionalRequirementId], #link(<loadFailureFunctionalRequirement>)[#req.loadFailureFunctionalRequirementId]],
-  [#link(<resourceCleanupNonFunctionalRequirement>)[#req.resourceCleanupNonFunctionalRequirementId], #link(<typeSafetyNonFunctionalRequirement>)[#req.typeSafetyNonFunctionalRequirementId]],
-  [#link(<loadAndMountUseCase>)[#req.loadAndMountUseCaseId], #link(<loadNamedEntryUseCase>)[#req.loadNamedEntryUseCaseId]],
-)
-
 === Estableciendo un public path dinámico <setting-dynamic-public-path>
+
+#requirementTraceabilityTable(
+  [---],
+  [#link(<loadNamedAppInstanceFunctionalRequirement>)[#req.loadNamedAppInstanceFunctionalRequirementId]],
+  [---],
+  [#link(<mountMultipleInstancesUseCase>)[#req.mountMultipleInstancesUseCaseId]],
+)
 
 En el @containerization[capítulo] hemos añadido algunas funciones útiles al contenedor como `getPublicPath`, aunque aún no le hemos dado ningún uso, ni internamente ni dentro del propio microfrontend. Si la llamamos y mostramos el valor retornado en el contenedor del microfrontend, observaremos un comportamiento erróneo: diferentes instancias del mismo microfrontend tienen diferente public path a pesar de haber sido cargadas desde la misma URL e instanciadas usando la misma fábrica, como podemos ver en la @4-two-instances-wrong-public-path[ilustración].
 
@@ -421,6 +452,7 @@ Si observamos el runtime generado por Rspack, podemos comprobar que el código q
       block: true,
       lang: "ts",
     ),
+    file: "examples/10-containerization/child/dist/remote.js",
     ranges: ((226, 228), (237, 241), (250, 250)),
   ),
   caption: [Cómputo automático del public path de `child`],
@@ -435,6 +467,7 @@ Sin embargo, tras las mejoras introducidas en el @caching-entrypoint[capítulo],
       block: true,
       lang: "ts",
     ),
+    file: "examples/11-concurrency-public-path/parent/src/index.ts",
     ranges: ((122, 125), (127, 129), (142, 142)),
   ),
   caption: [El cargador de `parent` establece el public path de `child`],
@@ -449,6 +482,7 @@ Sin embargo, tras las mejoras introducidas en el @caching-entrypoint[capítulo],
       block: true,
       lang: "ts",
     ),
+    file: "examples/11-concurrency-public-path/parent/src/index.ts",
     ranges: ((144, 146),),
   ),
   caption: [Función utilitaria `computePublicPath`],
@@ -461,14 +495,14 @@ Ahora podemos comprobar cómo todas las instancias creadas a partir de la misma 
   caption: [Dos instancias de `child` con el mismo public path],
 ) <4-two-instances-proper-public-path>
 
+=== Manejando la concurrencia <handling-concurrency>
+
 #requirementTraceabilityTable(
   [---],
-  [#link(<loadNamedAppInstanceFunctionalRequirement>)[#req.loadNamedAppInstanceFunctionalRequirementId]],
+  [#link(<loadRemoteEntryFunctionalRequirement>)[#req.loadRemoteEntryFunctionalRequirementId], #link(<loadFailureFunctionalRequirement>)[#req.loadFailureFunctionalRequirementId]],
+  [#link(<concurrentLoadsNonFunctionalRequirement>)[#req.concurrentLoadsNonFunctionalRequirementId]],
   [---],
-  [#link(<mountMultipleInstancesUseCase>)[#req.mountMultipleInstancesUseCaseId]],
 )
-
-=== Manejando la concurrencia <handling-concurrency>
 
 A lo largo de los capítulos anteriores, hemos establecido un escenario simple: una aplicación anfitriona (`parent`) carga la aplicación remota (`child`) de forma secuencial. Sin embargo, un entorno real suele distar de esta situación. Incluso si asumiésemos el escenario simplificado, el simple hecho de operar de forma asíncrona sin control puede provocar problemas de todo tipo, como condiciones de carrera o, en el peor de los casos, un deadlock.
 
@@ -494,6 +528,7 @@ En esta ocasión los cambios realizados en `parent` son extensos. Por un lado, m
       block: true,
       lang: "ts",
     ),
+    file: "examples/11-concurrency-public-path/parent/src/index.ts",
     ranges: ((11, 15),),
   ),
   caption: [Moviendo el estado del cargador al objeto global],
@@ -508,6 +543,7 @@ El cargador de microfrontends ahora comprueba si una fábrica está ya cargada o
       block: true,
       lang: "ts",
     ),
+    file: "examples/11-concurrency-public-path/parent/src/index.ts",
     ranges: ((79, 79), (84, 87)),
   ),
   caption: [Comprobación de caché en el cargador de `parent`],
@@ -522,6 +558,7 @@ Si la fábrica no está cargada, nos ponemos en la cola para cargar y, además, 
       block: true,
       lang: "ts",
     ),
+    file: "examples/11-concurrency-public-path/parent/src/index.ts",
     ranges: ((89, 96),),
   ),
   caption: [Introduciendo la cola de carga de fábricas],
@@ -536,6 +573,7 @@ Una vez el último en la cola ha terminado de cargar, la invocación actual del 
       block: true,
       lang: "ts",
     ),
+    file: "examples/11-concurrency-public-path/parent/src/index.ts",
     ranges: ((98, 99),),
   ),
   caption: [Iniciando la carga del punto de entrada remoto],
@@ -550,6 +588,7 @@ Si la carga falla, simplemente nos retiramos de la cola y reportamos el error al
       block: true,
       lang: "ts",
     ),
+    file: "examples/11-concurrency-public-path/parent/src/index.ts",
     ranges: ((100, 107),),
   ),
   caption: [Lógica para errores en la carga de fábricas],
@@ -564,6 +603,7 @@ Finalmente, esperamos a que el punto de entrada remoto llame al cargador AMD y r
       block: true,
       lang: "ts",
     ),
+    file: "examples/11-concurrency-public-path/parent/src/index.ts",
     ranges: ((110, 115),),
   ),
   caption: [Final del procedimiento de carga de fábricas],
@@ -578,6 +618,7 @@ Cuando el script que contiene el punto de entrada remoto se cargue y ejecute, in
       block: true,
       lang: "ts",
     ),
+    file: "examples/11-concurrency-public-path/parent/src/index.ts",
     ranges: ((65, 73),),
   ),
   caption: [Carga del script y resolución de la promesa],
@@ -590,14 +631,14 @@ Cuando el script que contiene el punto de entrada remoto se cargue y ejecute, in
 
 Con esto hemos conseguido un proceso concurrente ordenado donde cualquier número de actores (o instancias de cargadores) cooperan para evitar condiciones de carrera y deadlocks.
 
-#requirementTraceabilityTable(
-  [---],
-  [#link(<loadRemoteEntryFunctionalRequirement>)[#req.loadRemoteEntryFunctionalRequirementId], #link(<loadFailureFunctionalRequirement>)[#req.loadFailureFunctionalRequirementId]],
-  [#link(<concurrentLoadsNonFunctionalRequirement>)[#req.concurrentLoadsNonFunctionalRequirementId]],
-  [---],
-)
-
 === Migrando a una arquitectura reusable <library-plugin>
+
+#requirementTraceabilityTable(
+  [#link(<independentBuildGeneralRequirement>)[#req.independentBuildGeneralRequirementId]],
+  [#link(<configureRemoteBuildFunctionalRequirement>)[#req.configureRemoteBuildFunctionalRequirementId], #link(<generateRemoteEntryFunctionalRequirement>)[#req.generateRemoteEntryFunctionalRequirementId]],
+  [#link(<frameworkNeutralityNonFunctionalRequirement>)[#req.frameworkNeutralityNonFunctionalRequirementId], #link(<browserRequirementsNonFunctionalRequirement>)[#req.browserRequirementsNonFunctionalRequirementId]],
+  [#link(<buildRemoteUseCase>)[#req.buildRemoteUseCaseId]],
+)
 
 Actualmente, ya somos capaces de cargar microfrontends de forma concurrente, crear múltiples instancias aisladas entre sí y establecer los parámetros básicos (como el public path) para garantizar su correcto funcionamiento. Para ir un paso más allá, debemos extraer la lógica de `parent` y `child` a una biblioteca común que nos permita mantener tanto a las aplicaciones anfitrionas como a las remotas casi completamente abstraídas del funcionamiento de la arquitectura.
 
@@ -619,6 +660,7 @@ El módulo de compilación contiene las herramientas necesarias para configurar 
       block: true,
       lang: "ts",
     ),
+    file: "examples/12-library-plugin/library/src/build/plugins/rspackPlugin.ts",
     ranges: ((26, 26), (28, 47)),
   ),
   caption: [Plugin para Rspack],
@@ -642,6 +684,7 @@ A través de un plugin adaptado para el bundler en cuestión, aplicamos la confi
       block: true,
       lang: "ts",
     ),
+    file: "examples/12-library-plugin/library/src/build/generators/bootstrapModule.ts",
     ranges: ((6, 6), (9, 12), (22, 34)),
   ),
   caption: [Generador de punto de entrada remoto],
@@ -656,6 +699,7 @@ El uso del plugin es directo a partir de su definición y los ejemplos trabajado
       block: true,
       lang: "ts",
     ),
+    file: "examples/12-library-plugin/child/rspack.config.ts",
     ranges: ((5, 5), (26, 26), (30, 33), (44, 45)),
   ),
   caption: [Configuración del plugin en tiempo de compilación],
@@ -678,10 +722,3 @@ Tras devolver el control al cargador de microfrontends, este crea una nueva inst
   image("../figures/example-12-4-library-instantiation-usage.drawio.svg"),
   caption: [Carga del punto de entrada de la aplicación],
 ) <4-calling-app-entrypoint>
-
-#requirementTraceabilityTable(
-  [#link(<independentBuildGeneralRequirement>)[#req.independentBuildGeneralRequirementId]],
-  [#link(<configureRemoteBuildFunctionalRequirement>)[#req.configureRemoteBuildFunctionalRequirementId], #link(<generateRemoteEntryFunctionalRequirement>)[#req.generateRemoteEntryFunctionalRequirementId]],
-  [#link(<frameworkNeutralityNonFunctionalRequirement>)[#req.frameworkNeutralityNonFunctionalRequirementId], #link(<browserRequirementsNonFunctionalRequirement>)[#req.browserRequirementsNonFunctionalRequirementId]],
-  [#link(<buildRemoteUseCase>)[#req.buildRemoteUseCaseId]],
-)

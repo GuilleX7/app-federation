@@ -25,7 +25,7 @@ En particular, uno de los objetivos comunes es la optimización. Por ejemplo, su
     <p>I'm here!</p>
     </body>
     </html>
-    ```
+    ```,
   ),
   caption: [Plantilla HTML],
 ) <4-simple-html-template>
@@ -129,6 +129,7 @@ Veamos el siguiente ejemplo. Supongamos que tenemos el código fuente de un proy
       lang: "ts",
       block: true,
     ),
+    file: "examples/01-minimal-optimized-bundle/index.ts",
   ),
   caption: [Proyecto básico sin minimizar],
 ) <4-optimized-basic-project>
@@ -146,6 +147,7 @@ Finalmente, las líneas 10-23 configuran el bundler para reconocer archivos _.ts
       lang: "ts",
       block: true,
     ),
+    file: "examples/01-minimal-optimized-bundle/rspack.config.ts",
   ),
   caption: [Configuración básica de Rspack],
 ) <4-optimized-basic-configuracion>
@@ -159,6 +161,7 @@ Para nuestra sorpresa, el resultado de ejecutar nuestro bundler con esta configu
       lang: "js",
       block: true,
     ),
+    file: "examples/01-minimal-optimized-bundle/dist/main.js",
   ),
   caption: [Bundle minimizado],
 ) <4-optimized-bundle>
@@ -172,6 +175,7 @@ Rspack optimiza el resultado por defecto, y dado que nuestro ejemplo era excesiv
       lang: "ts",
       block: true,
     ),
+    file: "examples/02-minimal-unoptimized-bundle/rspack.config.ts",
     ranges: ((24, 29),),
   ),
   caption: [Desactivación de la optimización de Rspack],
@@ -186,6 +190,7 @@ Con estas nuevas instrucciones, veamos el nuevo resultado del bundle en el @4-un
       lang: "js",
       block: true,
     ),
+    file: "examples/02-minimal-unoptimized-bundle/dist/main.js",
   ),
   caption: [Bundle sin minimizar],
 ) <4-unoptimized-bundle>
@@ -203,6 +208,7 @@ Si abrimos el archivo resultante del bundle, localizado en `examples/03-modules/
       lang: "js",
       block: true,
     ),
+    file: "examples/03-modules/dist/main.js",
     ranges: ((3, 17),),
   ),
   caption: [Declaración de módulos del runtime],
@@ -219,6 +225,7 @@ Otra parte interesante del runtime es la caché de módulos y la definición de 
       lang: "js",
       block: true,
     ),
+    file: "examples/03-modules/dist/main.js",
     ranges: ((19, 37),),
   ),
   caption: [Declaración de la caché del runtime],
@@ -233,6 +240,7 @@ Por último, cabe destacar el final del archivo, que contiene el denominado entr
       lang: "js",
       block: true,
     ),
+    file: "examples/03-modules/dist/main.js",
     range: (64,),
   ),
   caption: [Declaración del entrypoint del runtime],
@@ -264,6 +272,7 @@ Para analizar un ejemplo, vamos a modificar la configuración de Rspack para for
       lang: "ts",
       block: true,
     ),
+    file: "examples/04-chunks/rspack.config.ts",
     range: (29, 37),
   ),
   caption: [Forzando code splitting en la configuración],
@@ -278,6 +287,7 @@ Al generar el bundle, esta vez obtenemos dos archivos distintos: uno contiene el
       lang: "ts",
       block: true,
     ),
+    file: "examples/04-chunks/dist/main.js",
     range: (151, 158),
   ),
   caption: [Bundle con carga de chunks en entrypoint],
@@ -301,6 +311,7 @@ Así, ojeando el contenido del chunk asíncrono, podemos ver cómo hace uso de J
       lang: "ts",
       block: true,
     ),
+    file: "examples/04-chunks/dist/utils-utils_ts.js",
   ),
   caption: [Registro JSONP de un chunk asíncrono],
 ) <4-async-chunk-jsonp-register>

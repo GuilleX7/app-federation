@@ -2,7 +2,8 @@
 #import "@preview/codly-languages:0.1.10": *
 #import "../utils/constants.typ": *
 
-#let codeBackgroundColor = rgb(245, 245, 245)
+#let codeBackgroundColor = rgb(250, 250, 250)
+#let tagBackgroundColor = rgb(245, 245, 245)
 
 #let global-theme(content) = [
   #show: codly.lang-set_(languages: codly-languages)
@@ -13,12 +14,10 @@
   #show: codly.theme(
     "github-light",
     fill: codeBackgroundColor,
-    header: (fill: codeBackgroundColor),
-    lang: (fill: codeBackgroundColor, stroke: codeBackgroundColor),
-    file: (fill: codeBackgroundColor, stroke: codeBackgroundColor),
+    header: (fill: tagBackgroundColor, repeat: true),
+    lang: (fill: tagBackgroundColor, stroke: tagBackgroundColor, display-name: false, display-icon: true),
+    file: (fill: tagBackgroundColor, stroke: tagBackgroundColor),
   )
-
-  #set text(lang: "es", size: 12pt, font: "New Computer Modern")
 
   #content
 ]

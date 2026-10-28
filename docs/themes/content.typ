@@ -4,7 +4,7 @@
 
 #let content-theme(content) = [
   #show: global-theme
-  #show: specialWords
+  // #show: specialWords
 
   #set page(
     numbering: "1",
@@ -64,6 +64,11 @@
 
   #show figure.where(kind: table): set figure(supplement: "Tabla")
   #show figure.where(kind: raw): set figure(supplement: "Código")
+  #show figure.where(kind: raw): it => {
+    set block(breakable: true)
+
+    it
+  }
   #show figure.where(kind: image): set figure(supplement: "Ilustración")
   #show figure.where(kind: math.equation): set figure(supplement: "Ecuación")
 

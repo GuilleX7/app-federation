@@ -22,6 +22,7 @@ Desde la raíz del repositorio, ejecutamos:
       block: true,
       lang: "sh",
     ),
+    file: "examples/17-user-guide/1-build-library.sh",
   ),
   caption: [Instalando las dependencias y compilando la biblioteca],
 ) <user-guide-build-library>
@@ -37,6 +38,7 @@ Para poder usarla en proyectos fuera del espacio de trabajo actual, debido a que
       block: true,
       lang: "sh",
     ),
+    file: "examples/17-user-guide/2-link-library.sh",
   ),
   caption: [Habilitando la vinculación de la biblioteca],
 )
@@ -50,13 +52,14 @@ Así, podemos añadirla a un proyecto externo usando el siguiente comando en la 
       block: true,
       lang: "sh",
     ),
+    file: "examples/17-user-guide/3-link-library-in-project.sh",
   ),
   caption: [Vinculación de la biblioteca en un proyecto externo],
 )
 
 == Exponer una aplicación remota
 
-Para exponer una aplicación remota, necesitamos importar y usar `AppFederationRspackPlugin` en Rspack. El plugin puede configurarse a través de un objeto que se pasa a su constructor. El único parámetro requerido es la lista de puntos de entrada de la aplicación, `entries`, representada como un objeto cuyas claves son los nombres de los puntos de entrada y cuyos valores deben apuntar a los archivos de entrada. Si únicamente se pasa una cadena de texto, entonces el nombre de la entrada será `default`, como vemos en @5-user-guide-remote-plugin[código].
+Para exponer una aplicación remota, necesitamos importar y usar `AppFederationRspackPlugin` en Rspack. El plugin puede configurarse a través de un objeto que se pasa a su constructor. El único parámetro requerido es la lista de puntos de entrada de la aplicación, `entries`, representada como un objeto cuyas claves son los nombres de los puntos de entrada y cuyos valores deben apuntar a los archivos de entrada, como vemos en @5-user-guide-remote-plugin[código].
 
 #figure(
   codly.new(
@@ -65,11 +68,12 @@ Para exponer una aplicación remota, necesitamos importar y usar `AppFederationR
       block: true,
       lang: "ts",
     ),
+    file: "examples/17-user-guide/4-remote-app-plugin-configuration.ts",
   ),
   caption: [Configuración del plugin en la aplicación remota],
 ) <5-user-guide-remote-plugin>
 
-También es posible pasar otros parámetros como `remoteEntryName`, que indica el nombre del archivo resultante que contiene el punto de entrada remoto, y `amdContainer`, que indica el identificador del cargador AMD que se usará para la inyección de microfrontends (ver @instance-factory[capítulo]).
+Si únicamente se pasa una cadena de texto, entonces el nombre de la entrada será `default`. También es posible pasar otros parámetros como `remoteEntryName`, que indica el nombre del archivo resultante que contiene el punto de entrada remoto, y `amdContainer`, que indica el identificador del cargador AMD que se usará para la inyección de microfrontends (ver @instance-factory[capítulo]).
 
 === Interfaz del punto de entrada
 
@@ -82,6 +86,7 @@ Cada entrada debe exportar una función `mount`, cuya interfaz debe ser definida
       block: true,
       lang: "ts",
     ),
+    file: "examples/17-user-guide/5-remote-entry-mount-interface.ts",
   ),
   caption: [Contrato de montaje de una entrada remota],
 ) <user-guide-remote-mount>
@@ -97,6 +102,7 @@ Para que el plugin pueda procesar los módulos CSS importados por la aplicación
       block: true,
       lang: "ts",
     ),
+    file: "examples/17-user-guide/6-remote-entry-css-config.ts",
   ),
   caption: [Regla CSS de Rspack junto al plugin de la biblioteca],
 ) <user-guide-css-rspack>
@@ -106,10 +112,11 @@ Una vez añadida, los estilos son procesados por App Federation, pero no son iny
 #figure(
   codly.new(
     raw(
-      read("../../examples/17-user-guide/7-remote-entry-style-inyection.ts"),
+      read("../../examples/17-user-guide/7-remote-entry-style-injection.ts"),
       block: true,
       lang: "ts",
     ),
+    file: "examples/17-user-guide/7-remote-entry-style-injection.ts",
   ),
   caption: [Inyección de estilos en un contenedor de la aplicación remota],
 ) <4-user-guide-css-container>
@@ -131,6 +138,7 @@ Podemos definir un punto de entrada independiente en el bundler que use la bibli
       block: true,
       lang: "ts",
     ),
+    file: "examples/17-user-guide/8-remote-app-standalone-entry.ts",
   ),
   caption: [Punto de entrada independiente de la aplicación remota],
 )
@@ -144,6 +152,7 @@ A continuación, registramos el punto de entrada independiente en la configuraci
       block: true,
       lang: "ts",
     ),
+    file: "examples/17-user-guide/9-remote-app-standalone-config.ts",
   ),
   caption: [Registro del punto de entrada independiente de la aplicación remota],
 )
@@ -157,6 +166,7 @@ Si hay un plugin HTML registrado en Rspack, es necesario indicarle que no incluy
       block: true,
       lang: "ts",
     ),
+    file: "examples/17-user-guide/10-remote-app-html-chunk-plugin.ts",
   ),
   caption: [Limitando los chunks incluidos en el HTML de la aplicación remota],
 )
@@ -174,6 +184,7 @@ Ambas funciones aceptan la URL del archivo remoto. Una vez obtenido el punto de 
       block: true,
       lang: "ts",
     ),
+    file: "examples/17-user-guide/11-load-remote-entry.ts",
   ),
   caption: [Carga y montaje de una entrada remota],
 ) <5-user-guide-load-remote>
@@ -189,6 +200,7 @@ La biblioteca ofrece dos mecanismos sencillos. El puente (`AppFederationBridge`)
       block: true,
       lang: "ts",
     ),
+    file: "examples/17-user-guide/12-bridge-host.ts",
   ),
   caption: [Creación de un puente y un bus en la aplicación anfitriona],
 ) <5-user-guide-bridge-host>
@@ -204,6 +216,7 @@ La aplicación remota recibe el puente y el bus a través de los parámetros de 
       block: true,
       lang: "ts",
     ),
+    file: "examples/17-user-guide/13-bridge-remote.ts",
   ),
   caption: [Recibiendo el puente y el bus en la aplicación remota],
 ) <5-user-guide-bridge-child>
@@ -216,6 +229,7 @@ La aplicación remota recibe el puente y el bus a través de los parámetros de 
     block: true,
     lang: "ts",
   ),
+  file: "examples/17-user-guide/14-bridge-action.ts",
 )
 
 Se puede acceder a las props definidas de forma síncrona o a través de una suscripción a los cambios en el puente. Por ejemplo:
@@ -226,6 +240,7 @@ Se puede acceder a las props definidas de forma síncrona o a través de una sus
     block: true,
     lang: "ts",
   ),
+  file: "examples/17-user-guide/15-bridge-props.ts",
 )
 
 Para usar el bus y escuchar eventos existe el método `subscribe`, que devuelve una función para cancelar la suscripción.
@@ -236,6 +251,7 @@ Para usar el bus y escuchar eventos existe el método `subscribe`, que devuelve 
     block: true,
     lang: "ts",
   ),
+  file: "examples/17-user-guide/16-bus-subscribe.ts",
 )
 
 Para emitir eventos a través del bus, es necesario usar el método `emit`, pasando como parámetros el nombre del evento y la carga de datos asociada.
@@ -246,5 +262,6 @@ Para emitir eventos a través del bus, es necesario usar el método `emit`, pasa
     block: true,
     lang: "ts",
   ),
+  file: "examples/17-user-guide/17-bus-emit.ts",
 )
 

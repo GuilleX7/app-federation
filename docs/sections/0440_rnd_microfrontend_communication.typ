@@ -17,6 +17,7 @@ Dado que pasar un número arbitrario de parámetros posicionales es propenso a e
       block: true,
       lang: "ts",
     ),
+    file: "examples/15-props-actions/library/src/types.ts",
     ranges: ((23, 26),),
   ),
   caption: [Tipado de la función `mount`],
@@ -25,6 +26,13 @@ Dado que pasar un número arbitrario de parámetros posicionales es propenso a e
 Así, consideramos que la comunicación entre microfrontends no forma parte de la especificación y, por tanto, el usuario debe tener la libertad de establecer los mecanismos necesarios según su propia arquitectura. Aun así, la biblioteca proporciona una implementación básica de dos mecanismos de comunicación diferentes, los cuales pueden ser usados por el usuario de forma completamente opcional, evitando desarrollar una solución propia. En particular, se discutirá la comunicación inmediata entre aplicaciones anfitrionas y remotas y la comunicación entre árboles de microfrontends.
 
 === Comunicación local: props y acciones
+
+#requirementTraceabilityTable(
+  [#link(<communicationGeneralRequirement>)[#req.communicationGeneralRequirementId]],
+  [#link(<shareDataAndActionsFunctionalRequirement>)[#req.shareDataAndActionsFunctionalRequirementId]],
+  [#link(<resourceCleanupNonFunctionalRequirement>)[#req.resourceCleanupNonFunctionalRequirementId], #link(<typeSafetyNonFunctionalRequirement>)[#req.typeSafetyNonFunctionalRequirementId]],
+  [#link(<communicateThroughDataChannelUseCase>)[#req.communicateThroughDataChannelUseCaseId]],
+)
 
 Como hemos dicho antes, la comunicación directa entre aplicaciones anfitrionas y remotas es inmediata y, en teoría, no requiere más que pasar las propiedades necesarias en el parámetro de la función `mount`. Siguiendo patrones de frameworks como React o Vue, cada microfrontend actúa como un componente que recibe props: una aplicación anfitriona puede pasar a sus aplicaciones remotas valores, objetos o funciones, y la aplicación remota puede notificar a la anfitriona mediante callbacks o eventos @cite-react-props, @cite-vue-events. En esta biblioteca, la aplicación anfitriona pasa las props a la remota.
 
@@ -46,6 +54,7 @@ Esta es exactamente la implementación llevada a cabo en el ámbito de este cap�
       block: true,
       lang: "ts",
     ),
+    file: "examples/15-props-actions/library/src/tools/bridge.ts",
     ranges: ((3, 19),),
   ),
   caption: [Definición de `AppFederationBridge`],
@@ -60,6 +69,7 @@ La instanciación del puente puede realizarse en el mismo instante en que el mic
       block: true,
       lang: "ts",
     ),
+    file: "examples/15-props-actions/parent/src/index.ts",
     ranges: ((25, 46),),
   ),
   caption: [Instanciando `AppFederationBridge` en `parent` y pasándolo a `child`],
@@ -74,6 +84,7 @@ En el lado de `child`, podemos recibir el puente de forma directa a través del 
       block: true,
       lang: "ts",
     ),
+    file: "examples/15-props-actions/child/src/entry.main.ts",
     ranges: ((12, 24),),
   ),
   caption: [Recibiendo `AppFederationBridge` en la función `mount` de `child`],
@@ -88,19 +99,20 @@ Así, `child` puede acceder de forma directa al valor actual de las props y susc
       block: true,
       lang: "ts",
     ),
+    file: "examples/15-props-actions/child/src/entry.main.ts",
     ranges: ((33, 46),),
   ),
   caption: [`child` usando y suscribiéndose a las props recibidas de `parent`],
 ) <4-child-using-props>
 
+=== Comunicación global: buses
+
 #requirementTraceabilityTable(
   [#link(<communicationGeneralRequirement>)[#req.communicationGeneralRequirementId]],
-  [#link(<shareDataAndActionsFunctionalRequirement>)[#req.shareDataAndActionsFunctionalRequirementId]],
-  [#link(<resourceCleanupNonFunctionalRequirement>)[#req.resourceCleanupNonFunctionalRequirementId], #link(<typeSafetyNonFunctionalRequirement>)[#req.typeSafetyNonFunctionalRequirementId]],
-  [#link(<communicateThroughDataChannelUseCase>)[#req.communicateThroughDataChannelUseCaseId]],
+  [#link(<exchangeEventsFunctionalRequirement>)[#req.exchangeEventsFunctionalRequirementId]],
+  [---],
+  [#link(<communicateThroughEventsUseCase>)[#req.communicateThroughEventsUseCaseId]],
 )
-
-=== Comunicación global: buses
 
 Aunque la comunicación a través de props y acciones permite la comunicación entre dos microfrontends distanciados en el árbol jerárquico, requiere que los nodos intermedios hagan de retransmisores de la información. Esto puede desembocar en un acoplamiento innecesario de los microfrontends, pues no solo necesitan saber la interfaz con la que se comunican con sus parientes más inmediatos, sino que también necesitan tener conocimiento de toda la cadena de props y acciones que pasan por ellos, requiriendo cambios en caso de moverlos en la jerarquía.
 
@@ -120,6 +132,7 @@ De nuevo, la implementación se encuentra separada en un archivo sin dependencia
       block: true,
       lang: "ts",
     ),
+    file: "examples/16-global-bus/library/src/tools/bus.ts",
     ranges: ((1, 16),),
   ),
   caption: [Definición de `AppFederationBus`],
@@ -134,6 +147,7 @@ Su uso es sencillo. En esta ocasión, vamos a definir tanto los identificadores 
       block: true,
       lang: "ts",
     ),
+    file: "examples/16-global-bus/contract.ts",
   ),
   caption: [Definición del contrato del evento `hello`],
 ) <4-hello-event-definition>
@@ -147,6 +161,7 @@ Dado que el estado del bus debe ser global, el bus es instanciado por la aplicac
       block: true,
       lang: "ts",
     ),
+    file: "examples/16-global-bus/parent/src/index.ts",
     ranges: ((23, 33),),
   ),
   caption: [Instanciación del bus en la aplicación anfitriona],
@@ -161,6 +176,7 @@ La lógica es simple: cuando un microfrontend recibe un evento `hello` cuyo emis
       block: true,
       lang: "ts",
     ),
+    file: "examples/16-global-bus/subchild/src/entry.main.ts",
     ranges: ((12, 18), (41, 48), (57, 57)),
   ),
   caption: [Lógica de emisión de eventos de `subchild`],
@@ -172,10 +188,3 @@ Si ahora probamos a correr `parent`, `child` y `subchild`, podremos comprobar c�
   image("../figures/example-16-1-bus-events.png"),
   caption: [Ejemplo de comunicación a través de bus entre `parent`, `child` y `subchild`],
 ) <4-bus-events-example>
-
-#requirementTraceabilityTable(
-  [#link(<communicationGeneralRequirement>)[#req.communicationGeneralRequirementId]],
-  [#link(<exchangeEventsFunctionalRequirement>)[#req.exchangeEventsFunctionalRequirementId]],
-  [---],
-  [#link(<communicateThroughEventsUseCase>)[#req.communicateThroughEventsUseCaseId]],
-)

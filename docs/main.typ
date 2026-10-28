@@ -8,6 +8,8 @@
   keywords: (..doc.keywords.es, ..doc.keywords.en).dedup(),
 )
 
+#set text(lang: "es", size: 12pt, font: "New Computer Modern")
+
 #include "sections/0000_frontpage.typ"
 
 #include "sections/0010_abstract.typ"

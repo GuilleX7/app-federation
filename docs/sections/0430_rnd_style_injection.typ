@@ -14,6 +14,13 @@ Aunque los estilos entran dentro de esta categoría de archivos procesables, pre
 
 === Inyección no controlada
 
+#requirementTraceabilityTable(
+  [---],
+  [---],
+  [#link(<browserRequirementsNonFunctionalRequirement>)[#req.browserRequirementsNonFunctionalRequirementId]],
+  [---],
+)
+
 En general, un navegador permite hasta tres formas de inyectar estilos en el DOM:
 
 
@@ -58,6 +65,7 @@ Podemos configurar Rspack para inyectar etiquetas `<style>` usando una configura
       block: true,
       lang: "ts",
     ),
+    file: "examples/13-naive-css-injection/child/rspack.config.ts",
     ranges: ((5, 5), (12, 13), (24, 32), (51, 51)),
   ),
   caption: [Configuración básica para la inyección de estilos en Rspack],
@@ -72,6 +80,7 @@ Para comprobar el resultado, podemos añadir un nuevo archivo CSS a nuestra apli
       block: true,
       lang: "css",
     ),
+    file: "examples/13-naive-css-injection/child/src/global.css",
   ),
   caption: [Contenido del archivo `global.css`],
 ) <4-global-css-content>
@@ -85,6 +94,7 @@ Ahora, importamos este archivo en el punto de entrada de la aplicación `child`,
       block: true,
       lang: "ts",
     ),
+    file: "examples/13-naive-css-injection/child/src/entry.main.ts",
     ranges: ((7, 7), (11, 15), (20, 21), (26, 27), (31, 36)),
   ),
   caption: [Importando `global.css` en el punto de entrada de `child`],
@@ -99,6 +109,7 @@ Si compilamos `child`, podremos observar cómo el módulo de entrada hace refere
       block: true,
       lang: "js",
     ),
+    file: "examples/13-naive-css-injection/child/dist/src_entry_main_ts.js",
     ranges: ((6, 10), (16, 17)),
   ),
   caption: [Referencia a `global.css` desde el módulo de entrada de `child`],
@@ -113,6 +124,7 @@ El contenido del archivo CSS ha sido incrustado como un módulo dentro del mismo
       block: true,
       lang: "js",
     ),
+    file: "examples/13-naive-css-injection/child/dist/src_entry_main_ts.js",
     ranges: ((51, 57),),
   ),
   caption: [Módulo generado por `global.css` en el bundle de `child`],
@@ -127,6 +139,7 @@ Como vemos, la cadena de texto se pasa como parámetro a la función del runtime
       block: true,
       lang: "js",
     ),
+    file: "examples/13-naive-css-injection/child/dist/remote.js",
     ranges: ((321, 329),),
   ),
   caption: [Definición del inyector de estilos del runtime de Rspack],
@@ -139,14 +152,14 @@ Si ahora cargamos `child` desde `parent`, observaremos que los estilos se cargan
   caption: [Resultado de la inyección no controlada de estilos de `child` en `parent`],
 ) <4-uncontrolled-injection-child-in-parent>
 
-#requirementTraceabilityTable(
-  [---],
-  [---],
-  [#link(<browserRequirementsNonFunctionalRequirement>)[#req.browserRequirementsNonFunctionalRequirementId]],
-  [---],
-)
-
 === Inyección controlada: shadow root
+
+#requirementTraceabilityTable(
+  [#link(<styleInjectionGeneralRequirement>)[#req.styleInjectionGeneralRequirementId], #link(<standaloneGeneralRequirement>)[#req.standaloneGeneralRequirementId]],
+  [#link(<unmountRemoteAppFunctionalRequirement>)[#req.unmountRemoteAppFunctionalRequirementId], #link(<manageApplicationStylesFunctionalRequirement>)[#req.manageApplicationStylesFunctionalRequirementId], \ #link(<limitStyleConflictsFunctionalRequirement>)[#req.limitStyleConflictsFunctionalRequirementId], #link(<releaseStyleResourcesFunctionalRequirement>)[#req.releaseStyleResourcesFunctionalRequirementId]],
+  [#link(<resourceCleanupNonFunctionalRequirement>)[#req.resourceCleanupNonFunctionalRequirementId], #link(<styleIsolationNonFunctionalRequirement>)[#req.styleIsolationNonFunctionalRequirementId]],
+  [#link(<useStandaloneEntryUseCase>)[#req.useStandaloneEntryUseCaseId], #link(<isolateStylesUseCase>)[#req.isolateStylesUseCaseId]],
+)
 
 La inclusión de estilos dentro del mismo documento provoca conflictos entre clases y efectos no deseados. Incluso si la etiqueta fuese inyectada dentro del contenedor del microfrontend, sus estilos seguirían aplicándose de forma global en el documento.
 
@@ -168,7 +181,7 @@ Como vemos en el @4-style-clashing[diagrama], necesitamos colocar tanto los esti
 
 A pesar de que el microfrontend mantiene el control de los estilos, el inyector de estilos de Rspack añade los estilos al cuerpo del documento por defecto. Aunque este comportamiento es configurable, la configuración no permite seleccionar un contenedor de forma dinámica que no sea conocido en tiempo de compilación. Por ello, será necesario reemplazar el inyector de estilos y modificar los módulos CSS para que se registren en el nuevo inyector @cite-rspack-css.
 
-Primero, necesitaremos que los módulos CSS expongan su contenido directamente, en lugar de invocar al inyector de estilos. Rspack tiene soporte nativo para esto de manera similar a la configuración que vimos en @4-basic-configuration-for-styling[código]. Sin embargo, para evitar que el usuario tenga que aplicar el cambio manualmente, podemos modificar el plugin en tiempo de compilación para que el cambio se produzca automáticamente, sobreescribiendo la configuración del usuario, como podemos ver en @4-modifying-configuration-expose-styles[código].
+Primero, necesitaremos que los módulos CSS expongan su contenido directamente, en lugar de invocar al inyector de estilos. Rspack tiene soporte nativo para esto de manera similar a la configuración que vimos en @4-basic-configuration-for-styling[código]. Sin embargo, para evitar que el usuario tenga que aplicar el cambio manualmente, podemos modificar el plugin en tiempo de compilación para que el cambio se produzca automáticamente, sobrescribiendo la configuración del usuario, como podemos ver en @4-modifying-configuration-expose-styles[código].
 
 #figure(
   codly.new(
@@ -177,6 +190,7 @@ Primero, necesitaremos que los módulos CSS expongan su contenido directamente, 
       block: true,
       lang: "ts",
     ),
+    file: "examples/14-containerized-css/library/src/build/plugins/rspackPlugin.ts",
     ranges: ((80, 80), (82, 82), (85, 85), (98, 105), (138, 138)),
   ),
   caption: [Modificando la configuración para exponer estilos como cadenas de texto],
@@ -200,6 +214,7 @@ Por último, es necesario definir cómo funcionará el nuevo inyector de estilos
       block: true,
       lang: "ts",
     ),
+    file: "examples/14-containerized-css/library/src/runtime/css.ts",
     ranges: ((97, 97), (99, 99), (101, 101), (105, 107), (114, 114), (125, 125)),
   ),
   caption: [Interfaz de registro de estilos CSS en el inyector],
@@ -214,6 +229,7 @@ Por otro lado, el registro de contenedores se hace de forma manual por el usuari
       block: true,
       lang: "ts",
     ),
+    file: "examples/14-containerized-css/child/src/entry.main.ts",
     ranges: ((6, 8), (11, 12), (16, 20), (25, 29), (33, 33), (37, 43)),
   ),
   caption: [Interfaz de registro de contenedores en la función `mount`],
@@ -229,20 +245,19 @@ Cabe destacar que `createStyledContainer` acepta un segundo parámetro que permi
 Si echamos un vistazo a `child` en @4-child-styles-standalone[ilustración], podemos ver cómo sus estilos se cargan adecuadamente al abrirla independientemente. Además, podemos usar la propia API expuesta por el runtime para observar el módulo CSS que se ha autorregistrado.
 
 #figure(
-  image("../figures/example-14-5-microfrontend-child-standalone.png", width: 100%),
+  box(
+    image("../figures/example-14-5-microfrontend-child-standalone.png", width: 100%),
+    stroke: 2pt + black,
+  ),
   caption: [Estilos de `child` cargado de forma independiente],
 ) <4-child-styles-standalone>
 
 Por otro lado, si abrimos `parent` y cargamos `child`, podemos ver cómo ahora sus estilos no interfieren de ninguna forma, como se observa en @4-parent-child-styles-isolated[ilustración].
 
 #figure(
-  image("../figures/example-14-6-microfrontend-parent-child.png", width: 100%),
+  box(
+    image("../figures/example-14-6-microfrontend-parent-child.png", width: 100%),
+    stroke: 2pt + black,
+  ),
   caption: [`parent` y `child` cargados con estilos aislados usando shadow root],
 ) <4-parent-child-styles-isolated>
-
-#requirementTraceabilityTable(
-  [#link(<styleInjectionGeneralRequirement>)[#req.styleInjectionGeneralRequirementId], #link(<standaloneGeneralRequirement>)[#req.standaloneGeneralRequirementId]],
-  [#link(<unmountRemoteAppFunctionalRequirement>)[#req.unmountRemoteAppFunctionalRequirementId], #link(<manageApplicationStylesFunctionalRequirement>)[#req.manageApplicationStylesFunctionalRequirementId], \ #link(<limitStyleConflictsFunctionalRequirement>)[#req.limitStyleConflictsFunctionalRequirementId], #link(<releaseStyleResourcesFunctionalRequirement>)[#req.releaseStyleResourcesFunctionalRequirementId]],
-  [#link(<resourceCleanupNonFunctionalRequirement>)[#req.resourceCleanupNonFunctionalRequirementId], #link(<styleIsolationNonFunctionalRequirement>)[#req.styleIsolationNonFunctionalRequirementId]],
-  [#link(<useStandaloneEntryUseCase>)[#req.useStandaloneEntryUseCaseId], #link(<isolateStylesUseCase>)[#req.isolateStylesUseCaseId]],
-)
